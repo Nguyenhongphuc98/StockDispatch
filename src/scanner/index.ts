@@ -1,11 +1,11 @@
-import express, { Express, Request, Response } from "express";
+import { Express, Request, Response } from "express";
 import { ResponseJson } from "../utils/response";
 import { ErrorCode } from "../utils/const";
 
 
 const SUBMIT_ENDPOINT = '/api/v1/scanner/submit';
 
-function connectScanner(req: express.Request, res: express.Response) {
+function connectScanner(req: Request, res: Response) {
     console.log('connected', req.body.key);
     
     res.send(new ResponseJson(ErrorCode.Success, {
@@ -15,7 +15,7 @@ function connectScanner(req: express.Request, res: express.Response) {
     }));
 }
 
-function onScanSuccess(req: express.Request, res: express.Response) {
+function onScanSuccess(req: Request, res: Response) {
     console.log('onScanSuccess', req.body);
     res.send('receive2');
 

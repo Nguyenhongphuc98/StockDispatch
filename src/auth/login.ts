@@ -42,23 +42,36 @@ export function authenticate(req: any, res: any, next: any) {
       if (hash === user.hash) {
         req.session.regenerate(function () {
           req.session.user = user;
+          req.session.success = 'Authenticated as ' + user.name;
         });
-        return next(null, user);
+        next();
+      } else {
+        res.send(
+            new ResponseJson(ErrorCode.InvalidAuth, {
+              mesage: "Invalid username or password",
+            }));
       }
-      return res.send(
-        new ResponseJson(ErrorCode.InvalidAuth, {
-          mesage: "Invalid username or password",
-        })
-      );
     }
   );
 }
 
 export function restrict(req: any, res: any, next: any) {
-  if (req.session.user) {
+    debugger;
+    console.log('session', req.session.id);
+  if (req.session.id) {
     next();
   } else {
     req.session.error = "Access denied!";
-    res.send(new ResponseJson(ErrorCode.PermissionDenied, {}));
+    res.send(new ResponseJson(ErrorCode.PermissionDenied, {
+        message: "Need auth before!"
+    }));
   }
+}
+
+export function logout(req: any, res: any, next: any) {
+    req.session.destroy(function(){
+        res.send(new ResponseJson(ErrorCode.Success, {
+            message: "Logout success!"
+        }));
+    });
 }

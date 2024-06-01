@@ -1,4 +1,3 @@
-import { authenticate, restrict } from "./auth/login";
 
 
 const env = require('dotenv');
@@ -7,8 +6,11 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 
+import { authenticate, logout, restrict } from "./auth/login";
+import { handleAddItem, handleGetItems} from './goods/item';
 
 const scanner = require('./scanner/index.ts');
+const db = require('./persistense');
 
 env.config();
 const app = express();
@@ -30,8 +32,8 @@ app.use(cookieParser());
 
 app.use(session({
   resave: false,
-  saveUninitialized: false,
-  secret: 'shhhh, very secret'
+  saveUninitialized: true,
+  secret: 'YwBJeI3ShQDdk7m8f_FvQY_aAF3N_v1r'
 }));
 
 app.use(function(req: any, res: any, next: any){
@@ -45,12 +47,24 @@ app.use(function(req: any, res: any, next: any){
   next();
 });
 
-
+app.post('/api/v1/login', authenticate);
+app.post('/api/v1/logout', logout);
 
 app.post('/api/v1/scanner/connect', authenticate, scanner.connectScanner);
-
 app.post('/api/v1/scanner/submit', restrict, scanner.onScanSuccess);
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+app.post('/api/v1/item', handleAddItem);
+app.get('/api/v1/items', handleGetItems);
+
+app.get('/', (req: any, res: any) => {
+  res.send('ok');
+});
+
+db.init().then(() => {
+  app.listen(8080, () => {
+    console.log(`Example app listening on port ${8080}`)
+  });
+}).catch((err: any) => {
+    console.error(err);
+    process.exit(1);
 });
