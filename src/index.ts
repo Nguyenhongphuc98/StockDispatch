@@ -50,7 +50,7 @@ app.use(function(req: any, res: any, next: any){
 app.post('/api/v1/login', authenticate);
 app.post('/api/v1/logout', logout);
 
-app.post('/api/v1/scanner/connect', authenticate, scanner.connectScanner);
+app.post('/api/v1/scanner/connect', scanner.parseSecrectKey, authenticate, scanner.connectScanner);
 app.post('/api/v1/scanner/submit', restrict, scanner.onScanSuccess);
 
 app.post('/api/v1/item', handleAddItem);
