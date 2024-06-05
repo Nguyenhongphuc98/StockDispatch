@@ -1,7 +1,7 @@
 import { Express, Request, Response } from "express";
 import { ResponseJson } from "../utils/response";
 import { ErrorCode } from "../utils/const";
-
+export * from '../persistense/users';
 
 const SUBMIT_ENDPOINT = '/api/v1/scanner/submit';
 
@@ -27,7 +27,7 @@ function parseSecrectKey(req: Request, res: Response, next: any) {
         return;
     }
     const key = denoiseKey(req.body.key);
-    const [username, password] = key.split("@");
+    const [username, password] = key.split("@"); // should use other key
     req.body.username = username;
     req.body.password = password;
     next();

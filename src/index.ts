@@ -1,4 +1,4 @@
-
+import "reflect-metadata";
 
 const env = require('dotenv');
 const express = require('express');
@@ -6,8 +6,10 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 
-import { authenticate, logout, restrict } from "./auth/login";
-import { handleAddItem, handleGetItems} from './goods/item';
+import { AppDataSource } from "./persistense/data-src";
+import { authenticate, logout, restrict } from "./account/auth";
+import { createAccount } from "./account/modify";
+// import { handleAddItem, handleGetItems} from './goods/item';
 
 const scanner = require('./scanner/index.ts');
 const db = require('./persistense');
@@ -47,24 +49,28 @@ app.use(function(req: any, res: any, next: any){
   next();
 });
 
+app.put('/api/v1/user', createAccount);
+
 app.post('/api/v1/login', authenticate);
 app.post('/api/v1/logout', logout);
 
 app.post('/api/v1/scanner/connect', scanner.parseSecrectKey, authenticate, scanner.connectScanner);
 app.post('/api/v1/scanner/submit', restrict, scanner.onScanSuccess);
 
-app.post('/api/v1/item', handleAddItem);
-app.get('/api/v1/items', handleGetItems);
+// app.post('/api/v1/item', handleAddItem);
+// app.get('/api/v1/items', handleGetItems);
 
 app.get('/', (req: any, res: any) => {
   res.send('ok');
 });
 
-db.init().then(() => {
-  app.listen(8080, () => {
-    console.log(`Example app listening on port ${8080}`)
-  });
-}).catch((err: any) => {
-    console.error(err);
-    process.exit(1);
-});
+AppDataSource.initialize()
+    .then(async () => {
+        console.log("Data Source has been initialized!");
+        app.listen(8080, () => {
+          console.log(`Example app listening on port ${8080}`)
+        });
+    })
+    .catch((err) => {
+        console.error("Error during Data Source initialization", err)
+    })
