@@ -1,23 +1,15 @@
 import { User } from "../persistense/users";
 import { ErrorCode } from "../utils/const";
-import { JsonResponse } from "../utils/response";
+import { JsonResponse, PermissionDeniedResponse, SuccessResponse, UnauthenResponse } from "../utils/response";
 import { buildHashedData } from "./utils";
 import { Request, Response } from "express";
 
 function respInvalid(res: Response) {
-  res.send(
-    new JsonResponse(ErrorCode.InvalidAuth, {
-      mesage: "Invalid username or password",
-    })
-  );
+  res.status(403).send(new UnauthenResponse({}));
 }
 
 function respValid(res: Response) {
-  res.send(
-    new JsonResponse(ErrorCode.Success, {
-      mesage: "Login success",
-    })
-  );
+  res.send(new SuccessResponse({}));
 }
 
 export async function authenticate(req: any, res: any, next: any) {
@@ -46,20 +38,16 @@ export async function authenticate(req: any, res: any, next: any) {
 
 export function restrict(req: any, res: any, next: any) {
     console.log('session', req.session.id);
-  if (req.session.id) {
+  if (req.session.user) {
     next();
   } else {
     req.session.error = "Access denied!";
-    res.send(new JsonResponse(ErrorCode.PermissionDenied, {
-        message: "Need auth before!"
-    }));
+    res.status(403).send(new PermissionDeniedResponse());
   }
 }
 
 export function logout(req: any, res: any, next: any) {
     req.session.destroy(function(){
-        res.send(new JsonResponse(ErrorCode.Success, {
-            message: "Logout success!"
-        }));
+        res.send(new SuccessResponse());
     });
 }

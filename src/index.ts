@@ -9,7 +9,7 @@ const path = require('path');
 const fs = require('fs');
 const marked = require('marked');
 
-import { AppDataSource } from "./persistense/data-src";
+import { AppDataSource, InitAdmin } from "./persistense/data-src";
 import { authenticate, logout, restrict } from "./account/auth";
 import { createAccount } from "./account/modify";
 import { defaultHandler } from "./utils/response";
@@ -57,7 +57,7 @@ app.post('/api/v1/login', authenticate);
 app.post('/api/v1/logout', logout);
 
 // user
-app.post('/api/v1/user', createAccount);
+app.post('/api/v1/user', restrict, createAccount);
 app.put('/api/v1/user/:id', defaultHandler);
 app.get('/api/v1/user', defaultHandler);
 
@@ -102,6 +102,12 @@ app.get('/export', (req: any, res: any) => {
 AppDataSource.initialize()
     .then(async () => {
         console.log("Data Source has been initialized!");
+
+        /**
+         * Create admin account
+         */
+        InitAdmin();
+
         app.listen(8080, () => {
           console.log(`Example app listening on port ${8080}`)
         });

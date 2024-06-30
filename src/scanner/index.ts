@@ -1,5 +1,5 @@
 import { Express, Request, Response } from "express";
-import { JsonResponse } from "../utils/response";
+import { JsonResponse, SuccessResponse } from "../utils/response";
 import { ErrorCode } from "../utils/const";
 export * from '../persistense/users';
 
@@ -45,9 +45,7 @@ export * from '../persistense/users';
 function onScanSuccess(req: Request, res: Response) {
     console.log('onScanSuccess', req.body);
     // const qrId = req.body.qrId;
-    res.send(new JsonResponse(ErrorCode.Success, {
-        hehe: 'hehehee',
-    }));
+    res.send(new SuccessResponse());
 
 }
 
