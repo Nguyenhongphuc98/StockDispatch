@@ -5,14 +5,17 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
+const path = require('path');
+const fs = require('fs');
+const marked = require('marked');
 
 import { AppDataSource } from "./persistense/data-src";
 import { authenticate, logout, restrict } from "./account/auth";
 import { createAccount } from "./account/modify";
+import { defaultHandler } from "./utils/response";
 // import { handleAddItem, handleGetItems} from './goods/item';
 
 const scanner = require('./scanner/index.ts');
-const db = require('./persistense');
 
 env.config();
 const app = express();
@@ -27,7 +30,7 @@ const corsOptions = {
 
 // console.log('aaa', express)
 
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(cookieParser());
@@ -49,19 +52,51 @@ app.use(function(req: any, res: any, next: any){
   next();
 });
 
-app.put('/api/v1/user', createAccount);
-
+// authen
 app.post('/api/v1/login', authenticate);
 app.post('/api/v1/logout', logout);
 
-app.post('/api/v1/scanner/connect', scanner.parseSecrectKey, authenticate, scanner.connectScanner);
-app.post('/api/v1/scanner/submit', restrict, scanner.onScanSuccess);
+// user
+app.post('/api/v1/user', createAccount);
+app.put('/api/v1/user/:id', defaultHandler);
+app.get('/api/v1/user', defaultHandler);
 
-// app.post('/api/v1/item', handleAddItem);
-// app.get('/api/v1/items', handleGetItems);
+// packing list
+app.post('/api/v1/pkl', defaultHandler);
+app.put('/api/v1/pkl/:id', defaultHandler);
+app.delete('/api/v1/pkl/:id', defaultHandler);
+app.get('/api/v1/pkl', defaultHandler);
+app.get('/api/v1/pkl/:id', defaultHandler);
 
-app.get('/', (req: any, res: any) => {
-  res.send('ok');
+app.post('/api/v1/item', defaultHandler);
+app.get('/api/v1/item', defaultHandler);
+
+// exporting
+app.put('/api/v1/mobile/export/:id', scanner.onScanSuccess);
+app.get('/api/v1/export', defaultHandler);
+app.get('/api/v1/export/:id', defaultHandler);
+
+// weighing
+app.put('/api/v1/mobile/weigh/:id', defaultHandler);
+app.get('/api/v1/weigh', defaultHandler);
+app.get('/api/v1/weigh/:id', defaultHandler);
+
+app.get('/', function(req, res) {
+  var path = __dirname + '/docs.md';
+  fs.readFile(path, 'utf8', function(err, data) {
+    if(err) {
+      console.log(err);
+    }
+    res.send(marked.parse(data.toString()));
+  });
+});
+
+app.get('/weigh', (req: any, res: any) => {
+  res.send('weigh');
+});
+
+app.get('/export', (req: any, res: any) => {
+  res.send('export');
 });
 
 AppDataSource.initialize()
@@ -73,4 +108,5 @@ AppDataSource.initialize()
     })
     .catch((err) => {
         console.error("Error during Data Source initialization", err)
-    })
+    });
+

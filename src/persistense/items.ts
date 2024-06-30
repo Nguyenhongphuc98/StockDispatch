@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, Unique, CreateDateColumn, UpdateDateColumn, ManyToOne } from "typeorm";
-import { PackingList } from "./packing-lists";
+// import { PackingList } from "./packing-lists";
 
 
 @Entity('Item')
@@ -14,8 +14,8 @@ export class Item extends BaseEntity {
     @UpdateDateColumn()
     updateAt: string;
 
-    @ManyToOne(() => PackingList, (pl) => pl.items)
-    packingList: PackingList;
+    // @ManyToOne(() => PackingList, (pl) => pl.items)
+    // packingList: PackingList;
 
     @Column('text')
     scanner: string;

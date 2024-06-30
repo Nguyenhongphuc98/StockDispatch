@@ -1,6 +1,6 @@
 import { Role, User } from "../persistense/users";
 import { ErrorCode } from "../utils/const";
-import { ResponseJson } from "../utils/response";
+import { JsonResponse } from "../utils/response";
 import { buildHashedData } from "./utils";
 import { Request, Response } from "express";
 
@@ -11,7 +11,7 @@ export async function createAccount(req: Request, res: Response, next: any) {
   const existed = await User.findOneBy({ username: username });
   if (existed) {
     res.send(
-      new ResponseJson(ErrorCode.AccountExists, {
+      new JsonResponse(ErrorCode.AccountExists, {
         message: "username already exists!",
       })
     );
@@ -32,7 +32,7 @@ export async function createAccount(req: Request, res: Response, next: any) {
   await user.save();
 
   res.send(
-    new ResponseJson(ErrorCode.Success, {
+    new JsonResponse(ErrorCode.Success, {
       message: "create account success!",
     })
   );

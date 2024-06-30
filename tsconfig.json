@@ -1,5 +1,11 @@
 {
     "compilerOptions": {
-        "noEmitOnError": true
+        "lib": ["es5", "es6", "dom"],
+        "target": "ES6",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "noEmitOnError": true,
     }
 }

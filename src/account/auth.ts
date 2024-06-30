@@ -1,12 +1,12 @@
 import { User } from "../persistense/users";
 import { ErrorCode } from "../utils/const";
-import { ResponseJson } from "../utils/response";
+import { JsonResponse } from "../utils/response";
 import { buildHashedData } from "./utils";
 import { Request, Response } from "express";
 
 function respInvalid(res: Response) {
   res.send(
-    new ResponseJson(ErrorCode.InvalidAuth, {
+    new JsonResponse(ErrorCode.InvalidAuth, {
       mesage: "Invalid username or password",
     })
   );
@@ -14,7 +14,7 @@ function respInvalid(res: Response) {
 
 function respValid(res: Response) {
   res.send(
-    new ResponseJson(ErrorCode.Success, {
+    new JsonResponse(ErrorCode.Success, {
       mesage: "Login success",
     })
   );
@@ -50,7 +50,7 @@ export function restrict(req: any, res: any, next: any) {
     next();
   } else {
     req.session.error = "Access denied!";
-    res.send(new ResponseJson(ErrorCode.PermissionDenied, {
+    res.send(new JsonResponse(ErrorCode.PermissionDenied, {
         message: "Need auth before!"
     }));
   }
@@ -58,7 +58,7 @@ export function restrict(req: any, res: any, next: any) {
 
 export function logout(req: any, res: any, next: any) {
     req.session.destroy(function(){
-        res.send(new ResponseJson(ErrorCode.Success, {
+        res.send(new JsonResponse(ErrorCode.Success, {
             message: "Logout success!"
         }));
     });

@@ -6,24 +6,27 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon -r ts-node/register .",
-    "start-dev": "nodemon --inspect -r ts-node/register ."
+    "start-dev": "nodemon --inspect-brk -r ts-node/register ."
   },
   "author": "nguyenhongphuc98@gmail.com",
   "license": "ISC",
   "dependencies": {
+    "@types/node": "^20.13.0",
     "body-parser": "^1.20.2",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "express-session": "^1.18.0",
+    "marked": "^13.0.1",
     "nodemon": "^3.1.2",
     "pbkdf2-password": "^1.2.1",
+    "reflect-metadata": "^0.2.2",
     "sqlite3": "^5.1.2",
     "ts-node": "^10.9.2",
+    "typeorm": "^0.3.20",
     "typescript": "^5.4.5",
-    "uuid": "^9.0.0",
-    "@types/node": "^20.13.0"
+    "uuid": "^9.0.0"
   },
   "compilerOptions": {
     "target": "es5",
