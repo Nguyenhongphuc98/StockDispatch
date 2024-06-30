@@ -52,7 +52,6 @@ export class User extends BaseEntity {
   public model() {
 	return {
 		username: this.username,
-		password: this.password,
 		displayName: this.displayName,
 		isActive: this.isActive,
 		role: this.role,

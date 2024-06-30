@@ -8,8 +8,8 @@ function respInvalid(res: Response) {
   res.status(403).send(new UnauthenResponse({}));
 }
 
-function respValid(res: Response) {
-  res.send(new SuccessResponse({}));
+function respValid(res: Response, data: any) {
+  res.send(new SuccessResponse(data));
 }
 
 export async function authenticate(req: any, res: any, next: any) {
@@ -31,7 +31,7 @@ export async function authenticate(req: any, res: any, next: any) {
         req.session.user = user;
         req.session.success = 'Authenticated as ' + user.username;
       });
-      respValid(res);
+      respValid(res, user.model());
     }
   }
 }
