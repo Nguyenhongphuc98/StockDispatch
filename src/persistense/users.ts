@@ -74,8 +74,8 @@ export class User extends BaseEntity {
     user.isActive = true;
     user.role = role;
 
-	await user.save();
+    await user.save();
 
-	return user.model();
+    return user.model();
   }
 }

@@ -21,11 +21,15 @@ env.config();
 const app = express();
 const port = process.env.port;
 
+const origins = ["http://127.0.0.1:5500", "http://127.0.0.1:3000", "http://localhost:3000"];
 const corsOptions = {
-  "origin": "*",
+  "origin": origins,
+  "Access-Control-Allow-Credentials": true,
+  "credentials": true,
+  "Access-Control-Allow-Origin" : origins,
   "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
   "preflightContinue": false,
-  "optionsSuccessStatus": 204
+  "optionsSuccessStatus": 204,
 }
 
 // console.log('aaa', express)
@@ -36,9 +40,15 @@ app.use(express.urlencoded());
 app.use(cookieParser());
 
 app.use(session({
-  resave: false,
+  resave: true,
   saveUninitialized: true,
-  secret: 'YwBJeI3ShQDdk7m8f_FvQY_aAF3N_v1r'
+  secret: 'YwBJeI3ShQDdk7m8f_FvQY_aAF3N_v1r',
+  cookie: {
+    secure: false,
+    httpOnly: true,
+    sameSite: 'lax',
+    maxAge: 7 * 24 * 1000 * 60 * 60, 
+  },
 }));
 
 app.use(function(req: any, res: any, next: any){
@@ -54,7 +64,7 @@ app.use(function(req: any, res: any, next: any){
 
 // authen
 app.post('/api/v1/login', authenticate);
-app.post('/api/v1/logout', logout);
+app.post('/api/v1/logout', restrict, logout);
 
 // user
 app.post('/api/v1/user', restrict, createAccount);
@@ -115,4 +125,7 @@ AppDataSource.initialize()
     .catch((err) => {
         console.error("Error during Data Source initialization", err)
     });
+
+    //git pull https://nguyenhongphuc98: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@github.com/Nguyenhongphuc98/StockDispatch.git
+    //docker-compose up -d 
 

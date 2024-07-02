@@ -13,10 +13,11 @@ function respValid(res: Response, data: any) {
 }
 
 export async function authenticate(req: any, res: any, next: any) {
+
   const username = req.body.username;
   const password = req.body.password;
 
-  console.log("authenticating %s:%s", username, password);
+  console.log("authenticating ", username, password);
   const user = await User.findOneBy({username: username});
 
 
@@ -30,6 +31,7 @@ export async function authenticate(req: any, res: any, next: any) {
       req.session.regenerate(function () {
         req.session.user = user;
         req.session.success = 'Authenticated as ' + user.username;
+        req.session.save();
       });
       respValid(res, user.model());
     }
@@ -37,7 +39,7 @@ export async function authenticate(req: any, res: any, next: any) {
 }
 
 export function restrict(req: any, res: any, next: any) {
-    console.log('session', req.session.id);
+    console.log('session', req.session.user);
   if (req.session.user) {
     next();
   } else {
