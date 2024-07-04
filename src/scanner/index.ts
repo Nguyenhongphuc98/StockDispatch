@@ -1,7 +1,7 @@
 import { Express, Request, Response } from "express";
 import { JsonResponse, SuccessResponse } from "../utils/response";
 import { ErrorCode } from "../utils/const";
-export * from '../persistense/users';
+// export * from '../persistense/users';
 
 // const SUBMIT_ENDPOINT = '/api/v1/scanner/submit';
 

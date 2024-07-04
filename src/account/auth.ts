@@ -1,6 +1,12 @@
 import { User } from "../persistense/users";
 import { ErrorCode } from "../utils/const";
-import { JsonResponse, PermissionDeniedResponse, SuccessResponse, UnauthenResponse } from "../utils/response";
+import {
+  JsonResponse,
+  PermissionDeniedResponse,
+  SuccessResponse,
+  UnauthenResponse,
+} from "../utils/response";
+import AppSession from "./session";
 import { buildHashedData } from "./utils";
 import { Request, Response } from "express";
 
@@ -12,44 +18,51 @@ function respValid(res: Response, data: any) {
   res.send(new SuccessResponse(data));
 }
 
-export async function authenticate(req: any, res: any, next: any) {
+function genNewToken(req: Request) {}
 
-  const username = req.body.username;
-  const password = req.body.password;
+export async function requestLogin(req: Request, resp: Response) {
+  const authenSession = AppSession.createAuthenSession();
+  resp.send(new SuccessResponse(authenSession));
+}
 
-  console.log("authenticating ", username, password);
-  const user = await User.findOneBy({username: username});
+export async function login(req: any, res: any, next: any) {
+  const encryptedAuth = req.body.auth;
+  const sessionId = req.headers.sessionid;
+  const auth = AppSession.getAuthData(sessionId, encryptedAuth);
 
+  console.log("authe", sessionId, auth);
+
+  const user = await User.findOneBy({ username: auth.username });
 
   if (!user) {
     respInvalid(res);
   } else {
-    const hashed = await buildHashedData(password, user.salt);
+    const hashed = await buildHashedData(auth.password, user.salt);
     if (hashed.hash !== user.password) {
       respInvalid(res);
     } else {
-      req.session.regenerate(function () {
-        req.session.user = user;
-        req.session.success = 'Authenticated as ' + user.username;
-        req.session.save();
+      const encryptedKey = AppSession.createUserSession(sessionId, user);
+      respValid(res, {
+        user: user.model(),
+        encryptedKey,
       });
-      respValid(res, user.model());
     }
   }
 }
 
 export function restrict(req: any, res: any, next: any) {
-    console.log('session', req.session.user);
-  if (req.session.user) {
+  const sessionId = req.headers.sessionid;
+  console.log("session: ", sessionId);
+
+  if (AppSession.isActiveSession(sessionId)) {
     next();
   } else {
-    req.session.error = "Access denied!";
     res.status(403).send(new PermissionDeniedResponse());
   }
 }
 
 export function logout(req: any, res: any, next: any) {
-    req.session.destroy(function(){
-        res.send(new SuccessResponse());
-    });
+  const sessionId = req.headers.sessionid;
+  AppSession.destroySession(sessionId);
+  res.send(new SuccessResponse());
 }

@@ -10,7 +10,7 @@ const fs = require('fs');
 const marked = require('marked');
 
 import { AppDataSource, InitAdmin } from "./persistense/data-src";
-import { authenticate, logout, restrict } from "./account/auth";
+import { login, logout, requestLogin, restrict } from "./account/auth";
 import { createAccount } from "./account/modify";
 import { defaultHandler } from "./utils/response";
 // import { handleAddItem, handleGetItems} from './goods/item';
@@ -39,31 +39,10 @@ app.use(express.json());
 app.use(express.urlencoded());
 app.use(cookieParser());
 
-app.use(session({
-  resave: true,
-  saveUninitialized: true,
-  secret: 'YwBJeI3ShQDdk7m8f_FvQY_aAF3N_v1r',
-  cookie: {
-    secure: false,
-    httpOnly: true,
-    sameSite: 'lax',
-    maxAge: 7 * 24 * 1000 * 60 * 60, 
-  },
-}));
 
-app.use(function(req: any, res: any, next: any){
-  var err = req.session.error;
-  var msg = req.session.success;
-  delete req.session.error;
-  delete req.session.success;
-  res.locals.message = '';
-  if (err) res.locals.message = '<p class="msg error">' + err + '</p>';
-  if (msg) res.locals.message = '<p class="msg success">' + msg + '</p>';
-  next();
-});
-
-// authen
-app.post('/api/v1/login', authenticate);
+// authen 
+app.get('/api/v1/reqlogin', requestLogin);
+app.post('/api/v1/login', login);
 app.post('/api/v1/logout', restrict, logout);
 
 // user
