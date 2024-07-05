@@ -10,7 +10,7 @@ const fs = require('fs');
 const marked = require('marked');
 
 import { AppDataSource, InitAdmin } from "./persistense/data-src";
-import { login, logout, requestLogin, restrict } from "./account/auth";
+import { getUserInfo, login, logout, requestLogin, restrict } from "./account/auth";
 import { createAccount } from "./account/modify";
 import { defaultHandler } from "./utils/response";
 // import { handleAddItem, handleGetItems} from './goods/item';
@@ -44,6 +44,7 @@ app.use(cookieParser());
 app.get('/api/v1/reqlogin', requestLogin);
 app.post('/api/v1/login', login);
 app.post('/api/v1/logout', restrict, logout);
+app.get('/api/v1/authenticate', restrict, getUserInfo);
 
 // user
 app.post('/api/v1/user', restrict, createAccount);
@@ -106,5 +107,7 @@ AppDataSource.initialize()
     });
 
     //git pull https://nguyenhongphuc98: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@github.com/Nguyenhongphuc98/StockDispatch.git
+    // docker-compose down
     //docker-compose up -d 
 
+    // ssh root@164.90.186.39 1310312240

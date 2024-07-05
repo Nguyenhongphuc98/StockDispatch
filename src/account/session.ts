@@ -1,10 +1,12 @@
-import { User } from "../persistense/users";
+import { UserModel } from "../persistense/users";
 import {
   generateKeyPairSync,
   randomUUID,
   randomBytes,
   privateDecrypt,
 } from "crypto";
+import { AES, enc } from "crypto-js";
+// var CryptoJS = require("crypto-js");
 
 const IV = "3fa85061a5feaf082ceb752cd360aef4";
 const PASSPHRASE = "66771508028AzaZ!@";
@@ -22,13 +24,14 @@ type AuthenSession = {
 type AuthData = {
   username: string;
   password: string;
+  key: string;
 };
 
 class Session {
   /**
    * Mapping sessionId-user
    */
-  sessionMap = new Map<string, User>();
+  sessionMap = new Map<string, UserModel>();
 
   /**
    * Mapping sessionId-encryptKey
@@ -75,12 +78,9 @@ class Session {
     };
   }
 
-  createUserSession(sessionId: string, user: User) {
-    const encryptKey = randomUUID();
+  createUserSession(sessionId: string, user: UserModel, encryptKey: string) {
     this.sessionMap.set(sessionId, user);
     this.encryptKeyMap.set(sessionId, encryptKey);
-
-    return encryptKey;
   }
 
   getAuthData(sessionId: string, encryptedData: string): AuthData {
@@ -90,6 +90,7 @@ class Session {
     const defaultResp = {
       username: "",
       password: "",
+      key: "",
     };
 
     if (!authenCache) {
@@ -112,14 +113,31 @@ class Session {
     }
   }
 
+  getActiveUser(sessionId: string) {
+    return this.sessionMap.get(sessionId);
+  }
+
   isActiveSession(sessionId: string) {
-    debugger;
     return this.sessionMap.has(sessionId);
   }
 
   destroySession(sessionId: string) {
     this.sessionMap.delete(sessionId);
     this.encryptKeyMap.delete(sessionId);
+  }
+
+  aesEncrypt(sessionId: string, rawData: any) {
+    const secretKey = this.encryptKeyMap.get(sessionId);
+    const ciphertext = AES.encrypt(JSON.stringify(rawData), secretKey).toString();
+    return ciphertext;
+  }
+
+  aaesDecrypt(sessionId: string, encryptedData: any) {
+    const secretKey = this.encryptKeyMap.get(sessionId);
+    const bytes = AES.decrypt(encryptedData, secretKey);
+    const rawData = JSON.parse(bytes.toString(enc.Utf8));
+
+    return rawData;
   }
 }
 

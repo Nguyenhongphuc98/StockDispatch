@@ -17,6 +17,14 @@ export enum Role {
   User = 2,
 }
 
+export type UserModel = {
+  id: string,
+  username: string,
+  displayName: string,
+  isActive: boolean,
+  role: Role,
+}
+
 @Entity("User")
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn({})
@@ -49,13 +57,14 @@ export class User extends BaseEntity {
   // @OneToMany(() => PackingList, pl => pl.updater)
   // packingLists: PackingList;
 
-  public model() {
-	return {
-		username: this.username,
-		displayName: this.displayName,
-		isActive: this.isActive,
-		role: this.role,
-	}
+  public model(): UserModel {
+    return {
+      id: this.id,
+      username: this.username,
+      displayName: this.displayName,
+      isActive: this.isActive,
+      role: this.role,
+    };
   }
 
   static async newAccount(

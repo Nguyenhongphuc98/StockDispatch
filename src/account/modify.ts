@@ -8,10 +8,11 @@ export async function createAccount(req: Request, res: Response, next: any) {
   const username = req.body.username;
   const password = req.body.password;
   const displayName = req.body.displayName;
+  const sessionId = req.headers.sessionid as string;
 
   const existed = await User.findOneBy({ username: username });
   if (existed) {
-    res.send(new AccountExistsResponse());
+    res.send(new AccountExistsResponse(sessionId));
     return;
   }
 
@@ -19,5 +20,5 @@ export async function createAccount(req: Request, res: Response, next: any) {
 
   const user = await  User.newAccount(username, password, displayName, Role.User);
 
-  res.send(new SuccessResponse(user));
+  res.send(new SuccessResponse(sessionId, user));
 }
