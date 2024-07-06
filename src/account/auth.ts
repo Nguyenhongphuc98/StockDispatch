@@ -31,7 +31,7 @@ export async function login(req: any, res: any, next: any) {
   const sessionId = req.headers.sessionid;
   const auth = AppSession.getAuthData(sessionId, encryptedAuth);
 
-  console.log("authe", sessionId, auth);
+  console.log("login", sessionId, auth);
 
   const user = await User.findOneBy({ username: auth.username });
 

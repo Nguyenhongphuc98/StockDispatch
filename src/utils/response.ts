@@ -7,7 +7,17 @@ export class JsonResponse {
     protected data: Record<string, any>;
 
     constructor(readonly error_code: ErrorCode, readonly message: string, sessionId: string, data: Record<string, any>) {
-        this.data = Object.keys(data).length == 0 ? data : AppSession.aesEncrypt(sessionId, data);
+
+        this.data = {};
+
+        if (Object.keys(data).length !== 0) {
+            try {
+                this.data = AppSession.aesEncrypt(sessionId, data)
+            } catch(e) {
+                console.log("Encrypt to resp err:", data, e);
+            };
+        }
+       
     }
 }
 
