@@ -15,6 +15,7 @@ import { user } from "./route/user";
 import { pkl } from "./route/pkl";
 import { doExport } from "./route/export";
 import { weigh } from "./route/weigh";
+import { corsOptions } from "./cors";
 
 
 
@@ -22,20 +23,6 @@ env.config();
 const app = express();
 const port = process.env.port;
 
-const origins = [
-  "http://127.0.0.1:5500",
-  "http://127.0.0.1:3000",
-  "http://localhost:3000",
-];
-const corsOptions = {
-  origin: origins,
-  "Access-Control-Allow-Credentials": true,
-  credentials: true,
-  "Access-Control-Allow-Origin": origins,
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  preflightContinue: false,
-  optionsSuccessStatus: 204,
-};
 app.use(cors(corsOptions));
 
 const server = http.createServer(app);
@@ -50,7 +37,7 @@ app.use(express.urlencoded());
 app.use(cookieParser());
 app.use((req: Request, resp: Response, next: any) => {
   //@ts-ignore
-  console.log(Date.now(), ": receive req: ", req.method, req.url, req.body, req.headers.sessionid);
+  console.log(new Date().toLocaleString(), ": receive req: ", req.method, req.url, req.body, req.headers.sessionid);
   next();
 });
 

@@ -1,25 +1,13 @@
 import AppSession from "./account/session";
+import { corsOptions } from "./cors";
 import { AppDataSource, InitAdmin } from "./persistense/data-src";
 import { Server as SocketIOServer, Socket } from 'socket.io';
+import { handleSocket } from "./socket";
 
-const origins = [
-    "http://127.0.0.1:5500",
-    "http://127.0.0.1:3000",
-    "http://localhost:3000",
-  ];
-  const corsOptions = {
-    origin: origins,
-    "Access-Control-Allow-Credentials": true,
-    credentials: true,
-    "Access-Control-Allow-Origin": origins,
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
-  };
 
 export function start(server) {
   const io = new SocketIOServer(server, {
-    cors: corsOptions 
+    cors: corsOptions,
   });
   AppDataSource.initialize()
     .then(async () => {
@@ -35,22 +23,8 @@ export function start(server) {
       });
 
       io.on("connection", (socket: Socket) => {
-        console.log(`Client connected: ${socket.id}`);
-        debugger;
-        // if (AppSession.isActiveSession(sessionId))
-    
-    
-        // Handle 'chat message' events
-        socket.on("chat message", (msg: string) => {
-          console.log(`Message from ${socket.id}: ${msg}`);
-          // Broadcast the message to all connected clients
-          io.emit("chat message", msg);
-        });
-    
-        // Handle 'disconnect' events
-        socket.on("disconnect", () => {
-          console.log(`Client disconnected: ${socket.id}`);
-        });
+        console.log(`Client connected: ${socket.id}`);  
+        handleSocket(socket);
       });
     })
     .catch((err) => {

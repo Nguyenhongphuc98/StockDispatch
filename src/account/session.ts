@@ -6,6 +6,7 @@ import {
   privateDecrypt,
 } from "crypto";
 import { AES, enc } from "crypto-js";
+import { Socket } from "socket.io";
 // var CryptoJS = require("crypto-js");
 
 const IV = "3fa85061a5feaf082ceb752cd360aef4";
@@ -42,6 +43,11 @@ class Session {
    * Mapping sessionId-authenKey
    */
   authenMap = new Map<string, AuthenKey>();
+
+  /**
+   * Mapping sessionId-socket
+   */
+  socketMap = new Map<string, Socket>();
 
   constructor() {}
 
@@ -119,6 +125,19 @@ class Session {
 
   isActiveSession(sessionId: string) {
     return this.sessionMap.has(sessionId);
+  }
+
+  updateSocket(sessionId: string, socket: Socket) {
+    this.socketMap.set(sessionId, socket);
+  }
+
+  getSocketSession(socketId: string) {
+    return Array.from(this.socketMap.values()).find(socket => socket.id == socketId);
+  }
+
+  destroySocketSession(socketId: string) {
+    const sessionId = Array.from(this.socketMap.keys()).find(sid => this.socketMap.get(sid)?.id == socketId);
+    this.socketMap.delete(sessionId);
   }
 
   destroySession(sessionId: string) {

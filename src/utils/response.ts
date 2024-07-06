@@ -1,4 +1,3 @@
-import { ERROR } from "sqlite3";
 import AppSession from "../account/session";
 import { ErrorCode } from "./const";
 import { Express, Request, Response } from "express";
