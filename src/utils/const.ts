@@ -4,4 +4,5 @@ export enum ErrorCode {
     PermissionDenied = 2,
     InvalidAuth = 3,
     AccountExists = 4,
+    SessionNotFound = 5,
 }

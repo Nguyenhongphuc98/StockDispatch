@@ -6,8 +6,8 @@ import {
   privateDecrypt,
 } from "crypto";
 import { AES, enc } from "crypto-js";
-import { Socket } from "socket.io";
-// var CryptoJS = require("crypto-js");
+import socketMamanger from "../socket/socket-manager";
+import Logger from "../loger"
 
 const IV = "3fa85061a5feaf082ceb752cd360aef4";
 const PASSPHRASE = "66771508028AzaZ!@";
@@ -29,6 +29,9 @@ type AuthData = {
 };
 
 class Session {
+
+  tag: string = "AppSession";
+
   /**
    * Mapping sessionId-user
    */
@@ -43,11 +46,6 @@ class Session {
    * Mapping sessionId-authenKey
    */
   authenMap = new Map<string, AuthenKey>();
-
-  /**
-   * Mapping sessionId-socket
-   */
-  socketMap = new Map<string, Socket>();
 
   constructor() {}
 
@@ -114,7 +112,7 @@ class Session {
 
       return authData;
     } catch (error) {
-      console.error("Decryption Error:", error);
+      Logger.error(this.tag, "Decryption Auth Error:", error);
       return defaultResp;
     }
   }
@@ -127,27 +125,19 @@ class Session {
     return this.sessionMap.has(sessionId);
   }
 
-  updateSocket(sessionId: string, socket: Socket) {
-    this.socketMap.set(sessionId, socket);
-  }
-
-  getSocketSession(socketId: string) {
-    return Array.from(this.socketMap.values()).find(socket => socket.id == socketId);
-  }
-
-  destroySocketSession(socketId: string) {
-    const sessionId = Array.from(this.socketMap.keys()).find(sid => this.socketMap.get(sid)?.id == socketId);
-    this.socketMap.delete(sessionId);
-  }
-
   destroySession(sessionId: string) {
+    Logger.error(this.tag, "Destroy:", sessionId, this.sessionMap.get(sessionId)?.username);
     this.sessionMap.delete(sessionId);
     this.encryptKeyMap.delete(sessionId);
+    socketMamanger.destroySocketSessionBySessiontId(sessionId);
   }
 
   aesEncrypt(sessionId: string, rawData: any) {
     const secretKey = this.encryptKeyMap.get(sessionId);
-    const ciphertext = AES.encrypt(JSON.stringify(rawData), secretKey).toString();
+    const ciphertext = AES.encrypt(
+      JSON.stringify(rawData),
+      secretKey
+    ).toString();
     return ciphertext;
   }
 

@@ -53,6 +53,15 @@ export class NotEncryptSuccessResponse {
     }
 }
 
+export class NotEncryptSessionNotFoundResponse {
+    message = "No session.";
+    error_code = ErrorCode.SessionNotFound;
+
+    constructor(readonly data: Record<string, any> = {}) {
+        
+    }
+}
+
 export function defaultHandler(req: Request, res: Response) {
     console.log(Date.now(), ": receive req: ", req.method, req.url, req.body)
     res.send(new NotEncryptSuccessResponse({

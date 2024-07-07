@@ -1,6 +1,9 @@
 import { Express, Request, Response } from "express";
-import { JsonResponse, NotEncryptSuccessResponse, SuccessResponse } from "../utils/response";
+import { JsonResponse, NotEncryptSessionNotFoundResponse, NotEncryptSuccessResponse, SuccessResponse } from "../utils/response";
 import { ErrorCode } from "../utils/const";
+import ExportManager from "../export/export-manager";
+import AppSession from "../account/session";
+import socketMamanger from "../socket/socket-manager";
 // export * from '../persistense/users';
 
 // const SUBMIT_ENDPOINT = '/api/v1/scanner/submit';
@@ -42,15 +45,34 @@ import { ErrorCode } from "../utils/const";
 //     }));
 // }
 
-function onScanSuccess(req: Request, res: Response) {
-    console.log('onScanSuccess', req.body);
+export function onExportItem(req: Request, res: Response) {
+    const rawData = req.body;
+    console.log('onExportItem', rawData);
+    
+    if (ExportManager.doesSessionExists(rawData.sessionId)) {
+         //TODO: update progress to DB
+         // get item from db
+
+        socketMamanger.broasdcast("export", {
+            itemProps: 'props',
+        });
+    } else {
+        // not found export session
+        res.status(403).send(new NotEncryptSessionNotFoundResponse());
+    }
+    res.send(new NotEncryptSuccessResponse());
+
+}
+
+export function onWeighItem(req: Request, res: Response) {
+    console.log('onWeighItem', req.body);
     // const qrId = req.body.qrId;
     res.send(new NotEncryptSuccessResponse());
 
 }
 
-module.exports = {
-    // connectScanner,
-    onScanSuccess,
-    // parseSecrectKey,
-};
+// module.exports = {
+//     // connectScanner,
+//     onScanSuccess,
+//     // parseSecrectKey,
+// };

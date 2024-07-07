@@ -16,6 +16,7 @@ import { pkl } from "./route/pkl";
 import { doExport } from "./route/export";
 import { weigh } from "./route/weigh";
 import { corsOptions } from "./cors";
+import Logger from "./loger";
 
 
 
@@ -37,7 +38,7 @@ app.use(express.urlencoded());
 app.use(cookieParser());
 app.use((req: Request, resp: Response, next: any) => {
   //@ts-ignore
-  console.log(new Date().toLocaleString(), ": receive req: ", req.method, req.url, req.body, req.headers.sessionid);
+  Logger.log("[Gateway]", req.method, req.url, req.body, req.headers.sessionid);
   next();
 });
 
@@ -76,3 +77,6 @@ start(server);
 
 // ssh root@164.90.186.39 1310312240
 // restart lai sv khi crash
+// add create At req and only allow in 10s timeout,
+// if some one replay req -> cache 10s reject, >10s invalid
+// logs file
