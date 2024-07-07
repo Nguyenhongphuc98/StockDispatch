@@ -10,6 +10,9 @@ import {
 import AppSession from "./session";
 import { buildHashedData } from "./utils";
 import { Request, Response } from "express";
+import Logger from "../loger";
+
+const TAG = "[Auth]";
 
 function respInvalid(res: Response, sessionId: string) {
   res.status(403).send(new UnauthenResponse(sessionId));
@@ -31,7 +34,7 @@ export async function login(req: any, res: any, next: any) {
   const sessionId = req.headers.sessionid;
   const auth = AppSession.getAuthData(sessionId, encryptedAuth);
 
-  console.log("login", sessionId, auth);
+  Logger.log(TAG, "login", sessionId, auth);
 
   const user = await User.findOneBy({ username: auth.username });
 
@@ -63,11 +66,12 @@ export function getUserInfo(req: Request, res: Response, next: any) {
 
 export function restrict(req: any, res: any, next: any) {
   const sessionId = req.headers.sessionid;
-  console.log("session: ", sessionId);
 
   if (AppSession.isActiveSession(sessionId)) {
+    Logger.log(TAG, "pass restrict", sessionId, AppSession.getActiveUser(sessionId).username);
     next();
   } else {
+    Logger.error(TAG, "fail restrict", sessionId);
     res.status(403).send(new PermissionDeniedResponse(sessionId));
   }
 }

@@ -1,17 +1,20 @@
 import AppSession from "../account/session";
+import aeswrapper from "../secure/aes";
 import { ErrorCode } from "./const";
 import { Express, Request, Response } from "express";
+import Logger from "../loger";
 
 export class JsonResponse {
     protected data: Record<string, any>;
 
     constructor(readonly error_code: ErrorCode, readonly message: string, sessionId: string, data: Record<string, any>) {
+        Logger.error("[Resp]", message, data);
 
         this.data = {};
 
         if (Object.keys(data).length !== 0) {
             try {
-                this.data = AppSession.aesEncrypt(sessionId, data)
+                this.data = aeswrapper.encrypt(sessionId, data)
             } catch(e) {
                 console.log("Encrypt to resp err:", data, e);
             };
@@ -38,6 +41,12 @@ export class AccountExistsResponse extends JsonResponse {
     }
 }
 
+export class AccountNotExistsResponse extends JsonResponse {
+    constructor(sessionId: string, data: Record<string, any> = {}) {
+        super(ErrorCode.AccountExists, "Account not exists", sessionId, data);
+    }
+}
+
 export class SuccessResponse extends JsonResponse {
     constructor(sessionId: string, data: Record<string, any> = {}) {
         super(ErrorCode.Success, "success request", sessionId, data);
@@ -47,6 +56,15 @@ export class SuccessResponse extends JsonResponse {
 export class NotEncryptSuccessResponse {
     message = "Request success.";
     error_code = ErrorCode.Success;
+
+    constructor(readonly data: Record<string, any> = {}) {
+        
+    }
+}
+
+export class InvalidPayloadResponse {
+    message = "Payload invalid.";
+    error_code = ErrorCode.InvalidPayload;
 
     constructor(readonly data: Record<string, any> = {}) {
         

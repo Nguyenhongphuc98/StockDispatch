@@ -67,6 +67,18 @@ export class User extends BaseEntity {
     };
   }
 
+  async updatePassword(newPassword: string) {
+    const hashed = await buildHashedData(newPassword);
+    this.password = hashed.hash;
+    this.salt = hashed.salt;
+    await this.save();
+  }
+
+  async updateDisplayName(newDispalayName: string) {
+    this.displayName = newDispalayName;
+    await this.save();
+  }
+
   static async newAccount(
     username: string,
     password: string,

@@ -5,4 +5,5 @@ export enum ErrorCode {
     InvalidAuth = 3,
     AccountExists = 4,
     SessionNotFound = 5,
+    InvalidPayload = 6,
 }

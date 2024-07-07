@@ -1,7 +1,5 @@
 
 
-import { getUserInfo, login, logout, requestLogin, restrict } from "../account/auth";
-import { createAccount } from "../account/modify";
 import { defaultHandler } from "../utils/response";
 
 export function weigh(app) {

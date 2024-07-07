@@ -5,7 +5,7 @@ import Logger from "../loger";
 import { SocketChanel } from "./type";
 
 export class SocketSession {
-  tag: string = "[Socket-session]";
+  tag: string = "[Socket][session]";
   
   authenticated: boolean;
 

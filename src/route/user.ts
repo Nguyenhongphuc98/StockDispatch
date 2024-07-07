@@ -1,11 +1,10 @@
 
-import { getUserInfo, login, logout, requestLogin, restrict } from "../account/auth";
-import { createAccount } from "../account/modify";
-import { defaultHandler } from "../utils/response";
+import { restrict } from "../account/auth";
+import { authorizeModifyAccount, createAccount, listAccounts, updateAccount } from "../account/modify";
+import { decryptBody } from "../secure/aes";
 
-export function user(app) {
-    app.post('/api/v1/user', restrict, createAccount);
-    app.put('/api/v1/user/:id', defaultHandler);
-    app.get('/api/v1/user', defaultHandler);
+export function user(app: any) {
+    app.post('/api/v1/user', restrict, authorizeModifyAccount, decryptBody, createAccount);
+    app.put('/api/v1/user/:id', restrict, authorizeModifyAccount, decryptBody, updateAccount);
+    app.get('/api/v1/user', restrict, authorizeModifyAccount, listAccounts);
 }
-

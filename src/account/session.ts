@@ -5,8 +5,9 @@ import {
   randomBytes,
   privateDecrypt,
 } from "crypto";
-import { AES, enc } from "crypto-js";
+
 import socketMamanger from "../socket/socket-manager";
+import aeswrapper from "../secure/aes";
 import Logger from "../loger"
 
 const IV = "3fa85061a5feaf082ceb752cd360aef4";
@@ -30,22 +31,17 @@ type AuthData = {
 
 class Session {
 
-  tag: string = "AppSession";
+  private tag: string = "AppSession";
 
   /**
    * Mapping sessionId-user
    */
-  sessionMap = new Map<string, UserModel>();
-
-  /**
-   * Mapping sessionId-encryptKey
-   */
-  encryptKeyMap = new Map<string, string>();
+  private sessionMap = new Map<string, UserModel>();
 
   /**
    * Mapping sessionId-authenKey
    */
-  authenMap = new Map<string, AuthenKey>();
+  private authenMap = new Map<string, AuthenKey>();
 
   constructor() {}
 
@@ -84,7 +80,7 @@ class Session {
 
   createUserSession(sessionId: string, user: UserModel, encryptKey: string) {
     this.sessionMap.set(sessionId, user);
-    this.encryptKeyMap.set(sessionId, encryptKey);
+    aeswrapper.addSession(sessionId, encryptKey);
   }
 
   getAuthData(sessionId: string, encryptedData: string): AuthData {
@@ -112,7 +108,7 @@ class Session {
 
       return authData;
     } catch (error) {
-      Logger.error(this.tag, "Decryption Auth Error:", error);
+      Logger.error(this.tag, "Decryption auth error:", error);
       return defaultResp;
     }
   }
@@ -127,27 +123,13 @@ class Session {
 
   destroySession(sessionId: string) {
     Logger.error(this.tag, "Destroy:", sessionId, this.sessionMap.get(sessionId)?.username);
+
     this.sessionMap.delete(sessionId);
-    this.encryptKeyMap.delete(sessionId);
+
+    aeswrapper.removeSession(sessionId);
     socketMamanger.destroySocketSessionBySessiontId(sessionId);
   }
 
-  aesEncrypt(sessionId: string, rawData: any) {
-    const secretKey = this.encryptKeyMap.get(sessionId);
-    const ciphertext = AES.encrypt(
-      JSON.stringify(rawData),
-      secretKey
-    ).toString();
-    return ciphertext;
-  }
-
-  aaesDecrypt(sessionId: string, encryptedData: any) {
-    const secretKey = this.encryptKeyMap.get(sessionId);
-    const bytes = AES.decrypt(encryptedData, secretKey);
-    const rawData = JSON.parse(bytes.toString(enc.Utf8));
-
-    return rawData;
-  }
 }
 
 const AppSession = new Session();
