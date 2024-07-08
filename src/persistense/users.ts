@@ -79,6 +79,12 @@ export class User extends BaseEntity {
     await this.save();
   }
 
+  async checkSamePassword(rawPass: string) {
+    const hashed = await buildHashedData(rawPass, this.salt);
+    console.log("abcc: ", hashed.hash == this.password)
+    return hashed.hash == this.password;
+  }
+
   static async newAccount(
     username: string,
     password: string,

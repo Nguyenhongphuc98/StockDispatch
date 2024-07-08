@@ -4,11 +4,11 @@ import {
   AccountExistsResponse,
   AccountNotExistsResponse,
   JsonResponse,
+  PasswordMissmatchResponse,
   PermissionDeniedResponse,
   SuccessResponse,
 } from "../utils/response";
 import { JsonRequest } from "../utils/type";
-import { buildHashedData } from "./utils";
 import { Request, Response } from "express";
 import Logger from "../loger";
 import AppSession from "./session";
@@ -85,38 +85,53 @@ export async function updateAccount(
   const { id } = req.params;
 
   const password = req.rawBody.password;
+  const oldpassword = req.rawBody.oldpassword;
   const displayName = req.rawBody.displayName;
-  console.log('aaa', req.rawBody);
 
   const user = await User.findOneBy({ id: id });
 
-  Logger.log(TAG, "Update account", user?.username, password, user?.displayName ,"=>", displayName);
-
   if (!user) {
-    
+    Logger.log(TAG, "Update not exists account", id, password, displayName);
     res.send(new AccountNotExistsResponse(sessionId));
     return;
   }
 
   if (password) {
+    if (!oldpassword || !user.checkSamePassword(oldpassword)) {
+      Logger.log(
+        TAG,
+        "Update pass: invalid old pass",
+        user.username,
+        oldpassword,
+        password
+      );
+      res.send(new PasswordMissmatchResponse(sessionId));
+      return;
+    }
+    
+    Logger.log(TAG, "Update pass", user.username, password);
     await user.updatePassword(password);
   }
 
   if (displayName) {
+    Logger.log(
+      TAG,
+      "Update displayname",
+      user.username,
+      user.displayName,
+      "=>",
+      displayName
+    );
     await user.updateDisplayName(displayName);
   }
 
-  res.send(new SuccessResponse(sessionId, user));
+  res.send(new SuccessResponse(sessionId, user.model()));
 }
 
-export async function listAccounts(
-  req: JsonRequest,
-  res: Response,
-  next: any
-) {
+export async function listAccounts(req: JsonRequest, res: Response, next: any) {
   const sessionId = req.headers["sessionid"];
 
-  const users = (await User.find()).map(u => u.model());
+  const users = (await User.find()).map((u) => u.model());
 
   Logger.log(TAG, "List account", users.length);
 

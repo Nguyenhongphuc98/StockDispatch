@@ -6,4 +6,5 @@ export enum ErrorCode {
     AccountExists = 4,
     SessionNotFound = 5,
     InvalidPayload = 6,
+    PasswordIncorrect = 7,
 }

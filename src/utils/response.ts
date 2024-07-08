@@ -47,6 +47,12 @@ export class AccountNotExistsResponse extends JsonResponse {
     }
 }
 
+export class PasswordMissmatchResponse extends JsonResponse {
+    constructor(sessionId: string, data: Record<string, any> = {}) {
+        super(ErrorCode.PasswordIncorrect, "Password is incorrect", sessionId, data);
+    }
+}
+
 export class SuccessResponse extends JsonResponse {
     constructor(sessionId: string, data: Record<string, any> = {}) {
         super(ErrorCode.Success, "success request", sessionId, data);
