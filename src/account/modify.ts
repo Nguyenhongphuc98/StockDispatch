@@ -3,6 +3,7 @@ import { ErrorCode } from "../utils/const";
 import {
   AccountExistsResponse,
   AccountNotExistsResponse,
+  InvalidPayloadResponse,
   JsonResponse,
   PasswordMissmatchResponse,
   PermissionDeniedResponse,
@@ -12,6 +13,7 @@ import { JsonRequest } from "../utils/type";
 import { Request, Response } from "express";
 import Logger from "../loger";
 import AppSession from "./session";
+import { generateRandomString } from "../utils/string";
 
 const TAG = `[User][Modify]`;
 
@@ -34,6 +36,24 @@ export async function authorizeModifyAccount(
     }
     return;
   }
+
+  if (user.role == Role.Admin) {
+    Logger.log(TAG, "Authorize admin success.", sessionId);
+    next();
+    return;
+  } else {
+    Logger.log(TAG, "Authorize admin fail.", sessionId);
+    res.status(403).send(new PermissionDeniedResponse(sessionId));
+  }
+}
+
+export async function authorizeAdmin(
+  req: JsonRequest,
+  res: Response,
+  next: any
+) {
+  const sessionId = req.headers["sessionid"];
+  const user = AppSession.getActiveUser(sessionId);
 
   if (user.role == Role.Admin) {
     Logger.log(TAG, "Authorize admin success.", sessionId);
@@ -96,8 +116,14 @@ export async function updateAccount(
     return;
   }
 
+  if (!password && !displayName) {
+    Logger.log(TAG, "Update account invalid payload", id, user.username);
+    res.send(new InvalidPayloadResponse(sessionId));
+    return;
+  }
+
   if (password) {
-    if (!oldpassword || !user.checkSamePassword(oldpassword)) {
+    if (!oldpassword || !(await user.checkSamePassword(oldpassword))) {
       Logger.log(
         TAG,
         "Update pass: invalid old pass",
@@ -105,10 +131,10 @@ export async function updateAccount(
         oldpassword,
         password
       );
-      res.send(new PasswordMissmatchResponse(sessionId));
+      res.status(403).send(new PasswordMissmatchResponse(sessionId));
       return;
     }
-    
+
     Logger.log(TAG, "Update pass", user.username, password);
     await user.updatePassword(password);
   }
@@ -136,4 +162,27 @@ export async function listAccounts(req: JsonRequest, res: Response, next: any) {
   Logger.log(TAG, "List account", users.length);
 
   res.send(new SuccessResponse(sessionId, users));
+}
+
+export async function resetPassword(
+  req: JsonRequest,
+  res: Response,
+  next: any
+) {
+  const sessionId = req.headers["sessionid"];
+  const { id } = req.params;
+
+  const user = await User.findOneBy({ id: id });
+
+  if (!user) {
+    Logger.log(TAG, "Reset pass not exists account", id);
+    res.send(new AccountNotExistsResponse(sessionId));
+    return;
+  }
+
+  const newPass = generateRandomString(8);
+
+  Logger.log(TAG, "Reset pass", user.username, newPass);
+  await user.updatePassword(newPass);
+  res.send(new SuccessResponse(sessionId, { newPass }));
 }
