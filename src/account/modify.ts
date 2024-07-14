@@ -164,25 +164,44 @@ export async function listAccounts(req: JsonRequest, res: Response, next: any) {
   res.send(new SuccessResponse(sessionId, users));
 }
 
-export async function resetPassword(
-  req: JsonRequest,
-  res: Response,
-  next: any
-) {
+export async function adminUpdate(req: JsonRequest, res: Response, next: any) {
   const sessionId = req.headers["sessionid"];
-  const { id } = req.params;
+  const { uid, reqid, createat, type } = req.rawBody;
 
-  const user = await User.findOneBy({ id: id });
+  const user = await User.findOneBy({ id: uid });
 
   if (!user) {
-    Logger.log(TAG, "Reset pass not exists account", id);
+    Logger.log(TAG, "Call update for not exists account", uid);
     res.send(new AccountNotExistsResponse(sessionId));
     return;
   }
 
-  const newPass = generateRandomString(8);
+  switch (type) {
+    case "reset": {
+      const newPass = generateRandomString(8);
 
-  Logger.log(TAG, "Reset pass", user.username, newPass);
-  await user.updatePassword(newPass);
-  res.send(new SuccessResponse(sessionId, { newPass }));
+      Logger.log(TAG, "Reset pass", user.username, newPass);
+      await user.updatePassword(newPass);
+      res.send(new SuccessResponse(sessionId, { newPass }));
+      break;
+    }
+    case "lock": {
+      user.isActive = false;
+      await user.save();
+      Logger.log(TAG, "Lock user", user.username);
+      res.send(new SuccessResponse(sessionId));
+      break;
+    }
+    case "unlock": {
+      user.isActive = true;
+      await user.save();
+      Logger.log(TAG, "Unlock user", user.username);
+      res.send(new SuccessResponse(sessionId));
+      break;
+    }
+
+    default:
+      res.status(403).send(new InvalidPayloadResponse(sessionId));
+      break;
+  }
 }
