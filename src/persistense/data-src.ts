@@ -1,19 +1,21 @@
 import { DataSource } from "typeorm";
-import { Role, User } from "./users";
+import { Role, UserEntity } from "./users";
+import { PackingListEntity } from "./packing-list";
+import { PackingListItemEntity } from "./packling-list-item";
 
 export const AppDataSource = new DataSource({
     type: "sqlite",
     database: "/etc/database/main.db",
     busyErrorRetry: 2,
     enableWAL: true,
-    entities: [User],
+    entities: [UserEntity, PackingListEntity, PackingListItemEntity],
     synchronize: true
 });
 
 export const InitAdmin = async () => {
-    const acc = await User.findOneBy({username: 'admin@admin.com'});
+    const acc = await UserEntity.findOneBy({username: 'admin@admin.com'});
     if (!acc) {
-        const admin = await User.newAccount('admin@admin.com', 'admin@2024!#$', 'Admin', Role.Admin);
+        const admin = await UserEntity.newAccount('admin@admin.com', 'admin@2024!#$', 'Admin', Role.Admin);
         console.log('init admin success', admin);
     } else {
         console.log('admin already exist!');

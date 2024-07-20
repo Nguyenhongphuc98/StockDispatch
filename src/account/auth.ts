@@ -1,4 +1,4 @@
-import { User } from "../persistense/users";
+import { UserEntity } from "../persistense/users";
 import { ErrorCode } from "../utils/const";
 import {
   JsonResponse,
@@ -36,7 +36,7 @@ export async function login(req: any, res: any, next: any) {
 
   Logger.log(TAG, "login", sessionId, auth);
 
-  const user = await User.findOneBy({ username: auth.username });
+  const user = await UserEntity.findOneBy({ username: auth.username });
 
   if (!user) {
     respInvalid(res, sessionId);
@@ -66,9 +66,11 @@ export function getUserInfo(req: Request, res: Response, next: any) {
 
 export function restrict(req: any, res: any, next: any) {
   const sessionId = req.headers.sessionid;
+  const user = AppSession.getActiveUser(sessionId);
 
-  if (AppSession.isActiveSession(sessionId)) {
-    Logger.log(TAG, "pass restrict", sessionId, AppSession.getActiveUser(sessionId).username);
+  if (user) {
+    Logger.log(TAG, "pass restrict", sessionId, user.username);
+    req.user = user;
     next();
   } else {
     Logger.error(TAG, "fail restrict", sessionId);

@@ -10,7 +10,7 @@ import {
   OneToMany,
 } from "typeorm";
 import { buildHashedData } from "../account/utils";
-// import { PackingList } from "./packing-lists";
+import { PackingListEntity } from "./packing-list";
 
 export enum Role {
   Admin = 1,
@@ -26,15 +26,15 @@ export type UserModel = {
 }
 
 @Entity("User")
-export class User extends BaseEntity {
+export class UserEntity extends BaseEntity {
   @PrimaryGeneratedColumn({})
   id: string;
 
   @CreateDateColumn()
-  createAt: string;
+  createAt: Date;
 
   @UpdateDateColumn()
-  updateAt: string;
+  updateAt: Date;
 
   @Column("text", { unique: true })
   username: string;
@@ -54,8 +54,8 @@ export class User extends BaseEntity {
   @Column("text")
   salt: string;
 
-  // @OneToMany(() => PackingList, pl => pl.updater)
-  // packingLists: PackingList;
+  @OneToMany(() => PackingListEntity, pl => pl.createdBy)
+  packingLists: PackingListEntity;
 
   public model(): UserModel {
     return {
@@ -92,7 +92,7 @@ export class User extends BaseEntity {
     role: Role
   ) {
     const hashed = await buildHashedData(password);
-    const user = new User();
+    const user = new UserEntity();
 
     user.username = username;
     user.password = hashed.hash;

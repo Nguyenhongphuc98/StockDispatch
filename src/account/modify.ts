@@ -1,4 +1,4 @@
-import { Role, User } from "../persistense/users";
+import { Role, UserEntity } from "../persistense/users";
 import { ErrorCode } from "../utils/const";
 import {
   AccountExistsResponse,
@@ -76,7 +76,7 @@ export async function createAccount(
   const password = req.rawBody.password;
   const displayName = req.rawBody.displayName;
 
-  const existsUser = await User.findOneBy({ username: username });
+  const existsUser = await UserEntity.findOneBy({ username: username });
   Logger.log(TAG, "Create account", username, password, !existsUser);
 
   if (existsUser) {
@@ -85,7 +85,7 @@ export async function createAccount(
     return;
   }
 
-  const user = await User.newAccount(
+  const user = await UserEntity.newAccount(
     username,
     password,
     displayName,
@@ -108,7 +108,7 @@ export async function updateAccount(
   const oldpassword = req.rawBody.oldpassword;
   const displayName = req.rawBody.displayName;
 
-  const user = await User.findOneBy({ id: id });
+  const user = await UserEntity.findOneBy({ id: id });
 
   if (!user) {
     Logger.log(TAG, "Update not exists account", id, password, displayName);
@@ -157,7 +157,7 @@ export async function updateAccount(
 export async function listAccounts(req: JsonRequest, res: Response, next: any) {
   const sessionId = req.headers["sessionid"];
 
-  const users = (await User.find()).map((u) => u.model());
+  const users = (await UserEntity.find()).map((u) => u.model());
 
   Logger.log(TAG, "List account", users.length);
 
@@ -168,7 +168,7 @@ export async function adminUpdate(req: JsonRequest, res: Response, next: any) {
   const sessionId = req.headers["sessionid"];
   const { uid, reqid, createat, type } = req.rawBody;
 
-  const user = await User.findOneBy({ id: uid });
+  const user = await UserEntity.findOneBy({ id: uid });
 
   if (!user) {
     Logger.log(TAG, "Call update for not exists account", uid);

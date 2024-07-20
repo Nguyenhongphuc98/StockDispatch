@@ -59,12 +59,18 @@ export class SuccessResponse extends JsonResponse {
     }
 }
 
+export class ResourceNotFoundResponse extends JsonResponse {
+    constructor(sessionId: string, data: Record<string, any> = {}) {
+        super(ErrorCode.ResourceNotFound, "Resource not found", sessionId, data);
+    }
+}
+
 export class NotEncryptSuccessResponse {
     message = "Request success.";
     error_code = ErrorCode.Success;
 
     constructor(readonly data: Record<string, any> = {}) {
-        
+        Logger.error("[Resp]", this.message, data);
     }
 }
 
@@ -73,7 +79,7 @@ export class InvalidPayloadResponse {
     error_code = ErrorCode.InvalidPayload;
 
     constructor(readonly data: Record<string, any> = {}) {
-        
+        Logger.error("[Resp]", this.message, data);
     }
 }
 
@@ -82,7 +88,7 @@ export class NotEncryptSessionNotFoundResponse {
     error_code = ErrorCode.SessionNotFound;
 
     constructor(readonly data: Record<string, any> = {}) {
-        
+        Logger.error("[Resp]", this.message, data);
     }
 }
 
