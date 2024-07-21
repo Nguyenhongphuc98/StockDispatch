@@ -8,4 +8,5 @@ export enum ErrorCode {
     InvalidPayload = 6,
     PasswordIncorrect = 7,
     ResourceNotFound = 8,
+    Error = 9,
 }

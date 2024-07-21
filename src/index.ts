@@ -73,10 +73,19 @@ start(server);
 
 //git pull https://nguyenhongphuc98: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@github.com/Nguyenhongphuc98/StockDispatch.git
 // docker-compose down
-//docker-compose up -d
+// docker images
+// docker image rm
+// docker-compose build
+// docker-compose up -d
+
 
 // ssh root@164.90.186.39 1310312240
 // restart lai sv khi crash
 // add create At req and only allow in 10s timeout,
 // if some one replay req -> cache 10s reject, >10s invalid
 // logs file
+
+// find / -name "main.db"
+// /var/lib/docker/volumes/stockdispatch_database/_data/main.db
+
+// sudo apt-get install sqlite3

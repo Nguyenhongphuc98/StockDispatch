@@ -39,7 +39,7 @@ export async function createProducts(
   const pkl = await PackingListEntity.findOneBy({id: pklId});
 
   if (!pkl) {
-    res.send(new InvalidPayloadResponse());
+    res.send(new ResourceNotFoundResponse(sessionId));
     return;
   }
 

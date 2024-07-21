@@ -1,6 +1,7 @@
 import { UserEntity } from "../persistense/users";
 import { ErrorCode } from "../utils/const";
 import {
+  ErrorResponse,
   InvalidPayloadResponse,
   JsonResponse,
   NotEncryptSuccessResponse,
@@ -18,6 +19,7 @@ import {
 } from "../persistense/packing-list";
 import { FindOptionsWhere, LessThanOrEqual, Like } from "typeorm";
 import { MAX_ITEMS_PER_PAGE } from "../config";
+import { PackingListItemEntity } from "../persistense/packling-list-item";
 
 const TAG = "[PKL]";
 
@@ -51,10 +53,10 @@ export async function getPackinglist(req: JsonRequest, res: any, next: any) {
 
   Logger.log(TAG, "get pkl", sessionId, user.username, id);
 
-  const pkl = await PackingListEntity.findOneBy({ id: id });
+  const pkl = await PackingListEntity.getByIdWithCreateBy(id);
 
   if (pkl) {
-    res.send(new SuccessResponse(sessionId, pkl.toModel()));
+    res.send(new SuccessResponse(sessionId, pkl));
   } else {
     res.send(new ResourceNotFoundResponse(sessionId));
   }
@@ -71,24 +73,11 @@ export async function getPackinglists(req: JsonRequest, res: any, next: any) {
 
   Logger.log(TAG, "get pkls", sessionId, user.username, kw, ts);
 
-  const conditions: FindOptionsWhere<PackingListEntity> = {};
-
-  if (kw) {
-    conditions.attachedInvoiceId = Like(`%${kw}%`);
-  }
-
-  if (!ts) {
-  } else {
-    conditions.createAt = LessThanOrEqual(new Date(ts));
-  }
-
-  const pkls = await PackingListEntity.find({
-    where: conditions,
-    order: {
-      createAt: "DESC",
-    },
-    take: MAX_ITEMS_PER_PAGE,
-  });
+  const pkls = await PackingListEntity.getPackingLists(
+    MAX_ITEMS_PER_PAGE,
+    ts ? new Date(ts) : undefined,
+    kw
+  );
 
   res.send(
     new SuccessResponse(sessionId, {
@@ -96,4 +85,45 @@ export async function getPackinglists(req: JsonRequest, res: any, next: any) {
       hasMore: pkls.length >= MAX_ITEMS_PER_PAGE,
     })
   );
+}
+
+export async function packinglistModify(
+  req: JsonRequest,
+  res: Response,
+  next: any
+) {
+  const sessionId = req.headers["sessionid"];
+  const { pid, reqid, createat, type } = req.rawBody;
+
+  const pkl = await PackingListEntity
+    .createQueryBuilder("pl")
+    .leftJoinAndSelect("pl.items", "PackingListItem")
+    .where("pl.id = :id", { id: pid })
+    .getOne();
+
+  if (!pkl) {
+    Logger.log(TAG, "Call update for not exists pkl", pid);
+    res.send(new ResourceNotFoundResponse(sessionId));
+    return;
+  }
+
+  switch (type) {
+    case "delete": {
+      await PackingListItemEntity.remove(pkl.items)
+      pkl
+        .remove()
+        .then(() => {
+          res.send(new SuccessResponse(sessionId));
+        })
+        .catch((e) => {
+          Logger.error(TAG, "Call delete pkl err", e);
+          res.send(new ErrorResponse(sessionId));
+        });
+      break;
+    }
+
+    default:
+      res.status(403).send(new InvalidPayloadResponse(sessionId));
+      break;
+  }
 }

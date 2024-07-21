@@ -65,6 +65,12 @@ export class ResourceNotFoundResponse extends JsonResponse {
     }
 }
 
+export class ErrorResponse extends JsonResponse {
+    constructor(sessionId: string, data: Record<string, any> = {}) {
+        super(ErrorCode.Error, "Error", sessionId, data);
+    }
+}
+
 export class NotEncryptSuccessResponse {
     message = "Request success.";
     error_code = ErrorCode.Success;
