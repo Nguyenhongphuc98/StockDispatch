@@ -2,13 +2,14 @@ import { DataSource } from "typeorm";
 import { Role, UserEntity } from "./users";
 import { PackingListEntity } from "./packing-list";
 import { PackingListItemEntity } from "./packling-list-item";
+import { BundleSettingEntity } from "./bundle-setting";
 
 export const AppDataSource = new DataSource({
     type: "sqlite",
     database: "/etc/database/main.db",
     busyErrorRetry: 2,
     enableWAL: true,
-    entities: [UserEntity, PackingListEntity, PackingListItemEntity],
+    entities: [UserEntity, PackingListEntity, PackingListItemEntity, BundleSettingEntity],
     synchronize: true
 });
 

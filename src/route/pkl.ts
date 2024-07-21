@@ -1,4 +1,5 @@
 import { restrict } from "../account/auth";
+import { getBundleSettings, modifyBundleSetting } from "../product/bundle-setting";
 import { createPackinglist, getPackinglist, getPackinglists, packinglistModify } from "../product/packling-list";
 import { createProducts, getProducts } from "../product/packling-list-item";
 import { decryptBody } from "../secure/aes";
@@ -15,4 +16,7 @@ export function pkl(app) {
 
   app.post("/api/v1/item", restrict, decryptBody, createProducts);
   app.get("/api/v1/item", restrict, getProducts);
+
+  app.post("/api/v1/setting/bundle", restrict, decryptBody, validateRequest, modifyBundleSetting);
+  app.get("/api/v1/setting/bundle", restrict, getBundleSettings);
 }
