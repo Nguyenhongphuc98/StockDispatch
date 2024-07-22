@@ -33,7 +33,7 @@ export async function modifyBundleSetting(
   const user = req.user;
   const { settings, reqid, createat, type } = req.rawBody;
 
-  Logger.log(TAG, "modify box setting", sessionId, user.username, settings);
+  Logger.log(TAG, "modify box setting", sessionId, user.username, type, settings);
 
   if (!Array.isArray(settings)) {
     res.send(new InvalidPayloadResponse());

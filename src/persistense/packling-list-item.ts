@@ -1,114 +1,121 @@
 import "reflect-metadata";
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, Unique, CreateDateColumn, UpdateDateColumn, ManyToOne, PrimaryColumn } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  BaseEntity,
+  Unique,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  PrimaryColumn,
+} from "typeorm";
 import { PackingListEntity } from "./packing-list";
+import { BaseRepository } from "./base";
 
 export type PackingListItemModel = {
-	packageSeries: [number, number];
-    po: string;
-	packageId: string;
-	itemsInPackage: number;
-	itemsUnit: string;
-	netWeight: number;
-	grossWeight: number;
-	netWeightUnit: string;
-	grossWeightUnit: string;
-	width: number;
-	length: number;
-	height: number;
-	sizeUnit: string;
+  packageSeries: [number, number];
+  po: string;
+  packageId: string;
+  itemsInPackage: number;
+  itemsUnit: string;
+  netWeight: number;
+  grossWeight: number;
+  netWeightUnit: string;
+  grossWeightUnit: string;
+  width: number;
+  length: number;
+  height: number;
+  sizeUnit: string;
 };
 
-@Entity('PackingListItem')
-export class PackingListItemEntity extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    id: string;
+enum PKLItemStatus {
+  Imported = 0,
+  Exported = 2,
+}
 
-    @CreateDateColumn()
-    createAt: Date;
+@Entity("PackingListItem")
+export class PackingListItemEntity extends BaseRepository {
+  @PrimaryGeneratedColumn()
+  id: string;
 
-    @UpdateDateColumn()
-    updateAt: Date;
+  @CreateDateColumn()
+  createAt: Date;
 
-    @ManyToOne(() => PackingListEntity, (pl) => pl.items)
-    packingList: PackingListEntity;
+  @UpdateDateColumn()
+  updateAt: Date;
 
-    @Column()
-    packageSeries: string;
+  @ManyToOne(() => PackingListEntity, (pl) => pl.items)
+  packingList: PackingListEntity;
 
-    @Column()
-    po: string;
+  @Column()
+  packageSeries: string;
 
-    @Column()
-	packageId: string;
+  @Column()
+  po: string;
 
-    @Column()
-	itemsInPackage: number;
+  @Column()
+  packageId: string;
 
-    @Column()
-	itemsUnit: string;
+  @Column()
+  itemsInPackage: number;
 
-    @Column()
-	netWeight: number;
+  @Column()
+  itemsUnit: string;
 
-    @Column()
-	grossWeight: number;
+  @Column()
+  netWeight: number;
 
-    @Column()
-	netWeightUnit: string;
+  @Column()
+  grossWeight: number;
 
-    @Column()
-	grossWeightUnit: string;
+  @Column()
+  netWeightUnit: string;
 
-    @Column()
-	width: number;
+  @Column()
+  grossWeightUnit: string;
 
-    @Column()
-	length: number;
+  @Column()
+  width: number;
 
-    @Column()
-	height: number;
+  @Column()
+  length: number;
 
-    @Column()
-	sizeUnit: string;
+  @Column()
+  height: number;
 
-    init(model: PackingListItemModel, packingList: PackingListEntity) {
-        const series = model.packageSeries;
-        this.packageSeries = `${series[0]}-${series[1]}`;
-        this.packageId = model.packageId;
-        this.po = model.po;
-        this.itemsInPackage = model.itemsInPackage;
-        this.itemsUnit = model.itemsUnit;
-        this.netWeight = model.netWeight;
-        this.grossWeight = model.grossWeight;
-        this.netWeightUnit = model.netWeightUnit;
-        this.grossWeightUnit = model.grossWeightUnit;
-        this.width = model.width;
-        this.length = model.length;
-        this.height = model.height;
-        this.sizeUnit = model.sizeUnit;
-        this.packingList = packingList;
-    }
+  @Column()
+  sizeUnit: string;
 
-    validate() {
-        for (const p in this) {
-            if (Object.prototype.hasOwnProperty.call(this, p)) {
-                const element = this[p];
-                if (!element) {
-                    return false;
-                }
-            }
-        }
+  @Column()
+  status: PKLItemStatus;
 
-        return true;
-    }
+  init(model: PackingListItemModel, packingList: PackingListEntity) {
+    const series = model.packageSeries;
+    this.packageSeries = `${series[0]}-${series[1]}`;
+    this.packageId = model.packageId;
+    this.po = model.po;
+    this.itemsInPackage = model.itemsInPackage;
+    this.itemsUnit = model.itemsUnit;
+    this.netWeight = model.netWeight;
+    this.grossWeight = model.grossWeight;
+    this.netWeightUnit = model.netWeightUnit;
+    this.grossWeightUnit = model.grossWeightUnit;
+    this.width = model.width;
+    this.length = model.length;
+    this.height = model.height;
+    this.sizeUnit = model.sizeUnit;
+    this.packingList = packingList;
+    this.status = PKLItemStatus.Imported;
+  }
 
-    toModel() {
-        const parsedSeries = this.packageSeries.split('-');
-        const _packageSeries = [parsedSeries[0], parsedSeries[1]];
+  toModel() {
+    const parsedSeries = this.packageSeries.split("-");
+    const _packageSeries = [parsedSeries[0], parsedSeries[1]];
 
-        return {
-            ...this,
-            packageSeries: _packageSeries
-        };
-    }
+    return {
+      ...this,
+      packageSeries: _packageSeries,
+    };
+  }
 }

@@ -12,6 +12,8 @@ import {
 } from "typeorm";
 import { PackingListItemEntity } from "./packling-list-item";
 import { UserEntity } from "./users";
+import { ExportEntity } from "./export";
+import { BaseRepository } from "./base";
 
 export type PackingListModel = {
   name: string;
@@ -24,8 +26,14 @@ export type PackingListModel = {
   eta: string;
 };
 
+export enum PKLStatus {
+  Imported = 0,
+  Exporting = 1,
+  Exported = 2,
+};
+
 @Entity("PackingList")
-export class PackingListEntity extends BaseEntity {
+export class PackingListEntity extends BaseRepository {
   @PrimaryGeneratedColumn()
   id: string;
 
@@ -62,8 +70,14 @@ export class PackingListEntity extends BaseEntity {
   @Column()
   eta: string;
 
+  @Column()
+  status: PKLStatus;
+
   @OneToMany(() => PackingListItemEntity, (it) => it.packingList, { cascade: ['remove'] })
   items: PackingListItemEntity[];
+
+  @ManyToOne(() => PackingListItemEntity, (it) => it.packingList, {nullable: true })
+  export: ExportEntity;
 
   init(model: PackingListModel, creator: UserEntity) {
     this.createdBy = creator;
@@ -76,19 +90,7 @@ export class PackingListEntity extends BaseEntity {
     this.eta = model.eta;
     this.items = [];
     this.name = model.name;
-  }
-
-  validate() {
-    for (const p in this) {
-      if (Object.prototype.hasOwnProperty.call(this, p)) {
-        const element = this[p];
-        if (!element) {
-          return false;
-        }
-      }
-    }
-
-    return true;
+    this.status = PKLStatus.Imported;
   }
 
   toModel() {

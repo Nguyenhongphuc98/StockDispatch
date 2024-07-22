@@ -3,13 +3,14 @@ import { Role, UserEntity } from "./users";
 import { PackingListEntity } from "./packing-list";
 import { PackingListItemEntity } from "./packling-list-item";
 import { BundleSettingEntity } from "./bundle-setting";
+import { ExportEntity } from "./export";
 
 export const AppDataSource = new DataSource({
     type: "sqlite",
     database: "/etc/database/main.db",
     busyErrorRetry: 2,
     enableWAL: true,
-    entities: [UserEntity, PackingListEntity, PackingListItemEntity, BundleSettingEntity],
+    entities: [UserEntity, PackingListEntity, PackingListItemEntity, BundleSettingEntity, ExportEntity],
     synchronize: true
 });
 

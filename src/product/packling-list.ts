@@ -36,14 +36,16 @@ export async function createPackinglist(
   const pkl = new PackingListEntity();
   pkl.init(req.rawBody as PackingListModel, user);
 
-  if (!pkl.validate()) {
+  const missFields = pkl.getMissingFields();
+  if (missFields.length) {
+    Logger.log(TAG, "create pkl miss field", missFields);
     res.send(new InvalidPayloadResponse());
     return;
   }
 
   await pkl.save();
 
-  res.send(new SuccessResponse(sessionId));
+  res.send(new SuccessResponse(sessionId, {id: pkl.id}));
 }
 
 export async function getPackinglist(req: JsonRequest, res: any, next: any) {

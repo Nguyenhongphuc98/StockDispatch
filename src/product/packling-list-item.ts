@@ -51,7 +51,9 @@ export async function createProducts(
   }
 
   for (let i = 0; i < toSaves.length; i++) {
-    if (!toSaves[i].validate()) {
+    const missFields = toSaves[i].getMissingFields();
+    if (missFields.length) {
+      Logger.log(TAG, "create products miss fields", missFields);
       res.send(new InvalidPayloadResponse());
       return;
     }
