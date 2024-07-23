@@ -24,7 +24,7 @@ import { PackingListItemEntity } from "../persistense/packling-list-item";
 import { ExportEntity, ExportModel, ExportStatus } from "../persistense/export";
 import exportManager from "../export/export-manager";
 
-const TAG = "[PKL]";
+const TAG = "[EXPORT]";
 
 export async function createExport(req: JsonRequest, res: Response, next: any) {
   const sessionId = req.headers["sessionid"];

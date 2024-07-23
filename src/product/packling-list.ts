@@ -45,7 +45,7 @@ export async function createPackinglist(
 
   await pkl.save();
 
-  res.send(new SuccessResponse(sessionId, {id: pkl.id}));
+  res.send(new SuccessResponse(sessionId, pkl));
 }
 
 export async function getPackinglist(req: JsonRequest, res: any, next: any) {
