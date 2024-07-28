@@ -14,6 +14,7 @@ import { PackingListItemEntity } from "./packling-list-item";
 import { UserEntity } from "./users";
 import { ExportEntity } from "./export";
 import { BaseRepository } from "./base";
+import { MAX_ITEMS_PER_PAGE } from "../config";
 
 export type PackingListModel = {
   name: string;
@@ -108,7 +109,7 @@ export class PackingListEntity extends BaseRepository {
   }
 
   static async getPackingLists(
-    max: number,
+    max: number = MAX_ITEMS_PER_PAGE,
     filterDate: Date | undefined = undefined,
     filterName: string | undefined = undefined
   ): Promise<PackingListEntity[]> {
@@ -128,9 +129,9 @@ export class PackingListEntity extends BaseRepository {
 
     const packingLists = query
       .orderBy("pl.createAt", "DESC")
+      .limit(max)
       .leftJoin("pl.items", PackingListItemEntity.name)
       .loadRelationCountAndMap("pl.itemsCount", "pl.items")
-      // .limit(max)
       .getMany();
 
     return packingLists;
