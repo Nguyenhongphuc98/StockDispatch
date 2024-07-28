@@ -129,9 +129,9 @@ export class PackingListEntity extends BaseRepository {
 
     const packingLists = query
       .orderBy("pl.createAt", "DESC")
-      .limit(max)
       .leftJoin("pl.items", PackingListItemEntity.name)
       .loadRelationCountAndMap("pl.itemsCount", "pl.items")
+      .take(max)
       .getMany();
 
     return packingLists;

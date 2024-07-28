@@ -132,7 +132,7 @@ export class ExportEntity extends BaseRepository {
     const packingLists = query
       .orderBy("e.createAt", "DESC")
       .leftJoinAndSelect("e.items", PackingListItemEntity.name)
-      .limit(max)
+      .take(max)
       .getMany();
 
     return packingLists;
