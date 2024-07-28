@@ -130,7 +130,7 @@ export class PackingListEntity extends BaseRepository {
       .orderBy("pl.createAt", "DESC")
       .leftJoin("pl.items", PackingListItemEntity.name)
       .loadRelationCountAndMap("pl.itemsCount", "pl.items")
-      .limit(max)
+      // .limit(max)
       .getMany();
 
     return packingLists;
