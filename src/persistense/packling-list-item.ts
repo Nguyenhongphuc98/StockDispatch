@@ -60,7 +60,7 @@ export class PackingListItemEntity extends BaseRepository {
   @Column()
   po: string;
 
-  @Column()
+  @Column({nullable: true})
   sku: string;
 
   @Column()
@@ -104,7 +104,7 @@ export class PackingListItemEntity extends BaseRepository {
     this.packageSeries = `${series[0]}-${series[1]}`;
     this.packageId = model.packageId;
     this.po = model.po;
-    this.sku = model.sku;
+    this.sku = model.sku || null;
     this.itemsInPackage = model.itemsInPackage;
     this.itemsUnit = model.itemsUnit;
     this.netWeight = model.netWeight;
