@@ -71,7 +71,7 @@ export async function createExport(req: JsonRequest, res: Response, next: any) {
 
   exportManager.startSession(exportItem.id);
 
-  res.send(new SuccessResponse(sessionId, {id: exportItem.id}));
+  res.send(new SuccessResponse(sessionId, exportItem));
 }
 
 export async function getExport(req: JsonRequest, res: any, next: any) {

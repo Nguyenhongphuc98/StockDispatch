@@ -14,6 +14,7 @@ import { UserEntity } from "./users";
 import { PackingListEntity, PKLStatus } from "./packing-list";
 import { BaseRepository } from "./base";
 import { PackingListItemEntity } from "./packling-list-item";
+import { generateRandomString } from "../utils/string";
 
 export type ExportModel = {
     createdBy: UserEntity;
@@ -78,6 +79,10 @@ export class ExportEntity extends BaseRepository {
   @OneToMany(() => PackingListEntity, (it) => it.export)
   items: PackingListEntity[];
 
+  // key use to encrypt data
+  @Column()
+  key: string;
+
   init(model: ExportModel, creator: UserEntity, items: PackingListEntity[]) {
     this.createdBy = creator;
     this.items = items;
@@ -90,6 +95,7 @@ export class ExportEntity extends BaseRepository {
     this.seal = model.seal;
     this.customer = model.customer;
     this.status = ExportStatus.Exporting;
+    this.key = generateRandomString(10);
   }
 
   toModel() {

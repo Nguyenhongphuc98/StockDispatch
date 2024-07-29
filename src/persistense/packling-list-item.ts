@@ -9,9 +9,11 @@ import {
   UpdateDateColumn,
   ManyToOne,
   PrimaryColumn,
+  OneToMany,
 } from "typeorm";
 import { PackingListEntity } from "./packing-list";
 import { BaseRepository } from "./base";
+import { WeighListItemEntity } from "./weigh-item";
 
 export type PackingListItemModel = {
   packageSeries: [number, number];
@@ -47,6 +49,9 @@ export class PackingListItemEntity extends BaseRepository {
 
   @ManyToOne(() => PackingListEntity, (pl) => pl.items)
   packingList: PackingListEntity;
+
+  @OneToMany(() => WeighListItemEntity, (wli) => wli.packingListItem, { cascade: ['remove'] })
+  weighList: WeighListItemEntity[];
 
   @Column()
   packageSeries: string;
@@ -106,16 +111,25 @@ export class PackingListItemEntity extends BaseRepository {
     this.height = model.height;
     this.sizeUnit = model.sizeUnit;
     this.packingList = packingList;
+    this.weighList = [];
     this.status = PKLItemStatus.Imported;
   }
 
   toModel() {
-    const parsedSeries = this.packageSeries.split("-");
-    const _packageSeries = [parsedSeries[0], parsedSeries[1]];
 
     return {
       ...this,
-      packageSeries: _packageSeries,
+      packageSeries: [this.startSeries(), this.endSeries()],
     };
+  }
+
+  startSeries() {
+    const parsedSeries = this.packageSeries.split("-");
+    return Number(parsedSeries[0]);
+  }
+
+  endSeries() {
+    const parsedSeries = this.packageSeries.split("-");
+    return Number(parsedSeries[1]);
   }
 }

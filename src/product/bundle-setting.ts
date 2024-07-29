@@ -8,6 +8,7 @@ import {
 } from "../persistense/bundle-setting";
 
 const TAG = "[Box-setting]";
+const DEFAULT_BOXES_AMOUNT = 1;
 
 export async function getBundleSettings(req: JsonRequest, res: any, next: any) {
   const sessionId = req.headers["sessionid"];
@@ -33,7 +34,14 @@ export async function modifyBundleSetting(
   const user = req.user;
   const { settings, reqid, createat, type } = req.rawBody;
 
-  Logger.log(TAG, "modify box setting", sessionId, user.username, type, settings);
+  Logger.log(
+    TAG,
+    "modify bundle setting",
+    sessionId,
+    user.username,
+    type,
+    settings
+  );
 
   if (!Array.isArray(settings)) {
     res.send(new InvalidPayloadResponse());
@@ -57,7 +65,7 @@ export async function modifyBundleSetting(
     case "add": {
       for (let i = 0; i < toModifys.length; i++) {
         const bundle = toModifys[i];
-        if (!await BundleSettingEntity.findOneBy({ code: bundle.code })) {
+        if (!(await BundleSettingEntity.findOneBy({ code: bundle.code }))) {
           await BundleSettingEntity.save(bundle);
         }
       }
@@ -83,4 +91,42 @@ export async function modifyBundleSetting(
       res.status(403).send(new InvalidPayloadResponse(sessionId));
       break;
   }
+
+  bunddleSettings.reinit();
 }
+
+class BundleSettings {
+  /**
+   * Code - boxes/bundle
+   */
+  bundleMap: Map<string, number>;
+
+  constructor() {
+    this.bundleMap = new Map();
+
+    setTimeout(() => {
+      this.reinit();
+    }, 3000);
+  }
+
+  async reinit() {
+    const bunddleSettings = await BundleSettingEntity.find();
+
+    Logger.log(
+      TAG,
+      "reinit box setting",
+      bunddleSettings.map((s) => `${s.code}-${s.amount}`).join(";")
+    );
+
+    this.bundleMap.clear();
+    bunddleSettings.map((s) => {
+      this.bundleMap.set(s.code, s.amount);
+    });
+  }
+
+  boxesAmount(code: string) {
+    return this.bundleMap.get(code) || DEFAULT_BOXES_AMOUNT;
+  }
+}
+
+export const bunddleSettings = new BundleSettings();

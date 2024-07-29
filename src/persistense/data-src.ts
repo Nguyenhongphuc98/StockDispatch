@@ -4,13 +4,14 @@ import { PackingListEntity } from "./packing-list";
 import { PackingListItemEntity } from "./packling-list-item";
 import { BundleSettingEntity } from "./bundle-setting";
 import { ExportEntity } from "./export";
+import { WeighListItemEntity } from "./weigh-item";
 
 export const AppDataSource = new DataSource({
     type: "sqlite",
     database: "/etc/database/main.db",
     busyErrorRetry: 2,
     enableWAL: true,
-    entities: [UserEntity, PackingListEntity, PackingListItemEntity, BundleSettingEntity, ExportEntity],
+    entities: [UserEntity, PackingListEntity, PackingListItemEntity, BundleSettingEntity, ExportEntity, WeighListItemEntity],
     synchronize: true
 });
 
