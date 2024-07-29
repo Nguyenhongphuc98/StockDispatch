@@ -29,6 +29,7 @@ export type PackingListItemModel = {
   length: number;
   height: number;
   sizeUnit: string;
+  sku: string;
 };
 
 enum PKLItemStatus {
@@ -58,6 +59,9 @@ export class PackingListItemEntity extends BaseRepository {
 
   @Column()
   po: string;
+
+  @Column()
+  sku: string;
 
   @Column()
   packageId: string;
@@ -100,6 +104,7 @@ export class PackingListItemEntity extends BaseRepository {
     this.packageSeries = `${series[0]}-${series[1]}`;
     this.packageId = model.packageId;
     this.po = model.po;
+    this.sku = model.sku;
     this.itemsInPackage = model.itemsInPackage;
     this.itemsUnit = model.itemsUnit;
     this.netWeight = model.netWeight;
