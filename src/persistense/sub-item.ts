@@ -9,6 +9,9 @@ import {
   UpdateDateColumn,
   ManyToOne,
   PrimaryColumn,
+  Not,
+  Index,
+  In,
 } from "typeorm";
 import { PackingListEntity } from "./packing-list";
 import { BaseRepository } from "./base";
@@ -22,8 +25,9 @@ export type WeighListItemModel = {
   grossWeight: number;
 };
 
-@Entity("WeighListItem")
-export class WeighListItemEntity extends BaseRepository {
+@Entity("SubItem")
+@Index('IDX_SI_PKL', ['packingList'])
+export class SubItemEntity extends BaseRepository {
   @PrimaryGeneratedColumn()
   id: string;
 
@@ -53,6 +57,9 @@ export class WeighListItemEntity extends BaseRepository {
 
   @Column()
   grossWeight: number;
+
+  @Column({nullable: true})
+  exportTime: Date;
 
   init(
     model: WeighListItemModel,
@@ -97,15 +104,14 @@ export class WeighListItemEntity extends BaseRepository {
     pkl: PackingListEntity,
     pklItem: PackingListItemEntity
   ) {
-
-    const results: WeighListItemEntity[] = []; 
+    const results: SubItemEntity[] = [];
     const start = pklItem.startSeries();
     const end = pklItem.endSeries();
 
     let s = start;
     while (s <= end) {
       let e = Math.min(s + max - 1, end);
-      const weighItem = new WeighListItemEntity();
+      const weighItem = new SubItemEntity();
       weighItem.init(
         {
           packageSeries: [s, e],
@@ -116,18 +122,46 @@ export class WeighListItemEntity extends BaseRepository {
         pklItem
       );
       results.push(weighItem);
-      s = e+1;
+      s = e + 1;
     }
 
     return results;
   }
 
   static async anyItem(pklId: string): Promise<boolean> {
-    const entity = await WeighListItemEntity.findOneBy({packingList: {
-      id: pklId
-    }});
+    const entity = await SubItemEntity.findOneBy({
+      packingList: {
+        id: pklId,
+      },
+    });
 
     return !!entity;
+  }
+
+  static async countAll(pklIds: string[]) {
+    return SubItemEntity.countBy({
+      packingList: {
+        id: In(pklIds),
+      },
+    });
+  }
+
+  static async countWeighed(pklIds: string[]) {
+    return SubItemEntity.countBy({
+      packingList: {
+        id: In(pklIds),
+      },
+      grossWeight: Not(DEFAULT_WEIGH)
+    });
+  }
+
+  static async countExported(pklIds: string[]) {
+    return SubItemEntity.countBy({
+      packingList: {
+        id: In(pklIds),
+      },
+      exportTime: Not(null)
+    });
   }
 }
 

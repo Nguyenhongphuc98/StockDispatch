@@ -9,12 +9,15 @@ import {
   UpdateDateColumn,
   OneToMany,
   ManyToOne,
+  OneToOne,
+  Index,
 } from "typeorm";
 import { PackingListItemEntity } from "./packling-list-item";
 import { UserEntity } from "./users";
 import { ExportEntity } from "./export";
 import { BaseRepository } from "./base";
 import { MAX_ITEMS_PER_PAGE } from "../config";
+import { generateRandomString } from "../utils/string";
 
 export type PackingListModel = {
   name: string;
@@ -33,7 +36,14 @@ export enum PKLStatus {
   Exported = 2,
 };
 
+export enum WeighStatus {
+  NotStart = 0,
+  Weighting = 1,
+  Finished = 2,
+};
+
 @Entity("PackingList")
+@Index('IDX_PKL_NAME', ['name'])
 export class PackingListEntity extends BaseRepository {
   @PrimaryGeneratedColumn()
   id: string;
@@ -74,10 +84,16 @@ export class PackingListEntity extends BaseRepository {
   @Column()
   status: PKLStatus;
 
+  @Column()
+  weighStatus: WeighStatus;
+
+  @Column()
+  weighKey: string;
+
   @OneToMany(() => PackingListItemEntity, (it) => it.packingList, { cascade: ['remove'] })
   items: PackingListItemEntity[];
 
-  @ManyToOne(() => PackingListItemEntity, (it) => it.packingList, {nullable: true })
+  @ManyToOne(() => ExportEntity, (it) => it.items, {nullable: true })
   export: ExportEntity;
 
   init(model: PackingListModel, creator: UserEntity) {
@@ -92,6 +108,8 @@ export class PackingListEntity extends BaseRepository {
     this.items = [];
     this.name = model.name;
     this.status = PKLStatus.Imported;
+    this.weighStatus = WeighStatus.NotStart;
+    this.weighKey = generateRandomString(5);
   }
 
   toModel() {
@@ -111,7 +129,8 @@ export class PackingListEntity extends BaseRepository {
   static async getPackingLists(
     max: number = MAX_ITEMS_PER_PAGE,
     filterDate: Date | undefined = undefined,
-    filterName: string | undefined = undefined
+    filterName: string | undefined = undefined,
+    filterWeighStt: WeighStatus | undefined = undefined,
   ): Promise<PackingListEntity[]> {
     const query = await PackingListEntity.createQueryBuilder("pl")
       .leftJoin("pl.createdBy", "User")
@@ -124,6 +143,12 @@ export class PackingListEntity extends BaseRepository {
     if (filterName) {
       query.andWhere("pl.name LIKE :filterName", {
         filterName: `%${filterName}%`,
+      });
+    }
+
+    if (filterWeighStt) {
+      query.andWhere("pl.weighStatus = :filterWeighStt", {
+        filterWeighStt,
       });
     }
 

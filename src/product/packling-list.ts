@@ -72,13 +72,16 @@ export async function getPackinglists(req: JsonRequest, res: any, next: any) {
   const kw = req.query.kw;
   //@ts-ignore
   const ts = req.query.ts;
+  //@ts-ignore
+  const wstt = req.query.wstt;
 
-  Logger.log(TAG, "get pkls", sessionId, user.username, kw, ts);
+  Logger.log(TAG, "get pkls", sessionId, user.username, kw, ts, wstt);
 
   const pkls = await PackingListEntity.getPackingLists(
     MAX_ITEMS_PER_PAGE,
     ts ? new Date(ts) : undefined,
-    kw
+    kw,
+    wstt
   );
 
   res.send(
@@ -97,8 +100,7 @@ export async function packinglistModify(
   const sessionId = req.headers["sessionid"];
   const { pid, reqid, createat, type } = req.rawBody;
 
-  const pkl = await PackingListEntity
-    .createQueryBuilder("pl")
+  const pkl = await PackingListEntity.createQueryBuilder("pl")
     .leftJoinAndSelect("pl.items", "PackingListItem")
     .where("pl.id = :id", { id: pid })
     .getOne();
@@ -111,7 +113,7 @@ export async function packinglistModify(
 
   switch (type) {
     case "delete": {
-      await PackingListItemEntity.remove(pkl.items)
+      await PackingListItemEntity.remove(pkl.items);
       pkl
         .remove()
         .then(() => {

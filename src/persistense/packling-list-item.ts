@@ -10,10 +10,11 @@ import {
   ManyToOne,
   PrimaryColumn,
   OneToMany,
+  Index,
 } from "typeorm";
 import { PackingListEntity } from "./packing-list";
 import { BaseRepository } from "./base";
-import { WeighListItemEntity } from "./weigh-item";
+import { SubItemEntity } from "./sub-item";
 
 export type PackingListItemModel = {
   packageSeries: [number, number];
@@ -32,12 +33,8 @@ export type PackingListItemModel = {
   sku: string;
 };
 
-enum PKLItemStatus {
-  Imported = 0,
-  Exported = 2,
-}
-
 @Entity("PackingListItem")
+@Index('IDX_PKLI_PKL', ['packingList'])
 export class PackingListItemEntity extends BaseRepository {
   @PrimaryGeneratedColumn()
   id: string;
@@ -48,11 +45,11 @@ export class PackingListItemEntity extends BaseRepository {
   @UpdateDateColumn()
   updateAt: Date;
 
-  @ManyToOne(() => PackingListEntity, (pl) => pl.items)
+  @ManyToOne(() => PackingListEntity, (pl) => pl.items, { onDelete: 'CASCADE' })
   packingList: PackingListEntity;
 
-  @OneToMany(() => WeighListItemEntity, (wli) => wli.packingListItem, { cascade: ['remove'] })
-  weighList: WeighListItemEntity[];
+  @OneToMany(() => SubItemEntity, (wli) => wli.packingListItem)
+  weighList: SubItemEntity[];
 
   @Column()
   packageSeries: string;
@@ -60,7 +57,7 @@ export class PackingListItemEntity extends BaseRepository {
   @Column()
   po: string;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   sku: string;
 
   @Column()
@@ -96,15 +93,11 @@ export class PackingListItemEntity extends BaseRepository {
   @Column()
   sizeUnit: string;
 
-  @Column()
-  status: PKLItemStatus;
-
   init(model: PackingListItemModel, packingList: PackingListEntity) {
     const series = model.packageSeries;
     this.packageSeries = `${series[0]}-${series[1]}`;
     this.packageId = model.packageId;
     this.po = model.po;
-    this.sku = model.sku || "";
     this.itemsInPackage = model.itemsInPackage;
     this.itemsUnit = model.itemsUnit;
     this.netWeight = model.netWeight;
@@ -117,11 +110,9 @@ export class PackingListItemEntity extends BaseRepository {
     this.sizeUnit = model.sizeUnit;
     this.packingList = packingList;
     this.weighList = [];
-    this.status = PKLItemStatus.Imported;
   }
 
   toModel() {
-
     return {
       ...this,
       packageSeries: [this.startSeries(), this.endSeries()],

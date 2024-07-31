@@ -9,33 +9,36 @@ import {
   UpdateDateColumn,
   OneToMany,
   ManyToOne,
+  Index,
 } from "typeorm";
 import { UserEntity } from "./users";
 import { PackingListEntity, PKLStatus } from "./packing-list";
 import { BaseRepository } from "./base";
 import { PackingListItemEntity } from "./packling-list-item";
 import { generateRandomString } from "../utils/string";
+import { SubItemEntity } from "./sub-item";
 
 export type ExportModel = {
-    createdBy: UserEntity;
-    name: string;
-    gate: string;
-    fcl: string;
-    contNum: string;
-    contSize: string;
-    vehicle: string;
-    seal: string;
-    customer: string;
-    items: PackingListEntity[];
+  createdBy: UserEntity;
+  name: string;
+  gate: string;
+  fcl: string;
+  contNum: string;
+  contSize: string;
+  vehicle: string;
+  seal: string;
+  customer: string;
+  items: PackingListEntity[];
 };
 
 export enum ExportStatus {
   Imported = 0,
   Exporting = 1,
   Exported = 2,
-};
+}
 
 @Entity("Export")
+@Index("IDX_E_NAME", ["name"])
 export class ExportEntity extends BaseRepository {
   @PrimaryGeneratedColumn()
   id: string;
@@ -103,19 +106,26 @@ export class ExportEntity extends BaseRepository {
   }
 
   static getByIdWithCreateByAndItems(id: string) {
-    return ExportEntity.createQueryBuilder("e")
+    const exportItem: any = ExportEntity.createQueryBuilder("e")
       .leftJoin("e.createdBy", "User")
       .addSelect(["User.displayName", "User.username"])
       .where("e.id = :id", { id })
       .leftJoinAndSelect("e.items", PackingListItemEntity.name)
       .getOne();
+
+      if (exportItem) {
+        exportItem.itemsCount = this.countTotalExportItems(exportItem);
+        exportItem.exportedCount = this.countExportItems(exportItem);
+      }
+
+      return exportItem;
   }
 
   static async getExports(
     max: number,
     filterDate: Date | undefined = undefined,
     filterName: string | undefined = undefined,
-    status: PKLStatus = undefined,
+    status: PKLStatus = undefined
   ): Promise<ExportEntity[]> {
     const query = await ExportEntity.createQueryBuilder("e")
       .leftJoin("e.createdBy", "User")
@@ -132,7 +142,7 @@ export class ExportEntity extends BaseRepository {
     }
 
     if (status) {
-      query.andWhere("e.status = :status", {status});
+      query.andWhere("e.status = :status", { status });
     }
 
     const packingLists = query
@@ -142,5 +152,19 @@ export class ExportEntity extends BaseRepository {
       .getMany();
 
     return packingLists;
+  }
+
+  static async countTotalExportItems(exportItem: ExportEntity) {
+    const pklIds = exportItem.items.map(i => i.id);
+    const totalCount = await SubItemEntity.countAll(pklIds);
+
+    return totalCount;
+  }
+
+  static async countExportItems(exportItem: ExportEntity) {
+    const pklIds = exportItem.items.map(i => i.id);
+    const totalCount = await SubItemEntity.countExported(pklIds);
+
+    return totalCount;
   }
 }
