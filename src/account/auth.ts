@@ -11,6 +11,7 @@ import AppSession from "./session";
 import { buildHashedData } from "./utils";
 import { Request, Response } from "express";
 import Logger from "../loger";
+import { commonParams } from "../utils/common-params";
 
 const TAG = "[Auth]";
 
@@ -31,7 +32,7 @@ export async function requestLogin(req: Request, resp: Response) {
 
 export async function login(req: any, res: any, next: any) {
   const encryptedAuth = req.body.auth;
-  const sessionId = req.headers.sessionid;
+  const { sessionId } = commonParams(req);
   const auth = AppSession.getAuthData(sessionId, encryptedAuth);
 
   Logger.log(TAG, "login", sessionId, auth);
@@ -54,7 +55,7 @@ export async function login(req: any, res: any, next: any) {
 }
 
 export function getUserInfo(req: Request, res: Response, next: any) {
-  const sessionId = req.headers.sessionid as string;
+  const { sessionId } = commonParams(req);
   const user = AppSession.getActiveUser(sessionId);
 
   console.log("get user info: ", sessionId, user);
@@ -65,7 +66,7 @@ export function getUserInfo(req: Request, res: Response, next: any) {
 }
 
 export function restrict(req: any, res: any, next: any) {
-  const sessionId = req.headers.sessionid;
+  const { sessionId } = commonParams(req);
   const user = AppSession.getActiveUser(sessionId);
 
   if (user) {
@@ -79,7 +80,7 @@ export function restrict(req: any, res: any, next: any) {
 }
 
 export function logout(req: any, res: any, next: any) {
-  const sessionId = req.headers.sessionid;
+  const { sessionId } = commonParams(req);
   AppSession.destroySession(sessionId);
   res.send(new SuccessResponse(sessionId));
 }

@@ -6,12 +6,13 @@ import {
   BundleSettingEntity,
   BundleSettingModel,
 } from "../persistense/bundle-setting";
+import { commonParams } from "../utils/common-params";
 
 const TAG = "[Box-setting]";
 const DEFAULT_BOXES_AMOUNT = 1;
 
 export async function getBundleSettings(req: JsonRequest, res: any, next: any) {
-  const sessionId = req.headers["sessionid"];
+  const { sessionId } = commonParams(req);
   const user = req.user;
 
   Logger.log(TAG, "get bundle setting", sessionId, user.username);
@@ -30,7 +31,7 @@ export async function modifyBundleSetting(
   res: Response,
   next: any
 ) {
-  const sessionId = req.headers["sessionid"];
+  const { sessionId } = commonParams(req);
   const user = req.user;
   const { settings, reqid, createat, type } = req.rawBody;
 
@@ -44,7 +45,7 @@ export async function modifyBundleSetting(
   );
 
   if (!Array.isArray(settings)) {
-    res.send(new InvalidPayloadResponse());
+    res.send(new InvalidPayloadResponse(sessionId));
     return;
   }
 
@@ -57,7 +58,7 @@ export async function modifyBundleSetting(
     .filter((s) => s.validate());
 
   if (toModifys.length < settings.length) {
-    res.send(new InvalidPayloadResponse());
+    res.send(new InvalidPayloadResponse(sessionId));
     return;
   }
 

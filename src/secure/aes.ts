@@ -2,6 +2,7 @@ import { AES, enc } from "crypto-js";
 import Logger from "../loger";
 import { Request, Response } from "express";
 import { InvalidPayloadResponse } from "../utils/response";
+import { commonParams } from "../utils/common-params";
 const TAG = "[AES]";
 
 class AESWrapper {
@@ -42,7 +43,7 @@ class AESWrapper {
 
 export function decryptBody(req: Request, resp: Response, next: any) {
     const data = req.body["data"];
-    const sessionId = req.headers["sessionid"];
+    const { sessionId } = commonParams(req);
 
     try {
         //@ts-ignore
@@ -50,7 +51,7 @@ export function decryptBody(req: Request, resp: Response, next: any) {
         next();
     } catch (error) {
         Logger.error(TAG, "decrypt err:", data, error);
-        resp.send(new InvalidPayloadResponse());
+        resp.send(new InvalidPayloadResponse(sessionId));
     }
 }
 

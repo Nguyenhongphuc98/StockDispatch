@@ -28,6 +28,7 @@ import { SubItemEntity } from "../persistense/sub-item";
 import { bunddleSettings } from "./bundle-setting";
 
 import { AppDataSource } from "../persistense/data-src";
+import { commonParams } from "../utils/common-params";
 
 const TAG = "[SI]";
 
@@ -111,7 +112,7 @@ export async function createSubItems(
 }
 
 export async function getSubItems(req: JsonRequest, res: any, next: any) {
-  const sessionId = req.headers["sessionid"];
+  const { sessionId } = commonParams(req);
   const user = req.user;
 
   //@ts-ignore
@@ -124,7 +125,7 @@ export async function getSubItems(req: JsonRequest, res: any, next: any) {
 
   // only allow get by pklid
   if (!pkl) {
-    res.send(new InvalidPayloadResponse({ pkl }));
+    res.send(new InvalidPayloadResponse(sessionId, { pkl }));
     return;
   }
 
@@ -162,7 +163,7 @@ export async function getSubItems(req: JsonRequest, res: any, next: any) {
 }
 
 export async function startWeigh(req: JsonRequest, res: any, next: any) {
-  const sessionId = req.headers["sessionid"];
+  const { sessionId } = commonParams(req);
 
   //@ts-ignore
   const pkl = req.query.pkl;
@@ -188,7 +189,7 @@ export async function startWeigh(req: JsonRequest, res: any, next: any) {
 }
 
 export async function getWeigh(req: JsonRequest, res: any, next: any) {
-  const sessionId = req.headers["sessionid"];
+  const { sessionId } = commonParams(req);
 
   //@ts-ignore
   const ts = req.query.ts;

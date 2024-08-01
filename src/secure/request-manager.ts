@@ -2,6 +2,7 @@ import { JsonRequest } from "../utils/type";
 import Logger from "../loger";
 import { InvalidPayloadResponse } from "../utils/response";
 import { Request, Response } from "express";
+import { commonParams } from "../utils/common-params";
 
 const MAX_ALIVE = 24 * 60 * 60 * 1000;
 const CLEAN_INTERVAL = 6 * 60 * 60 * 1000;
@@ -51,7 +52,7 @@ export async function validateRequest(
   res: Response,
   next: any
 ) {
-  const sessionId = req.headers["sessionid"];
+  const { sessionId } = commonParams(req);
   const { reqid, createat } = req.rawBody;
 
   if (requestManager.isValidReq(reqid, createat)) {

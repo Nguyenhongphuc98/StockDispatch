@@ -14,6 +14,7 @@ import { Request, Response } from "express";
 import Logger from "../loger";
 import AppSession from "./session";
 import { generateRandomString } from "../utils/string";
+import { commonParams } from "../utils/common-params";
 
 const TAG = `[User][Modify]`;
 
@@ -22,7 +23,7 @@ export async function authorizeModifyAccount(
   res: Response,
   next: any
 ) {
-  const sessionId = req.headers["sessionid"];
+  const { sessionId } = commonParams(req);
   const user = AppSession.getActiveUser(sessionId);
   const { id } = req.params;
 
@@ -52,7 +53,7 @@ export async function authorizeAdmin(
   res: Response,
   next: any
 ) {
-  const sessionId = req.headers["sessionid"];
+  const { sessionId } = commonParams(req);
   const user = AppSession.getActiveUser(sessionId);
 
   if (user.role == Role.Admin) {
@@ -70,7 +71,7 @@ export async function createAccount(
   res: Response,
   next: any
 ) {
-  const sessionId = req.headers["sessionid"];
+  const { sessionId } = commonParams(req);
 
   const username = req.rawBody.username;
   const password = req.rawBody.password;
@@ -101,7 +102,7 @@ export async function updateAccount(
   res: Response,
   next: any
 ) {
-  const sessionId = req.headers["sessionid"];
+  const { sessionId } = commonParams(req);
   const { id } = req.params;
 
   const password = req.rawBody.password;
@@ -155,7 +156,7 @@ export async function updateAccount(
 }
 
 export async function listAccounts(req: JsonRequest, res: Response, next: any) {
-  const sessionId = req.headers["sessionid"];
+  const { sessionId } = commonParams(req);
 
   const users = (await UserEntity.find()).map((u) => u.model());
 
@@ -165,7 +166,7 @@ export async function listAccounts(req: JsonRequest, res: Response, next: any) {
 }
 
 export async function adminUpdate(req: JsonRequest, res: Response, next: any) {
-  const sessionId = req.headers["sessionid"];
+  const { sessionId } = commonParams(req);
   const { uid, reqid, createat, type } = req.rawBody;
 
   const user = await UserEntity.findOneBy({ id: uid });

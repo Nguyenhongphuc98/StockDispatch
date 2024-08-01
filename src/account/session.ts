@@ -43,22 +43,16 @@ class Session {
    */
   private authenMap = new Map<string, AuthenKey>();
 
-  constructor() {}
+  private preServeAuthenKey: { publicKey: string, privateKey: string } | null;
+
+  constructor() {
+    this.preServeAuthenKey = null;
+    // trigger create preserve key.
+    this.getAuthenKey();
+  }
 
   createAuthenSession(): AuthenSession {
-    const { publicKey, privateKey } = generateKeyPairSync("rsa", {
-      modulusLength: 4096,
-      publicKeyEncoding: {
-        type: "spki",
-        format: "pem",
-      },
-      privateKeyEncoding: {
-        type: "pkcs1",
-        format: "pem",
-        cipher: "aes-256-cbc",
-        passphrase: PASSPHRASE,
-      },
-    });
+    const { publicKey, privateKey } = this.getAuthenKey();
 
     const sessionId = randomUUID();
     this.authenMap.set(sessionId, {
@@ -67,7 +61,10 @@ class Session {
     });
 
     setTimeout(() => {
-      this.authenMap.delete(sessionId);
+      if (this.authenMap.has(sessionId)) {
+        console.log("[Session] - authen timeout: ", sessionId);
+        this.authenMap.delete(sessionId);
+      }
     }, 60 * 60 * 1000);
 
     console.log("[Session] - create new: ", sessionId);
@@ -76,6 +73,37 @@ class Session {
       sessionId,
       publicKey,
     };
+  }
+
+  getAuthenKey() {
+    let key = this.preServeAuthenKey;
+    this.preServeAuthenKey = null;
+
+    const genKey = () => {
+      return generateKeyPairSync("rsa", {
+        modulusLength: 4096,
+        publicKeyEncoding: {
+          type: "spki",
+          format: "pem",
+        },
+        privateKeyEncoding: {
+          type: "pkcs1",
+          format: "pem",
+          cipher: "aes-256-cbc",
+          passphrase: PASSPHRASE,
+        },
+      });
+    };
+
+    if (!key) {
+      key = genKey();
+    }
+    
+    setTimeout(() => {
+      this.preServeAuthenKey = genKey();
+    }, 1000);
+
+    return key;
   }
 
   createUserSession(sessionId: string, user: UserModel, encryptKey: string) {

@@ -20,6 +20,7 @@ import {
 import { FindOptionsWhere, LessThanOrEqual, Like } from "typeorm";
 import { MAX_ITEMS_PER_PAGE } from "../config";
 import { PackingListItemEntity } from "../persistense/packling-list-item";
+import { commonParams } from "../utils/common-params";
 
 const TAG = "[PKL]";
 
@@ -28,7 +29,7 @@ export async function createPackinglist(
   res: Response,
   next: any
 ) {
-  const sessionId = req.headers["sessionid"];
+  const { sessionId } = commonParams(req);
   const user = req.user;
 
   Logger.log(TAG, "create pkl", sessionId, user.username);
@@ -39,7 +40,7 @@ export async function createPackinglist(
   const missFields = pkl.getMissingFields();
   if (missFields.length) {
     Logger.log(TAG, "create pkl miss field", missFields);
-    res.send(new InvalidPayloadResponse());
+    res.send(new InvalidPayloadResponse(sessionId));
     return;
   }
 
@@ -49,7 +50,7 @@ export async function createPackinglist(
 }
 
 export async function getPackinglist(req: JsonRequest, res: any, next: any) {
-  const sessionId = req.headers["sessionid"];
+  const { sessionId } = commonParams(req);
   const { id } = req.params;
   const user = req.user;
 
@@ -65,7 +66,7 @@ export async function getPackinglist(req: JsonRequest, res: any, next: any) {
 }
 
 export async function getPackinglists(req: JsonRequest, res: any, next: any) {
-  const sessionId = req.headers["sessionid"];
+  const { sessionId } = commonParams(req);
   const user = req.user;
 
   //@ts-ignore
@@ -97,7 +98,7 @@ export async function packinglistModify(
   res: Response,
   next: any
 ) {
-  const sessionId = req.headers["sessionid"];
+  const { sessionId } = commonParams(req);
   const { pid, reqid, createat, type } = req.rawBody;
 
   const pkl = await PackingListEntity.createQueryBuilder("pl")

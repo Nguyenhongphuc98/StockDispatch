@@ -19,6 +19,7 @@ import {
   PackingListItemEntity,
   PackingListItemModel,
 } from "../persistense/packling-list-item";
+import { commonParams } from "../utils/common-params";
 
 const TAG = "[Product]";
 
@@ -27,7 +28,7 @@ export async function createProducts(
   res: Response,
   next: any
 ) {
-  const sessionId = req.headers["sessionid"];
+  const { sessionId } = commonParams(req);
   const user = req.user;
 
   Logger.log(TAG, "create products", sessionId, user.username);
@@ -54,7 +55,7 @@ export async function createProducts(
     const missFields = toSaves[i].getMissingFields();
     if (missFields.length) {
       Logger.log(TAG, "create products miss fields", missFields);
-      res.send(new InvalidPayloadResponse());
+      res.send(new InvalidPayloadResponse(sessionId));
       return;
     }
   }
@@ -67,7 +68,7 @@ export async function createProducts(
 }
 
 export async function getProducts(req: JsonRequest, res: any, next: any) {
-  const sessionId = req.headers["sessionid"];
+  const { sessionId } = commonParams(req);
   const user = req.user;
   //@ts-ignore
   const kw = req.query.kw;

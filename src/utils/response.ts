@@ -80,11 +80,9 @@ export class NotEncryptSuccessResponse {
     }
 }
 
-export class InvalidPayloadResponse {
-    message = "Payload invalid.";
-    error_code = ErrorCode.InvalidPayload;
-
-    constructor(readonly data: Record<string, any> = {}) {
+export class InvalidPayloadResponse extends JsonResponse {
+    constructor(sessionId: string, readonly data: Record<string, any> = {}) {
+        super(ErrorCode.InvalidPayload, "Payload invalid.", sessionId, data)
         Logger.error("[Resp]", this.message, data);
     }
 }

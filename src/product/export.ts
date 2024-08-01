@@ -23,11 +23,12 @@ import { MAX_ITEMS_PER_PAGE } from "../config";
 import { PackingListItemEntity } from "../persistense/packling-list-item";
 import { ExportEntity, ExportModel, ExportStatus } from "../persistense/export";
 import exportManager from "../export/export-manager";
+import { commonParams } from "../utils/common-params";
 
 const TAG = "[EXPORT]";
 
 export async function createExport(req: JsonRequest, res: Response, next: any) {
-  const sessionId = req.headers["sessionid"];
+  const { sessionId } = commonParams(req);
   const user = req.user;
   const pklIds = req.rawBody.pklIds;
 
@@ -35,7 +36,7 @@ export async function createExport(req: JsonRequest, res: Response, next: any) {
 
   if (!pklIds || !Array.isArray(pklIds)) {
     Logger.log(TAG, "create export invalid pklids: not", pklIds);
-    res.send(new InvalidPayloadResponse());
+    res.send(new InvalidPayloadResponse(sessionId));
     return;
   }
 
@@ -57,7 +58,7 @@ export async function createExport(req: JsonRequest, res: Response, next: any) {
   const missFields = exportItem.getMissingFields();
   if (missFields.length) {
     Logger.log(TAG, "create export miss field", missFields);
-    res.send(new InvalidPayloadResponse());
+    res.send(new InvalidPayloadResponse(sessionId));
     return;
   }
 
@@ -75,7 +76,7 @@ export async function createExport(req: JsonRequest, res: Response, next: any) {
 }
 
 export async function getExport(req: JsonRequest, res: any, next: any) {
-  const sessionId = req.headers["sessionid"];
+  const { sessionId } = commonParams(req);
   const { id } = req.params;
   const user = req.user;
 
@@ -91,7 +92,7 @@ export async function getExport(req: JsonRequest, res: any, next: any) {
 }
 
 export async function getExports(req: JsonRequest, res: any, next: any) {
-  const sessionId = req.headers["sessionid"];
+  const { sessionId } = commonParams(req);
   const user = req.user;
 
   //@ts-ignore
@@ -120,7 +121,7 @@ export async function getExports(req: JsonRequest, res: any, next: any) {
 }
 
 export async function exportModify(req: JsonRequest, res: Response, next: any) {
-  const sessionId = req.headers["sessionid"];
+  const { sessionId } = commonParams(req);
   const { eid, reqid, createat, type } = req.rawBody;
 
   const exportItem = await ExportEntity.findOneBy({ id: eid });

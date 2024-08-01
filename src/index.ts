@@ -8,6 +8,8 @@ const fs = require("fs");
 const marked = require("marked");
 
 const http = require("http");
+import { Request, Response } from "express";
+
 
 import { start } from "./start";
 import { auth } from "./route/auth";
@@ -17,6 +19,7 @@ import { doExport } from "./route/export";
 import { weigh } from "./route/weigh";
 import { corsOptions } from "./cors";
 import Logger from "./loger";
+import { commonParams } from "./utils/common-params";
 
 
 
@@ -37,10 +40,11 @@ app.use(express.json());
 app.use(express.urlencoded());
 app.use(cookieParser());
 app.use((req: Request, resp: Response, next: any) => {
+  const { sessionId } = commonParams(req);
   //@ts-ignore
   const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
   //@ts-ignore
-  Logger.log("[Gateway]", ip, req.method, req.url, req.body, req.headers.sessionid);
+  Logger.log("[Gateway]", ip, req.method, req.url, req.body, sessionId);
   next();
 });
 
@@ -105,3 +109,7 @@ process.on('unhandledRejection', (reason, promise) => {
 //  sqlite3 main.db\
 // .tables
 // DROP TABLE TableName;
+
+
+//TODO:
+// 1. wrap all middware with try catch logs.
