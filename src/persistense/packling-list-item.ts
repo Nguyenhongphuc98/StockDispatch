@@ -34,7 +34,7 @@ export type PackingListItemModel = {
 };
 
 @Entity("PackingListItem")
-@Index('IDX_PKLI_PKL', ['packingList'])
+@Index("IDX_PKLI_PKL", ["packingList"])
 export class PackingListItemEntity extends BaseRepository {
   @PrimaryGeneratedColumn()
   id: string;
@@ -45,7 +45,7 @@ export class PackingListItemEntity extends BaseRepository {
   @UpdateDateColumn()
   updateAt: Date;
 
-  @ManyToOne(() => PackingListEntity, (pl) => pl.items, { onDelete: 'CASCADE' })
+  @ManyToOne(() => PackingListEntity, (pl) => pl.items, { onDelete: "CASCADE" })
   packingList: PackingListEntity;
 
   @OneToMany(() => SubItemEntity, (wli) => wli.packingListItem)
@@ -127,5 +127,29 @@ export class PackingListItemEntity extends BaseRepository {
   endSeries() {
     const parsedSeries = this.packageSeries.split("-");
     return Number(parsedSeries[1]);
+  }
+
+  static async getPackingListItemsByPage(
+    page: number,
+    pageSize: number,
+    packageIdPattern: string,
+    packingListId: string
+  ) {
+    const [pklItems, totalCount] = await PackingListItemEntity.createQueryBuilder(
+      "item"
+    )
+      .where("item.packageId LIKE :packageIdPattern", {
+        packageIdPattern: `%${packageIdPattern}%`,
+      })
+      .andWhere("item.packingListId = :packingListId", { packingListId })
+      .skip((page - 1) * pageSize)
+      .take(pageSize)
+      .getManyAndCount();
+    const hasMore = totalCount > page * pageSize;
+
+    return {
+      pklItems,
+      hasMore,
+    };
   }
 }

@@ -73,43 +73,16 @@ export async function getProducts(req: JsonRequest, res: any, next: any) {
   //@ts-ignore
   const kw = req.query.kw;
   //@ts-ignore
-  const ts = req.query.ts;
+  const page = req.query.page || 1;
 
   //@ts-ignore
   const pkl = req.query.pkl;
 
-  Logger.log(TAG, "get products", sessionId, user.username,pkl, kw, ts);
+  Logger.log(TAG, "get products", sessionId, user.username,pkl, kw, page);
 
-  const conditions: FindOptionsWhere<PackingListItemEntity> = {};
-
-  if (pkl) {
-    conditions.packingList = {
-      id: pkl,
-    };
-  }
-
-  if (kw) {
-    conditions.packageId = Like(`%${kw}%`);
-  }
-
-  if (!ts) {
-    // conditions.createAt = LessThanOrEqual(new Date());
-  } else {
-    conditions.createAt = LessThanOrEqual(new Date(ts));
-  }
-
-  const pklItems = await PackingListItemEntity.find({
-    where: conditions,
-    order: {
-      createAt: "DESC",
-    },
-    take: MAX_ITEMS_PER_PAGE,
-  });
+  const data = PackingListItemEntity.getPackingListItemsByPage(page, MAX_ITEMS_PER_PAGE, kw, pkl);
 
   res.send(
-    new SuccessResponse(sessionId, {
-      pklItems: pklItems,
-      hasMore: pklItems.length >= MAX_ITEMS_PER_PAGE,
-    })
+    new SuccessResponse(sessionId, data)
   );
 }
