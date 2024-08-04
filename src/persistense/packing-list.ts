@@ -34,16 +34,16 @@ export enum PKLStatus {
   Imported = 0,
   Exporting = 1,
   Exported = 2,
-};
+}
 
 export enum WeighStatus {
   NotStart = 0,
   Weighting = 1,
   Finished = 2,
-};
+}
 
 @Entity("PackingList")
-@Index('IDX_PKL_NAME', ['name'])
+@Index("IDX_PKL_NAME", ["name"])
 export class PackingListEntity extends BaseRepository {
   @PrimaryGeneratedColumn()
   id: string;
@@ -90,10 +90,12 @@ export class PackingListEntity extends BaseRepository {
   @Column()
   weighKey: string;
 
-  @OneToMany(() => PackingListItemEntity, (it) => it.packingList, { cascade: ['remove'] })
+  @OneToMany(() => PackingListItemEntity, (it) => it.packingList, {
+    cascade: ["remove"],
+  })
   items: PackingListItemEntity[];
 
-  @ManyToOne(() => ExportEntity, (it) => it.items, {nullable: true })
+  @ManyToOne(() => ExportEntity, (it) => it.items, { nullable: true })
   export: ExportEntity;
 
   init(model: PackingListModel, creator: UserEntity) {
@@ -126,11 +128,20 @@ export class PackingListEntity extends BaseRepository {
       .getOne();
   }
 
+  static getByInvWithExport(id: string) {
+    return PackingListEntity.find({
+      where: {
+        attachedInvoiceId: id,
+      },
+      relations: [ExportEntity.name],
+    });
+  }
+
   static async getPackingLists(
     max: number = MAX_ITEMS_PER_PAGE,
     filterDate: Date | undefined = undefined,
     filterName: string | undefined = undefined,
-    filterWeighStt: WeighStatus | undefined = undefined,
+    filterWeighStt: WeighStatus | undefined = undefined
   ): Promise<PackingListEntity[]> {
     const query = await PackingListEntity.createQueryBuilder("pl")
       .leftJoin("pl.createdBy", "User")
@@ -157,6 +168,191 @@ export class PackingListEntity extends BaseRepository {
       .leftJoin("pl.items", PackingListItemEntity.name)
       .loadRelationCountAndMap("pl.itemsCount", "pl.items")
       .take(max)
+      .getMany();
+
+    return packingLists;
+  }
+
+  static async getPackingListsByPoAndDateRange(
+    po: string,
+    fromDate: Date,
+    toDate: Date
+  ) {
+    const packingLists = await PackingListEntity.createQueryBuilder(
+      "packingList"
+    )
+      .leftJoinAndSelect("packingList.items", "item")
+      .leftJoinAndSelect("packingList.export", "export")
+      .where("item.po = :po", { po })
+      .andWhere("packingList.createAt BETWEEN :fromDate AND :toDate", {
+        fromDate,
+        toDate,
+      })
+      .groupBy("packingList.id")
+      .addGroupBy("export.id") // Add this line if you want to include export details
+      .addSelect([
+        "packingList.createAt",
+        "packingList.updateAt",
+        "packingList.name",
+        "packingList.attachedInvoiceId",
+        "packingList.date",
+        "packingList.from",
+        "packingList.to",
+        "packingList.etdFactory",
+        "packingList.etdPort",
+        "packingList.eta",
+        "packingList.status",
+        "packingList.weighStatus",
+        "packingList.weighKey",
+      ])
+      .addSelect([
+        "export.name",
+        "export.gate",
+        "export.fcl",
+        "export.contNum",
+        "export.contSize",
+        "export.vehicle",
+        "export.seal",
+        "export.customer",
+        "export.status",
+      ])
+      .getMany();
+
+    return packingLists;
+  }
+
+  static async getPackingListsByPackgeIdAndDateRange(
+    packageId: string,
+    fromDate: Date,
+    toDate: Date
+  ) {
+    const packingLists = await PackingListEntity.createQueryBuilder(
+      "packingList"
+    )
+      .leftJoinAndSelect("packingList.items", "item")
+      .leftJoinAndSelect("packingList.export", "export")
+      .where("item.packageId = :packageId", { packageId })
+      .andWhere("packingList.createAt BETWEEN :fromDate AND :toDate", {
+        fromDate,
+        toDate,
+      })
+      .groupBy("packingList.id")
+      .addGroupBy("export.id") // Add this line if you want to include export details
+      .addSelect([
+        "packingList.createAt",
+        "packingList.updateAt",
+        "packingList.name",
+        "packingList.attachedInvoiceId",
+        "packingList.date",
+        "packingList.from",
+        "packingList.to",
+        "packingList.etdFactory",
+        "packingList.etdPort",
+        "packingList.eta",
+        "packingList.status",
+        "packingList.weighStatus",
+        "packingList.weighKey",
+      ])
+      .addSelect([
+        "export.name",
+        "export.gate",
+        "export.fcl",
+        "export.contNum",
+        "export.contSize",
+        "export.vehicle",
+        "export.seal",
+        "export.customer",
+        "export.status",
+      ])
+      .getMany();
+
+    return packingLists;
+  }
+
+  static async getPackingListsByExportCreateDate(fromDate: Date, toDate: Date) {
+    const packingLists = await PackingListEntity.createQueryBuilder(
+      "packingList"
+    )
+      .innerJoin("packingList.export", "export")
+      .leftJoinAndSelect("packingList.items", "item")
+      .leftJoinAndSelect("packingList.export", "export")
+      .where("export.createAt BETWEEN :fromDate AND :toDate", {
+        fromDate,
+        toDate,
+      })
+      .groupBy("packingList.id")
+      .addGroupBy("export.id") // Add this line if you want to include export details
+      .addSelect([
+        "packingList.createAt",
+        "packingList.updateAt",
+        "packingList.name",
+        "packingList.attachedInvoiceId",
+        "packingList.date",
+        "packingList.from",
+        "packingList.to",
+        "packingList.etdFactory",
+        "packingList.etdPort",
+        "packingList.eta",
+        "packingList.status",
+        "packingList.weighStatus",
+        "packingList.weighKey",
+      ])
+      .addSelect([
+        "export.name",
+        "export.gate",
+        "export.fcl",
+        "export.contNum",
+        "export.contSize",
+        "export.vehicle",
+        "export.seal",
+        "export.customer",
+        "export.status",
+      ])
+      .getMany();
+
+    return packingLists;
+  }
+
+  static async getPackingListsByExportCustomer(customer: string, fromDate: Date, toDate: Date) {
+    const packingLists = await PackingListEntity.createQueryBuilder(
+      "packingList"
+    )
+      .innerJoin("packingList.export", "export")
+      .leftJoinAndSelect("packingList.items", "item")
+      .leftJoinAndSelect("packingList.export", "export")
+      .where("export.createAt BETWEEN :fromDate AND :toDate", {
+        fromDate,
+        toDate,
+      })
+      .andWhere("export.customer = :customer", { customer })
+      .groupBy("packingList.id")
+      .addGroupBy("export.id") // Add this line if you want to include export details
+      .addSelect([
+        "packingList.createAt",
+        "packingList.updateAt",
+        "packingList.name",
+        "packingList.attachedInvoiceId",
+        "packingList.date",
+        "packingList.from",
+        "packingList.to",
+        "packingList.etdFactory",
+        "packingList.etdPort",
+        "packingList.eta",
+        "packingList.status",
+        "packingList.weighStatus",
+        "packingList.weighKey",
+      ])
+      .addSelect([
+        "export.name",
+        "export.gate",
+        "export.fcl",
+        "export.contNum",
+        "export.contSize",
+        "export.vehicle",
+        "export.seal",
+        "export.customer",
+        "export.status",
+      ])
       .getMany();
 
     return packingLists;
