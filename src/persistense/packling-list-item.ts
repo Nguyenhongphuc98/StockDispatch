@@ -98,7 +98,7 @@ export class PackingListItemEntity extends BaseRepository {
     this.packageSeries = `${series[0]}-${series[1]}`;
     this.packageId = model.packageId;
     this.po = model.po;
-    this.sku = '';
+    this.sku = "";
     this.itemsInPackage = model.itemsInPackage;
     this.itemsUnit = model.itemsUnit;
     this.netWeight = model.netWeight;
@@ -136,16 +136,21 @@ export class PackingListItemEntity extends BaseRepository {
     packageIdPattern: string,
     packingListId: string
   ) {
-    const [pklItems, totalCount] = await PackingListItemEntity.createQueryBuilder(
-      "item"
-    )
-      .where("item.packageId LIKE :packageIdPattern", {
-        packageIdPattern: `%${packageIdPattern}%`,
-      })
-      .andWhere("item.packingListId = :packingListId", { packingListId })
+    let queryBuilder = await PackingListItemEntity.createQueryBuilder("item")
+      .where("item.packingListId = :packingListId", { packingListId })
       .skip((page - 1) * pageSize)
-      .take(pageSize)
-      .getManyAndCount();
+      .take(pageSize);
+
+    if (packageIdPattern) {
+      queryBuilder = queryBuilder.andWhere(
+        "item.packageId LIKE :packageIdPattern",
+        { packageIdPattern: `%${packageIdPattern}%` }
+      );
+    }
+
+    // Execute the query to get items and total count
+    const [pklItems, totalCount] = await queryBuilder.getManyAndCount();
+
     const hasMore = totalCount > page * pageSize;
 
     return {
