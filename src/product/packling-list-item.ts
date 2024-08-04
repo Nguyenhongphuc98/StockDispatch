@@ -80,7 +80,7 @@ export async function getProducts(req: JsonRequest, res: any, next: any) {
 
   Logger.log(TAG, "get products", sessionId, user.username, pkl, kw, page);
 
-  const data = PackingListItemEntity.getPackingListItemsByPage(page, MAX_ITEMS_PER_PAGE, kw, pkl);
+  const data = await PackingListItemEntity.getPackingListItemsByPage(page, MAX_ITEMS_PER_PAGE, kw, pkl);
 
   res.send(
     new SuccessResponse(sessionId, data)
