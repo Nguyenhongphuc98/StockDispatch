@@ -10,7 +10,6 @@ const marked = require("marked");
 const http = require("http");
 import { Request, Response } from "express";
 
-
 import { start } from "./start";
 import { auth } from "./route/auth";
 import { user } from "./route/user";
@@ -22,8 +21,6 @@ import Logger from "./loger";
 import { commonParams } from "./utils/common-params";
 import { report } from "./route/report";
 
-
-
 env.config();
 const app = express();
 const port = process.env.port;
@@ -32,18 +29,21 @@ app.use(cors(corsOptions));
 
 const server = http.createServer(app);
 
-
-
 // console.log('aaa', express)
 
-
-app.use(express.json());
+app.use(express.text(), (req: Request, resp: Response, next: any) => {
+  try {
+    req.body = JSON.parse(req.body);
+  } catch (error) {}
+  next();
+});
 app.use(express.urlencoded());
 app.use(cookieParser());
+
 app.use((req: Request, resp: Response, next: any) => {
   const { sessionId } = commonParams(req);
   //@ts-ignore
-  const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
   //@ts-ignore
   Logger.log("[Gateway]", ip, req.method, req.url, req.body, sessionId);
   next();
@@ -77,17 +77,15 @@ report(app);
 //   });
 // });
 
-
-
 start(server);
 
-process.on('uncaughtException', (err) => {
-  console.error('Uncaught Exception:', err);
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught Exception:", err);
   process.exit(1); // Ensure the process exits
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Rejection at:", promise, "reason:", reason);
   process.exit(1); // Ensure the process exits
 });
 
@@ -97,10 +95,8 @@ process.on('unhandledRejection', (reason, promise) => {
 // docker-compose build
 // docker-compose up -d
 
-
 // docker images
 // docker image rm
-
 
 // ssh root@164.90.186.39 1310312240
 // restart lai sv khi crash
@@ -115,7 +111,6 @@ process.on('unhandledRejection', (reason, promise) => {
 //  sqlite3 main.db\
 // .tables
 // DROP TABLE TableName;
-
 
 //TODO:
 // 1. wrap all middware with try catch logs.
