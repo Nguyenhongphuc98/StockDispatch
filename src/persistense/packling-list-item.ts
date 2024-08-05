@@ -98,7 +98,7 @@ export class PackingListItemEntity extends BaseRepository {
     this.packageSeries = `${series[0]}-${series[1]}`;
     this.packageId = model.packageId;
     this.po = model.po;
-    this.sku = "";
+    this.sku = model.sku || "";
     this.itemsInPackage = model.itemsInPackage;
     this.itemsUnit = model.itemsUnit;
     this.netWeight = model.netWeight;
