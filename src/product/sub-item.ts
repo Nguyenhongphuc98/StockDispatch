@@ -23,13 +23,11 @@ export async function getSubItems(req: JsonRequest, res: any, next: any) {
   const { sessionId } = commonParams(req);
   const user = req.user;
 
-  //@ts-ignore
-  const ts = req.query.ts;
 
   //@ts-ignore
   const pkl = req.query.pkl;
 
-  Logger.log(TAG, "get weighs", sessionId, user.username, pkl, ts);
+  Logger.log(TAG, "get weighs", sessionId, user.username, pkl);
 
   // only allow get by pklid
   if (!pkl) {
@@ -48,12 +46,6 @@ export async function getSubItems(req: JsonRequest, res: any, next: any) {
     id: pkl,
   };
 
-  if (!ts) {
-    // conditions.createAt = LessThanOrEqual(new Date());
-  } else {
-    conditions.createAt = LessThanOrEqual(new Date(ts));
-  }
-
   const weighItems = await SubItemEntity.find({
     where: conditions,
     order: {
@@ -65,7 +57,6 @@ export async function getSubItems(req: JsonRequest, res: any, next: any) {
   res.send(
     new SuccessResponse(sessionId, {
       weighItems: weighItems,
-      hasMore: weighItems.length >= MAX_ITEMS_PER_PAGE,
     })
   );
 }
