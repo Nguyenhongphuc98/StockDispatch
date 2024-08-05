@@ -17,6 +17,7 @@ import { BaseRepository } from "./base";
 import { PackingListItemEntity } from "./packling-list-item";
 import { generateRandomString } from "../utils/string";
 import { SubItemEntity } from "./sub-item";
+import subItemController from "../controller/subitem-controller";
 
 export type ExportModel = {
   createdBy: UserEntity;
@@ -105,8 +106,8 @@ export class ExportEntity extends BaseRepository {
     return this;
   }
 
-  static getByIdWithCreateByAndItems(id: string) {
-    const exportItem: any = ExportEntity.createQueryBuilder("e")
+  static async getByIdWithCreateByAndItems(id: string) {
+    const exportItem: any = await ExportEntity.createQueryBuilder("e")
       .leftJoin("e.createdBy", "User")
       .addSelect(["User.displayName", "User.username"])
       .where("e.id = :id", { id })
@@ -114,8 +115,8 @@ export class ExportEntity extends BaseRepository {
       .getOne();
 
       if (exportItem) {
-        exportItem.itemsCount = this.countTotalExportItems(exportItem);
-        exportItem.exportedCount = this.countExportItems(exportItem);
+        exportItem.itemsCount = await this.countTotalExportItems(exportItem);
+        exportItem.exportedCount = await this.countExportedItems(exportItem);
       }
 
       return exportItem;
@@ -156,14 +157,14 @@ export class ExportEntity extends BaseRepository {
 
   static async countTotalExportItems(exportItem: ExportEntity) {
     const pklIds = exportItem.items.map(i => i.id);
-    const totalCount = await SubItemEntity.countAll(pklIds);
+    const totalCount = await subItemController.countAll(pklIds);
 
     return totalCount;
   }
 
-  static async countExportItems(exportItem: ExportEntity) {
+  static async countExportedItems(exportItem: ExportEntity) {
     const pklIds = exportItem.items.map(i => i.id);
-    const totalCount = await SubItemEntity.countExported(pklIds);
+    const totalCount = await subItemController.countExported(pklIds);
 
     return totalCount;
   }

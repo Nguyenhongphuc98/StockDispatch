@@ -7,7 +7,7 @@ import { decryptBody } from "../secure/aes";
 import { validateRequest } from "../secure/request-manager";
 
 export function doExport(app) {
-    app.put("/api/v1/mobile/export/:id", onExportItem);
+    app.patch("/api/v1/export/:id", onExportItem);
 
     app.post("/api/v1/export", restrict, decryptBody, createExport);
     app.get("/api/v1/export", restrict, getExports);

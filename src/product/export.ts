@@ -24,6 +24,7 @@ import { PackingListItemEntity } from "../persistense/packling-list-item";
 import { ExportEntity, ExportModel, ExportStatus } from "../persistense/export";
 import exportManager from "../export/export-manager";
 import { commonParams } from "../utils/common-params";
+import subItemController from "../controller/subitem-controller";
 
 const TAG = "[EXPORT]";
 
@@ -60,6 +61,13 @@ export async function createExport(req: JsonRequest, res: Response, next: any) {
     Logger.log(TAG, "create export miss field", missFields);
     res.send(new InvalidPayloadResponse(sessionId));
     return;
+  }
+
+  for (const pid of pklIds) {
+    if (!await subItemController.createSubItemsIfNotExists(sessionId, pid)) {
+      res.send(new ErrorResponse(sessionId, {message: 'fail to init sub items'}));
+      return;
+    }
   }
 
   for (let i = 0; i < packinglists.length; i++) {

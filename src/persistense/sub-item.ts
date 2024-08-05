@@ -17,8 +17,6 @@ import { PackingListEntity } from "./packing-list";
 import { BaseRepository } from "./base";
 import { PackingListItemEntity } from "./packling-list-item";
 
-const DEFAULT_WEIGH = 0;
-
 export type WeighListItemModel = {
   packageSeries: [number, number];
   parentPackageSeries: [number, number];
@@ -97,71 +95,6 @@ export class SubItemEntity extends BaseRepository {
   endSeries() {
     const parsedSeries = this.packageSeries.split("-");
     return parsedSeries[1];
-  }
-
-  static buildWeighItems(
-    max: number,
-    pkl: PackingListEntity,
-    pklItem: PackingListItemEntity
-  ) {
-    const results: SubItemEntity[] = [];
-    const start = pklItem.startSeries();
-    const end = pklItem.endSeries();
-
-    let s = start;
-    while (s <= end) {
-      let e = Math.min(s + max - 1, end);
-      const weighItem = new SubItemEntity();
-      weighItem.init(
-        {
-          packageSeries: [s, e],
-          parentPackageSeries: [pklItem.startSeries(), pklItem.endSeries()],
-          grossWeight: DEFAULT_WEIGH,
-        },
-        pkl,
-        pklItem
-      );
-      results.push(weighItem);
-      s = e + 1;
-    }
-
-    return results;
-  }
-
-  static async anyItem(pklId: string): Promise<boolean> {
-    const entity = await SubItemEntity.findOneBy({
-      packingList: {
-        id: pklId,
-      },
-    });
-
-    return !!entity;
-  }
-
-  static async countAll(pklIds: string[]) {
-    return SubItemEntity.countBy({
-      packingList: {
-        id: In(pklIds),
-      },
-    });
-  }
-
-  static async countWeighed(pklIds: string[]) {
-    return SubItemEntity.countBy({
-      packingList: {
-        id: In(pklIds),
-      },
-      grossWeight: Not(DEFAULT_WEIGH)
-    });
-  }
-
-  static async countExported(pklIds: string[]) {
-    return SubItemEntity.countBy({
-      packingList: {
-        id: In(pklIds),
-      },
-      exportTime: Not(null)
-    });
   }
 }
 

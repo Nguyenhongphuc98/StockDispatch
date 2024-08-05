@@ -1,4 +1,4 @@
-import { ResourceNotFoundResponse, SuccessResponse } from "../utils/response";
+import { InvalidPayloadResponse, ResourceNotFoundResponse, SuccessResponse } from "../utils/response";
 import Logger from "../loger";
 import { JsonRequest } from "../utils/type";
 import { PackingListEntity } from "../persistense/packing-list";
@@ -33,11 +33,15 @@ export async function getExportDetailByPO(
   res: any,
   next: any
 ) {
-  const { sessionId } = commonParams(req);
+  const { sessionId, fromDate, toDate } = commonParams(req);
   const user = req.user;
-  const { po, fromDate, toDate } = req.params;
+  const { po } = req.params;
 
-  Logger.log(TAG, "getExportDetailByPO", sessionId, user.username, po);
+  Logger.log(TAG, "getExportDetailByPO", sessionId, user.username, po, fromDate, toDate);
+
+  if (!po || !fromDate || !toDate) {
+    return res.send(new InvalidPayloadResponse(sessionId));
+  }
 
   const pkls = await PackingListEntity.getPackingListsByPoAndDateRange(
     po,

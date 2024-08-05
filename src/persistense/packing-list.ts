@@ -133,7 +133,7 @@ export class PackingListEntity extends BaseRepository {
       where: {
         attachedInvoiceId: id,
       },
-      relations: [ExportEntity.name],
+      relations: ['export'],
     });
   }
 

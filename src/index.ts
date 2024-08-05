@@ -20,6 +20,7 @@ import { weigh } from "./route/weigh";
 import { corsOptions } from "./cors";
 import Logger from "./loger";
 import { commonParams } from "./utils/common-params";
+import { report } from "./route/report";
 
 
 
@@ -63,15 +64,18 @@ doExport(app);
 // weighing
 weigh(app);
 
-app.get("/", function (req, res) {
-  var path = __dirname + "/docs.md";
-  fs.readFile(path, "utf8", function (err, data) {
-    if (err) {
-      console.log(err);
-    }
-    res.send(marked.parse(data.toString()));
-  });
-});
+// report
+report(app);
+
+// app.get("/", function (req, res) {
+//   var path = __dirname + "/docs.md";
+//   fs.readFile(path, "utf8", function (err, data) {
+//     if (err) {
+//       console.log(err);
+//     }
+//     res.send(marked.parse(data.toString()));
+//   });
+// });
 
 
 
@@ -89,11 +93,13 @@ process.on('unhandledRejection', (reason, promise) => {
 
 // git pull https://nguyenhongphuc98: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@github.com/Nguyenhongphuc98/StockDispatch.git
 // docker-compose down
-// docker images
-// docker image rm
+// docker rmi $(docker images -q)
 // docker-compose build
 // docker-compose up -d
-// docker rmi $(docker images -q)
+
+
+// docker images
+// docker image rm
 
 
 // ssh root@164.90.186.39 1310312240
@@ -113,3 +119,4 @@ process.on('unhandledRejection', (reason, promise) => {
 
 //TODO:
 // 1. wrap all middware with try catch logs.
+// 2. index all field have where.
