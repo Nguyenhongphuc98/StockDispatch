@@ -27,7 +27,7 @@ export async function getSubItems(req: JsonRequest, res: any, next: any) {
   //@ts-ignore
   const pkl = req.query.pkl;
 
-  Logger.log(TAG, "get weighs", sessionId, user.username, pkl);
+  Logger.log(TAG, "get subitems", sessionId, user.username, pkl);
 
   // only allow get by pklid
   if (!pkl) {
@@ -40,23 +40,11 @@ export async function getSubItems(req: JsonRequest, res: any, next: any) {
     return;
   }
 
-  const conditions: FindOptionsWhere<SubItemEntity> = {};
-
-  conditions.packingList = {
-    id: pkl,
-  };
-
-  const weighItems = await SubItemEntity.find({
-    where: conditions,
-    order: {
-      createAt: "DESC",
-    },
-    take: MAX_ITEMS_PER_PAGE,
-  });
+  const subItems = await subItemController.getSubitemsOfPkl(pkl);
 
   res.send(
     new SuccessResponse(sessionId, {
-      weighItems: weighItems,
+      subItems: subItems,
     })
   );
 }

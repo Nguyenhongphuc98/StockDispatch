@@ -39,7 +39,6 @@ export enum ExportStatus {
 }
 
 @Entity("Export")
-@Index("IDX_E_NAME", ["name"])
 export class ExportEntity extends BaseRepository {
   @PrimaryGeneratedColumn()
   id: string;
@@ -54,6 +53,7 @@ export class ExportEntity extends BaseRepository {
   createdBy: UserEntity;
 
   @Column()
+  @Index("IDX_E_NAME")
   name: string;
 
   @Column()

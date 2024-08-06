@@ -21,6 +21,7 @@ import { FindOptionsWhere, LessThanOrEqual, Like } from "typeorm";
 import { MAX_ITEMS_PER_PAGE } from "../config";
 import { PackingListItemEntity } from "../persistense/packling-list-item";
 import { commonParams } from "../utils/common-params";
+import packinglistController from "../controller/packinglist-controller";
 
 const TAG = "[PKL]";
 
@@ -101,29 +102,21 @@ export async function packinglistModify(
   const { sessionId } = commonParams(req);
   const { pid, reqid, createat, type } = req.rawBody;
 
-  const pkl = await PackingListEntity.createQueryBuilder("pl")
-    .leftJoinAndSelect("pl.items", "PackingListItem")
-    .where("pl.id = :id", { id: pid })
-    .getOne();
-
-  if (!pkl) {
-    Logger.log(TAG, "Call update for not exists pkl", pid);
-    res.send(new ResourceNotFoundResponse(sessionId));
+  if (!pid || !type) {
+    res.status(403).send(new InvalidPayloadResponse(sessionId));
     return;
   }
 
   switch (type) {
     case "delete": {
-      await PackingListItemEntity.remove(pkl.items);
-      pkl
-        .remove()
-        .then(() => {
-          res.send(new SuccessResponse(sessionId));
-        })
-        .catch((e) => {
-          Logger.error(TAG, "Call delete pkl err", e);
-          res.send(new ErrorResponse(sessionId));
-        });
+      const success = await packinglistController.deletePackinglistAndRelation(
+        pid
+      );
+      if (success) {
+        res.send(new SuccessResponse(sessionId));
+      } else {
+        res.send(new ErrorResponse(sessionId));
+      }
       break;
     }
 

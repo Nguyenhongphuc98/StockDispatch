@@ -43,12 +43,12 @@ export enum WeighStatus {
 }
 
 @Entity("PackingList")
-@Index("IDX_PKL_NAME", ["name"])
 export class PackingListEntity extends BaseRepository {
   @PrimaryGeneratedColumn()
   id: string;
 
   @CreateDateColumn()
+  @Index("IDX_PKLI_CA")
   createAt: Date;
 
   @UpdateDateColumn()
@@ -58,6 +58,7 @@ export class PackingListEntity extends BaseRepository {
   createdBy: UserEntity;
 
   @Column()
+  @Index("IDX_PKL_NAME")
   name: string;
 
   @Column()

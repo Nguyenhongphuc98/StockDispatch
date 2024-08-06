@@ -11,150 +11,154 @@ const TAG = "[WLI]";
 const DEFAULT_WEIGH = 0;
 
 export class SubItemController {
-    buildWeighItems(
-        max: number,
-        pkl: PackingListEntity,
-        pklItem: PackingListItemEntity
-      ) {
-        const results: SubItemEntity[] = [];
-        const start = pklItem.startSeries();
-        const end = pklItem.endSeries();
-    
-        let s = start;
-        while (s <= end) {
-          let e = Math.min(s + max - 1, end);
-          const weighItem = new SubItemEntity();
-          weighItem.init(
-            {
-              packageSeries: [s, e],
-              parentPackageSeries: [pklItem.startSeries(), pklItem.endSeries()],
-              grossWeight: DEFAULT_WEIGH,
-            },
-            pkl,
-            pklItem
-          );
-          results.push(weighItem);
-          s = e + 1;
+  buildWeighItems(max: number, pklId: string, pklItem: PackingListItemEntity) {
+    const results: SubItemEntity[] = [];
+    const start = pklItem.startSeries();
+    const end = pklItem.endSeries();
+
+    let s = start;
+    while (s <= end) {
+      let e = Math.min(s + max - 1, end);
+      const subItem = new SubItemEntity();
+      subItem.init(
+        {
+          packageSeries: [s, e],
+          grossWeight: DEFAULT_WEIGH,
+        },
+        pklId,
+        pklItem
+      );
+      results.push(subItem);
+      s = e + 1;
+    }
+
+    return results;
+  }
+
+  async anyItem(pklId: string): Promise<boolean> {
+    const entity = await SubItemEntity.findOneBy({
+      pklId: pklId,
+    });
+
+    return !!entity;
+  }
+
+  async countAll(pklIds: string[]) {
+    return SubItemEntity.countBy({
+      pklId: In(pklIds),
+    });
+  }
+
+  async countWeighed(pklIds: string[]) {
+    return SubItemEntity.countBy({
+      pklId: In(pklIds),
+      grossWeight: Not(DEFAULT_WEIGH),
+    });
+  }
+
+  async countExported(pklIds: string[]) {
+    return SubItemEntity.countBy({
+      pklId: In(pklIds),
+      exportTime: Not(null),
+    });
+  }
+
+  async createSubItemsIfNotExists(sessionId: string, pkl: string) {
+    const created = await this.anyItem(pkl);
+    if (!created) {
+      try {
+        const pklEntity = await PackingListEntity.findOne({
+          where: {
+            id: pkl,
+          },
+        });
+
+        if (!pklEntity) {
+          Logger.log(TAG, "create subItem not found pkl");
+          return false;
         }
-    
-        return results;
-      }
-    
-      async anyItem(pklId: string): Promise<boolean> {
-        const entity = await SubItemEntity.findOneBy({
-          packingList: {
-            id: pklId,
-          },
+
+        const pklItemEntities = await PackingListItemEntity.find({
+          where: { packingList: { id: pkl } },
         });
-    
-        return !!entity;
-      }
-    
-      async countAll(pklIds: string[]) {
-        return SubItemEntity.countBy({
-          packingList: {
-            id: In(pklIds),
-          },
-        });
-      }
-    
-      async countWeighed(pklIds: string[]) {
-        return SubItemEntity.countBy({
-          packingList: {
-            id: In(pklIds),
-          },
-          grossWeight: Not(DEFAULT_WEIGH)
-        });
-      }
-    
-      async countExported(pklIds: string[]) {
-        return SubItemEntity.countBy({
-          packingList: {
-            id: In(pklIds),
-          },
-          exportTime: Not(null)
-        });
-      }
-    
-      async createSubItemsIfNotExists(sessionId: string,pkl: string) {
-        debugger;
-        const created = await this.anyItem(pkl);
-        if (!created) {
-          try {
-      
-            const pklEntity = await PackingListEntity.findOne({
-              where: {
-                id: pkl
-              }
-            });
-      
-      
-            if (!pklEntity) {
-              Logger.log(TAG, "create subItem not found pkl");
-              return false
-            }
-     
-            const pklItemEntities = await PackingListItemEntity.find({
-              where: { packingList: { id: pkl } }
-            });
-       
-            await this.createSubItems(sessionId, pklEntity, pklItemEntities);
-            return true
-          } catch (error) {
-            Logger.log(TAG, "create subItem err", error);
-            return false;
-          }
-        }
-      
+
+        await this.createSubItems(sessionId, pklEntity.id, pklItemEntities);
         return true;
+      } catch (error) {
+        Logger.error(TAG, "create subItem err", error);
+        return false;
       }
-      
-      async createSubItems(
-        sessionId: string,
-        pkl: PackingListEntity,
-        pklItems: PackingListItemEntity[]
-      ) {
-        Logger.log(
-          TAG,
-          "createSubItems",
-          sessionId,
-          pkl.id,
-          pklItems.map((v) => v.id)
-        );
-      
-        const queryRunner = AppDataSource.createQueryRunner();
-      
-        await queryRunner.connect();
-        await queryRunner.startTransaction();
-      
-        try {
-          const WLIentities = pklItems
-            .map((item) => {
-              const maxBoxes = bunddleSettings.boxesAmount(item.packageId);
-              return this.buildWeighItems(maxBoxes, pkl, item);
-            })
-            .flat();
-      
-          await queryRunner.manager.save(SubItemEntity, WLIentities);
-          await queryRunner.commitTransaction();
-        } catch (error) {
-          Logger.error(
-            TAG,
-            "createSubItems fail",
-            sessionId,
-            pklItems[0]?.packingList.id,
-            pklItems.map((v) => v.id),
-            error
-          );
-          await queryRunner.release();
-          await queryRunner.rollbackTransaction();
-      
-          throw error;
-        } finally {
-          await queryRunner.release();
-        }
-      }
+    }
+
+    return true;
+  }
+
+  async createSubItems(
+    sessionId: string,
+    pklId: string,
+    pklItems: PackingListItemEntity[]
+  ) {
+    Logger.log(
+      TAG,
+      "createSubItems",
+      sessionId,
+      pklId,
+      pklItems.map((v) => v.id)
+    );
+
+    const queryRunner = AppDataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const WLIentities = pklItems
+        .map((item) => {
+          const maxBoxes = bunddleSettings.boxesAmount(item.packageId);
+          return this.buildWeighItems(maxBoxes, pklId, item);
+        })
+        .flat();
+
+      await queryRunner.manager.save(SubItemEntity, WLIentities);
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      Logger.error(
+        TAG,
+        "createSubItems fail",
+        sessionId,
+        pklItems[0]?.packingList.id,
+        pklItems.map((v) => v.id),
+        error
+      );
+      await queryRunner.release();
+      await queryRunner.rollbackTransaction();
+
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async getSubitemsOfPkl(pklId: string) {
+    // const subItems = await SubItemEntity.find({ where: { pklId } , relations: ['packingListItem']});
+    // return subItems;
+
+    return SubItemEntity.createQueryBuilder('subItem')
+    .leftJoin('subItem.packingListItem', 'packingListItem')
+    .select([
+      'subItem.id',
+      'subItem.packageSeries',
+      'subItem.grossWeight',
+      'packingListItem.id',   
+      'packingListItem.packageSeries',
+      'packingListItem.po',
+      'packingListItem.packageId',
+    ])
+    .where('subItem.pklId = :pklId', { pklId })
+    .getMany();
+  }
 }
 
 const subItemController = new SubItemController();
 export default subItemController;
+//'text/plain' host: '127.0.0.1',

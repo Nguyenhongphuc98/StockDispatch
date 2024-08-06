@@ -34,7 +34,6 @@ export type PackingListItemModel = {
 };
 
 @Entity("PackingListItem")
-@Index("IDX_PKLI_PKL", ["packingList"])
 export class PackingListItemEntity extends BaseRepository {
   @PrimaryGeneratedColumn()
   id: string;
@@ -46,10 +45,11 @@ export class PackingListItemEntity extends BaseRepository {
   updateAt: Date;
 
   @ManyToOne(() => PackingListEntity, (pl) => pl.items, { onDelete: "CASCADE" })
+  @Index("IDX_PKLI_PKL")
   packingList: PackingListEntity;
 
   @OneToMany(() => SubItemEntity, (wli) => wli.packingListItem)
-  weighList: SubItemEntity[];
+  subitems: SubItemEntity[];
 
   @Column()
   packageSeries: string;
@@ -110,7 +110,7 @@ export class PackingListItemEntity extends BaseRepository {
     this.height = model.height;
     this.sizeUnit = model.sizeUnit;
     this.packingList = packingList;
-    this.weighList = [];
+    this.subitems = [];
   }
 
   toModel() {

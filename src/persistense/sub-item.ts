@@ -19,12 +19,10 @@ import { PackingListItemEntity } from "./packling-list-item";
 
 export type WeighListItemModel = {
   packageSeries: [number, number];
-  parentPackageSeries: [number, number];
   grossWeight: number;
 };
 
 @Entity("SubItem")
-@Index('IDX_SI_PKL', ['packingList'])
 export class SubItemEntity extends BaseRepository {
   @PrimaryGeneratedColumn()
   id: string;
@@ -35,10 +33,11 @@ export class SubItemEntity extends BaseRepository {
   @UpdateDateColumn()
   updateAt: Date;
 
-  @ManyToOne(() => PackingListEntity, (pl) => pl.items)
-  packingList: PackingListEntity;
+  @Column()
+  @Index('IDX_SI_PKL')
+  pklId: string;
 
-  @ManyToOne(() => PackingListItemEntity, (pli) => pli.weighList)
+  @ManyToOne(() => PackingListItemEntity, (pli) => pli.subitems)
   packingListItem: PackingListItemEntity;
 
   /**
@@ -46,12 +45,6 @@ export class SubItemEntity extends BaseRepository {
    */
   @Column()
   packageSeries: string;
-
-  /**
-   * id map to packling list
-   */
-  @Column()
-  parentPackageSeries: string;
 
   @Column()
   grossWeight: number;
@@ -61,29 +54,24 @@ export class SubItemEntity extends BaseRepository {
 
   init(
     model: WeighListItemModel,
-    packingList: PackingListEntity,
+    packingListId: string,
     packingListItem: PackingListItemEntity
   ) {
     const series = model.packageSeries;
-    const parentSeries = model.parentPackageSeries;
 
     this.packageSeries = `${series[0]}-${series[1]}`;
-    this.parentPackageSeries = `${parentSeries[0]}-${parentSeries[1]}`;
 
-    this.packingList = packingList;
+    this.pklId = packingListId;
     this.packingListItem = packingListItem;
 
     this.grossWeight = model.grossWeight;
   }
 
   toModel() {
-    const parsedParentSeries = this.parentPackageSeries.split("-");
-    const _parentPackageSeries = [parsedParentSeries[0], parsedParentSeries[1]];
 
     return {
       ...this,
       packageSeries: [this.startSeries(), this.endSeries()],
-      parentPackageSeries: _parentPackageSeries,
     };
   }
 

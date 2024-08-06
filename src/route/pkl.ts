@@ -4,19 +4,17 @@ import { createPackinglist, getPackinglist, getPackinglists, packinglistModify }
 import { createProducts, getProducts } from "../product/packling-list-item";
 import { decryptBody } from "../secure/aes";
 import { validateRequest } from "../secure/request-manager";
-import { defaultHandler } from "../utils/response";
+import { withErrorHandling } from "../utils/safe";
 
 export function pkl(app) {
-  app.post("/api/v1/pkl", restrict, decryptBody, createPackinglist);
-  app.post("/api/v1/pklm", restrict, decryptBody, validateRequest, packinglistModify);
-  app.get("/api/v1/pkl", restrict, getPackinglists);
-  app.get("/api/v1/pkl/:id", restrict, getPackinglist);
-  app.put("/api/v1/pkl/:id", restrict, decryptBody, defaultHandler);
-  app.delete("/api/v1/pkl/:id", restrict, decryptBody, defaultHandler);
+  app.post("/api/v1/pkl", restrict, decryptBody, withErrorHandling(createPackinglist));
+  app.post("/api/v1/pklm", restrict, decryptBody, validateRequest, withErrorHandling(packinglistModify));
+  app.get("/api/v1/pkl", restrict, withErrorHandling(getPackinglists));
+  app.get("/api/v1/pkl/:id", restrict, withErrorHandling(getPackinglist));
 
-  app.post("/api/v1/item", restrict, decryptBody, createProducts);
-  app.get("/api/v1/item", restrict, getProducts);
+  app.post("/api/v1/item", restrict, decryptBody, withErrorHandling(createProducts));
+  app.get("/api/v1/item", restrict, withErrorHandling(getProducts));
 
-  app.post("/api/v1/setting/bundle", restrict, decryptBody, validateRequest, modifyBundleSetting);
-  app.get("/api/v1/setting/bundle", restrict, getBundleSettings);
+  app.post("/api/v1/setting/bundle", restrict, decryptBody, validateRequest, withErrorHandling(modifyBundleSetting));
+  app.get("/api/v1/setting/bundle", restrict, withErrorHandling(getBundleSettings));
 }
