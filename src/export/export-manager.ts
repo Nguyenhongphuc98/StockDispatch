@@ -12,7 +12,6 @@ class ExportManager {
 
   constructor() {
     this.exporting = new Map();
-    this.init();
   }
 
   async init() {
