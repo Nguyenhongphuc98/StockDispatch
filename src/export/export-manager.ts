@@ -15,20 +15,18 @@ class ExportManager {
     this.init();
   }
 
-  init() {
-    setTimeout(async () => {
-        const actives = await ExportEntity.find({
-            where: {
-                status: Equal(ExportStatus.Exporting)
-            }
-        });
+  async init() {
+    const actives = await ExportEntity.find({
+        where: {
+            status: Equal(ExportStatus.Exporting)
+        }
+    });
 
-        Logger.log(TAG, "init export session", actives.map(v =>v.name));
+    Logger.log(TAG, "init export session", actives.map(v =>v.name));
 
-        actives.forEach(a => {
-            this.exporting.set(a.id, a);
-        });
-    }, 100);
+    actives.forEach(a => {
+        this.exporting.set(a.id, a);
+    });
   }
 
   doesSessionExists(sessionId: string) {

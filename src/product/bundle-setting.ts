@@ -104,10 +104,6 @@ class BundleSettings {
 
   constructor() {
     this.bundleMap = new Map();
-
-    setTimeout(() => {
-      this.reinit();
-    }, 3000);
   }
 
   async reinit() {
