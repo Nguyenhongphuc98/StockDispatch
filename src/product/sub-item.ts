@@ -35,7 +35,7 @@ export async function getSubItems(req: JsonRequest, res: any, next: any) {
     return;
   }
 
-  if (!await subItemController.createSubItemsIfNotExists(sessionId, pkl)) {
+  if (!await subItemController.createSubItemsIfNotExists(pkl)) {
     res.send(new ErrorResponse(sessionId));
     return;
   }
@@ -91,7 +91,7 @@ export async function getWeigh(req: JsonRequest, res: any, next: any) {
     return;
   }
 
-  if (!await subItemController.createSubItemsIfNotExists(sessionId, pklid)) {
+  if (!await subItemController.createSubItemsIfNotExists(pklid)) {
     res.send(new ErrorResponse(sessionId));
     return;
   }

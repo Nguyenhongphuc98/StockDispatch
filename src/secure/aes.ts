@@ -39,6 +39,21 @@ class AESWrapper {
 
     return rawData;
   }
+
+  encryptUseKey(key: string, rawData: any) {
+    const ciphertext = AES.encrypt(
+      JSON.stringify(rawData),
+      key
+    ).toString();
+    return ciphertext;
+  }
+
+  decryptUseKey(key: string, encryptedData: any) {
+    const bytes = AES.decrypt(encryptedData, key);
+    const rawData = JSON.parse(bytes.toString(enc.Utf8));
+
+    return rawData;
+  }
 }
 
 export function decryptBody(req: Request, resp: Response, next: any) {

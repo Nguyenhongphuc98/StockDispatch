@@ -63,7 +63,7 @@ export class SubItemController {
     });
   }
 
-  async createSubItemsIfNotExists(sessionId: string, pkl: string) {
+  async createSubItemsIfNotExists(pkl: string) {
     const created = await this.anyItem(pkl);
     if (!created) {
       try {
@@ -82,7 +82,7 @@ export class SubItemController {
           where: { packingList: { id: pkl } },
         });
 
-        await this.createSubItems(sessionId, pklEntity.id, pklItemEntities);
+        await this.createSubItems(pklEntity.id, pklItemEntities);
         return true;
       } catch (error) {
         Logger.error(TAG, "create subItem err", error);
@@ -94,14 +94,12 @@ export class SubItemController {
   }
 
   async createSubItems(
-    sessionId: string,
     pklId: string,
     pklItems: PackingListItemEntity[]
   ) {
     Logger.log(
       TAG,
       "createSubItems",
-      sessionId,
       pklId,
       pklItems.map((v) => v.id)
     );
@@ -125,7 +123,6 @@ export class SubItemController {
       Logger.error(
         TAG,
         "createSubItems fail",
-        sessionId,
         pklItems[0]?.packingList.id,
         pklItems.map((v) => v.id),
         error
@@ -156,6 +153,13 @@ export class SubItemController {
     ])
     .where('subItem.pklId = :pklId', { pklId })
     .getMany();
+  }
+
+  async markItemAsExported(sid: string) {
+    return SubItemEntity.update(sid, {
+      id: sid,
+      exportTime: Date.now()
+    });
   }
 }
 

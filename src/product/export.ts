@@ -25,6 +25,8 @@ import { ExportEntity, ExportModel, ExportStatus } from "../persistense/export";
 import exportManager from "../export/export-manager";
 import { commonParams } from "../utils/common-params";
 import subItemController from "../controller/subitem-controller";
+import exportController from "../controller/export-controller";
+import { commonResponseHandler } from "../utils/common-response";
 
 const TAG = "[EXPORT]";
 
@@ -41,46 +43,13 @@ export async function createExport(req: JsonRequest, res: Response, next: any) {
     return;
   }
 
-  const packinglists = await PackingListEntity.findBy({ id: In(pklIds) });
+  const result = await exportController.startExportSession(
+    pklIds,
+    req.rawBody as ExportModel,
+    user
+  );
 
-  if (packinglists.length < pklIds.length) {
-    const invalidIds = pklIds.filter((id) => {
-      return !packinglists.includes(id);
-    });
-
-    Logger.log(TAG, "create export invalid pklids", invalidIds);
-    res.send(new ResourceNotFoundResponse(sessionId, { invalidIds }));
-    return;
-  }
-
-  const exportItem = new ExportEntity();
-  exportItem.init(req.rawBody as ExportModel, user, packinglists);
-
-  const missFields = exportItem.getMissingFields();
-  if (missFields.length) {
-    Logger.log(TAG, "create export miss field", missFields);
-    res.send(new InvalidPayloadResponse(sessionId));
-    return;
-  }
-
-  for (const pid of pklIds) {
-    if (!await subItemController.createSubItemsIfNotExists(sessionId, pid)) {
-      res.send(new ErrorResponse(sessionId, {message: 'fail to init sub items'}));
-      return;
-    }
-  }
-
-  for (let i = 0; i < packinglists.length; i++) {
-    const p = packinglists[i];
-    p.status = PKLStatus.Exporting;
-    await p.save();
-  }
-
-  await exportItem.save();
-
-  exportManager.startSession(exportItem.id);
-
-  res.send(new SuccessResponse(sessionId, exportItem));
+  commonResponseHandler(sessionId, result, req, res, next);
 }
 
 export async function getExport(req: JsonRequest, res: any, next: any) {
@@ -108,8 +77,8 @@ export async function getExports(req: JsonRequest, res: any, next: any) {
   //@ts-ignore
   const ts = req.query.ts;
 
-   //@ts-ignore
-   const status = req.query.stt;
+  //@ts-ignore
+  const status = req.query.stt;
 
   Logger.log(TAG, "get exports", sessionId, user.username, kw, ts);
 
@@ -132,27 +101,17 @@ export async function exportModify(req: JsonRequest, res: Response, next: any) {
   const { sessionId } = commonParams(req);
   const { eid, reqid, createat, type } = req.rawBody;
 
-  const exportItem = await ExportEntity.findOneBy({ id: eid });
+  Logger.log(TAG, "exportModify", eid, type);
 
-  if (!exportItem) {
-    Logger.log(TAG, "Call update for not exists export item", eid);
-    res.send(new ResourceNotFoundResponse(sessionId));
+  if (!eid || !type) {
+    res.send(new ErrorResponse(sessionId));
     return;
   }
 
   switch (type) {
     case "exported": {
-      exportItem.status = ExportStatus.Exported;
-      exportItem
-        .save()
-        .then(() => {
-          exportManager.endSession(exportItem.id);
-          res.send(new SuccessResponse(sessionId));
-        })
-        .catch((e) => {
-          Logger.error(TAG, "Call delete pkl err", e);
-          res.send(new ErrorResponse(sessionId));
-        });
+      const result = await exportController.endExportSession(eid);
+      commonResponseHandler(sessionId, result, req, res, next);
       break;
     }
 

@@ -1,9 +1,22 @@
 import { Express, Request, Response } from "express";
-import { JsonResponse, NotEncryptSessionNotFoundResponse, NotEncryptSuccessResponse, SuccessResponse } from "../utils/response";
+import {
+  JsonResponse,
+  NotEncryptSessionNotFoundResponse,
+  NotEncryptSuccessResponse,
+  SuccessResponse,
+} from "../utils/response";
 import { ErrorCode } from "../utils/const";
 import ExportManager from "../export/export-manager";
 import AppSession from "../account/session";
 import socketMamanger from "../socket/socket-manager";
+import exportController from "../controller/export-controller";
+import { commonParams } from "../utils/common-params";
+import Logger from "../loger";
+import { rawResponseHandler } from "../utils/common-response";
+import { SubmitExportItemModel } from "../utils/type";
+
+const TAG = "[SCANNER]";
+
 // export * from '../persistense/users';
 
 // const SUBMIT_ENDPOINT = '/api/v1/scanner/submit';
@@ -38,37 +51,40 @@ import socketMamanger from "../socket/socket-manager";
 
 // function connectScanner(req: Request, res: Response) {
 //     console.log('connected', req.body.key);
-    
+
 //     res.send(new ResponseJson(ErrorCode.Success, {
 //         submit: `${req.hostname}:${process.env.port}${SUBMIT_ENDPOINT}`,
 //         channel: "Cty TNHH LongView VN",
 //     }));
 // }
 
-export function onExportItem(req: Request, res: Response) {
-    const rawData = req.body;
-    console.log('onExportItem', rawData);
-    
-    if (ExportManager.doesSessionExists(rawData.sessionId)) {
-         //TODO: update progress to DB
-         // get item from db
+export async function onExportItem(req: Request, res: Response, next: any) {
+  const { sid, eid } = req.query;
+  const { sessionId } = commonParams(req);
 
-        socketMamanger.broasdcast("export", {
-            itemProps: 'props',
-        });
-    } else {
-        // not found export session
-        res.status(403).send(new NotEncryptSessionNotFoundResponse());
-    }
-    res.send(new NotEncryptSuccessResponse());
+  Logger.log(TAG, "onExportItem", sessionId, sid, eid);
 
+  if (!sid || !eid) {
+    const result = {
+      error_code: ErrorCode.InvalidPayload,
+      data: {},
+    };
+
+    return rawResponseHandler(result, req, res, next);
+  }
+
+  const result = await exportController.exportItem(sessionId,{
+    subId: sid,
+    eId: eid,
+  } as SubmitExportItemModel);
+
+  return rawResponseHandler(result, req, res, next);
 }
 
 export function onWeighItem(req: Request, res: Response) {
-    console.log('onWeighItem', req.body);
-    // const qrId = req.body.qrId;
-    res.send(new NotEncryptSuccessResponse());
-
+  console.log("onWeighItem", req.body);
+  // const qrId = req.body.qrId;
+  res.send(new NotEncryptSuccessResponse());
 }
 
 // module.exports = {

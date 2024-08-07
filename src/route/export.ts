@@ -8,7 +8,7 @@ import { validateRequest } from "../secure/request-manager";
 import { withErrorHandling } from "../utils/safe";
 
 export function doExport(app) {
-    app.patch("/api/v1/export/:id", withErrorHandling(onExportItem));
+    app.get("/api/v1/scanner/export", withErrorHandling(onExportItem));
 
     app.post("/api/v1/export", restrict, decryptBody, withErrorHandling(createExport));
     app.get("/api/v1/export", restrict, withErrorHandling(getExports));
