@@ -1,16 +1,8 @@
-import { Express, Request, Response } from "express";
+import { Request, Response } from "express";
 import {
-  JsonResponse,
-  NotEncryptSessionNotFoundResponse,
   NotEncryptSuccessResponse,
-  SuccessResponse,
 } from "../utils/response";
-import { ErrorCode } from "../utils/const";
-import ExportManager from "../export/export-manager";
-import AppSession from "../account/session";
-import socketMamanger from "../socket/socket-manager";
 import exportController from "../controller/export-controller";
-import { commonParams } from "../utils/common-params";
 import Logger from "../loger";
 import { rawResponseHandler } from "../utils/common-response";
 import { SubmitExportItemModel } from "../utils/type";
@@ -60,25 +52,13 @@ const TAG = "[SCANNER]";
 // }
 
 export async function onExportItem(req: Request, res: Response, next: any) {
-  // TODO: get in body
-  const { subid, eid } = req.query;
-  const { sessionId } = commonParams(req);
+  //@ts-ignore
+  const { eid } = req.query;
+  const bodyCipher = req.body;
 
-  Logger.log(TAG, "onExportItem", sessionId, subid, eid);
+  Logger.log(TAG, "onExportItem", bodyCipher, eid);
 
-  if (!subid || !eid) {
-    const result = {
-      error_code: ErrorCode.InvalidPayload,
-      data: {},
-    };
-
-    return rawResponseHandler(result, req, res, next);
-  }
-
-  const result = await exportController.exportItem(sessionId,{
-    subId: subid,
-    eId: eid,
-  } as SubmitExportItemModel);
+  const result = await exportController.exportItem(eid as string, bodyCipher);
 
   return rawResponseHandler(result, req, res, next);
 }

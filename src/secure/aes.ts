@@ -40,7 +40,7 @@ class AESWrapper {
     return rawData;
   }
 
-  encryptUseKey(key: string, rawData: any) {
+  encryptUseKey<T = any>(key: string, rawData: T): string {
     const ciphertext = AES.encrypt(
       JSON.stringify(rawData),
       key
@@ -48,7 +48,7 @@ class AESWrapper {
     return ciphertext;
   }
 
-  decryptUseKey(key: string, encryptedData: any) {
+  decryptUseKey<T = any>(key: string, encryptedData: string): T {
     const bytes = AES.decrypt(encryptedData, key);
     const rawData = JSON.parse(bytes.toString(enc.Utf8));
 

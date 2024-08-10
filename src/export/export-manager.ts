@@ -1,8 +1,9 @@
 import { Equal } from "typeorm";
 import { ExportEntity, ExportStatus } from "../persistense/export";
-import Logger from '../loger';
+import Logger from "../loger";
+import { PackingListEntity } from "../persistense/packing-list";
 
-const TAG = '[EM]';
+const TAG = "[EM]";
 
 class ExportManager {
   /**
@@ -16,37 +17,53 @@ class ExportManager {
 
   async init() {
     const actives = await ExportEntity.find({
-        where: {
-            status: Equal(ExportStatus.Exporting)
-        }
+      where: {
+        status: Equal(ExportStatus.Exporting),
+      },
+      relations: ["items"],
     });
 
-    Logger.log(TAG, "init export session", actives.map(v =>v.name));
+    Logger.log(
+      TAG,
+      "init export session",
+      actives.map((v) => {
+        return { id: v.id, name: v.name };
+      })
+    );
 
-    actives.forEach(a => {
-        this.exporting.set(a.id, a);
+    actives.forEach((a) => {
+      this.exporting.set(a.id.toString(), a);
     });
   }
 
   doesSessionExists(sessionId: string) {
-    return this.exporting.has(sessionId);
+    return this.exporting.has(sessionId.toString());
   }
 
   startSession(exportSession: ExportEntity) {
-    this.exporting.set(exportSession.id, exportSession);
+    this.exporting.set(exportSession.id.toString(), exportSession);
   }
 
-  endSession(exportSession: string) {
-    this.exporting.delete(exportSession);
+  endSession(exportSessionId: string) {
+    this.exporting.delete(exportSessionId.toString());
   }
 
   getKey(eid: string) {
     const exportSession = this.exporting.get(eid);
     if (exportSession) {
-        return exportSession.key;
+      return exportSession.key;
     }
 
-    return '';
+    return "";
+  }
+
+  getPackinglistIds(eid: string) {
+    const exportSession = this.exporting.get(eid.toString());
+    if (exportSession) {
+      return exportSession.items.map((v) => v.id.toString());
+    }
+
+    return [];
   }
 }
 

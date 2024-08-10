@@ -3,6 +3,8 @@ export enum ExportedItemStatus {
   Duplicate = 1, // item da duoc quet
   NoSession = 2, // khong co export/weigh session tuong ung dang mo => kick out
   InvalidItem = 3, // item nay k nam trong session dang xu ly
+  ItemNotFound = 4, //k tim thay item nay
+  Error = 5, // unknow error
 }
 
 
@@ -14,6 +16,7 @@ export enum ConnectScannerStatus {
   
 export type ExportedItemData = {
   status: ExportedItemStatus;
+  exportId: string,
   info: {
     packageSeries: string;
     po: string;
@@ -25,5 +28,5 @@ export type ExportedItemData = {
     width: number;
     length: number;
     height: number;
-  };
+  } | {};
 };

@@ -9,6 +9,7 @@ import {
   ResourceNotFoundResponse,
   SuccessResponse,
 } from "./response";
+import Logger from "../loger";
 
 export function commonResponseHandler(
   sessionId: string,
@@ -39,10 +40,11 @@ export function commonResponseHandler(
 }
 
 export function rawResponseHandler(
-  result: DataResult,
+  result: DataResult<string | Record<string, any>>,
   req: Request | JsonRequest,
   res: Response,
   next: any
 ) {
+  Logger.log('resp raw', result);
   res.send(result);
 }

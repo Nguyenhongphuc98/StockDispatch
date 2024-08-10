@@ -10,6 +10,7 @@ import subItemController from "./subitem-controller";
 import { SubItemEntity } from "../persistense/sub-item";
 import socketMamanger from "../socket/socket-manager";
 import aeswrapper from "../secure/aes";
+import { ExportedItemData, ExportedItemStatus } from "../scanner/type";
 
 const TAG = "[EC]";
 
@@ -127,51 +128,119 @@ class ExportController {
     }
   }
 
-  async exportItem(sessionId: string, submitItemModel: SubmitExportItemModel) {
-    const subItem = await SubItemEntity.findOneBy({
-      id: submitItemModel.subId,
-    });
+  async exportItem(exportId: string, cipherData: any) {
+    const exportKey = exportManager.getKey(exportId);
+    const { subId } = aeswrapper.decryptUseKey(exportKey, cipherData);
 
-    if (!subItem) {
-      const result: DataResult = {
-        error_code: ErrorCode.ResourceNotFound,
-        message: 'resource not found',
-        data: {},
+    Logger.log(TAG, "exportItem", exportId, subId);
+
+    if (!exportManager.doesSessionExists(exportId)) {
+      const result: DataResult<ExportedItemData> = {
+        error_code: ErrorCode.SessionNotFound,
+        message: "The export session is not running",
+        data: {
+          status: ExportedItemStatus.NoSession,
+          exportId: exportId,
+          info: {},
+        },
       };
+      Logger.log(TAG, "exportItem no session", exportId, subId);
       return result;
     }
 
-    if (!exportManager.doesSessionExists(submitItemModel.eId)) {
-      const result: DataResult = {
-        error_code: ErrorCode.SessionNotFound,
-        message: 'The export session is not running',
-        data: {},
+    const subItem = await SubItemEntity.findOne({
+      where: { id: subId },
+      relations: ["packingListItem"],
+    });
+
+    if (!subItem) {
+      const result: DataResult<string> = {
+        error_code: ErrorCode.ResourceNotFound,
+        message: "resource not found",
+        data: aeswrapper.encryptUseKey<ExportedItemData>(exportKey, {
+          status: ExportedItemStatus.ItemNotFound,
+          exportId: exportId,
+          info: {},
+        }),
       };
+      Logger.log(TAG, "exportItem item not found", exportId, subId);
+      return result;
+    }
+
+    const subItemFullInfo: ExportedItemData["info"] = {
+      packageId: subItem.packingListItem.packageId,
+      packageSeries: subItem.packageSeries,
+      po: subItem.packingListItem.po,
+      sku: subItem.packingListItem.sku,
+      itemsInPackage: subItem.packingListItem.itemsInPackage,
+      netWeight: subItem.packingListItem.netWeight,
+      grossWeight: subItem.grossWeight,
+      width: subItem.packingListItem.width,
+      length: subItem.packingListItem.length,
+      height: subItem.packingListItem.height,
+    };
+
+    const pklids = exportManager.getPackinglistIds(exportId);
+
+    if (!pklids.includes(subItem.pklId)) {
+      const result: DataResult<string> = {
+        error_code: ErrorCode.Success,
+        message: "item not in session",
+        data: aeswrapper.encryptUseKey<ExportedItemData>(exportKey, {
+          status: ExportedItemStatus.InvalidItem,
+          exportId: exportId,
+          info: subItemFullInfo,
+        }),
+      };
+
+      Logger.log(TAG, "exportItem invalid item", exportId, subId);
+      return result;
+    }
+
+    if (subItem.exportTime) {
+      const result: DataResult<string> = {
+        error_code: ErrorCode.Success,
+        message: "scan duplicate item",
+        data: aeswrapper.encryptUseKey<ExportedItemData>(exportKey, {
+          status: ExportedItemStatus.Duplicate,
+          exportId: exportId,
+          info: subItemFullInfo,
+        }),
+      };
+
+      Logger.log(TAG, "exportItem dup item", exportId, subId);
       return result;
     }
 
     return subItemController
-      .markItemAsExported(submitItemModel.subId)
+      .markItemAsExported(subId)
       .then((_) => {
-
-        // Send data to all PC
-        socketMamanger.broasdcast("export", aeswrapper.encrypt(sessionId, subItem));
-
-        // Return data to mobile req
-        const key = exportManager.getKey(submitItemModel.eId);
-        const result: DataResult = {
+        const result: DataResult<string> = {
           error_code: ErrorCode.Success,
-          message: 'success',
-          data: aeswrapper.encryptUseKey(key, subItem),
+          message: "scan item success",
+          data: aeswrapper.encryptUseKey<ExportedItemData>(exportKey, {
+            status: ExportedItemStatus.Success,
+            exportId: exportId,
+            info: subItemFullInfo,
+          }),
         };
+
+        socketMamanger.broasdcast("export", result);
+
+        Logger.log(TAG, "exportItem success", exportId, subId);
         return result;
       })
       .catch((e) => {
         Logger.log(TAG, "export item err", e);
-        const result: DataResult = {
+
+        const result: DataResult<string> = {
           error_code: ErrorCode.Error,
-          message: 'export item err',
-          data: {},
+          message: "export item err",
+          data: aeswrapper.encryptUseKey<ExportedItemData>(exportKey, {
+            status: ExportedItemStatus.Error,
+            exportId: exportId,
+            info: subItemFullInfo,
+          }),
         };
         return result;
       });

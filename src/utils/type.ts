@@ -7,9 +7,9 @@ export interface JsonRequest extends Request {
     user: UserEntity;
 }
 
-export type DataResult = {
+export type DataResult<T = Record<any, any>> = {
     error_code: ErrorCode,
-    data: Record<any, any>,
+    data: T,
     message?: string,
 }
 
