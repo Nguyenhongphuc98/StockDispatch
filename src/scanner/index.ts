@@ -14,6 +14,7 @@ import { commonParams } from "../utils/common-params";
 import Logger from "../loger";
 import { rawResponseHandler } from "../utils/common-response";
 import { SubmitExportItemModel } from "../utils/type";
+import scanController from "./scan-controller";
 
 const TAG = "[SCANNER]";
 
@@ -59,12 +60,13 @@ const TAG = "[SCANNER]";
 // }
 
 export async function onExportItem(req: Request, res: Response, next: any) {
-  const { sid, eid } = req.query;
+  // TODO: get in body
+  const { subid, eid } = req.query;
   const { sessionId } = commonParams(req);
 
-  Logger.log(TAG, "onExportItem", sessionId, sid, eid);
+  Logger.log(TAG, "onExportItem", sessionId, subid, eid);
 
-  if (!sid || !eid) {
+  if (!subid || !eid) {
     const result = {
       error_code: ErrorCode.InvalidPayload,
       data: {},
@@ -74,7 +76,7 @@ export async function onExportItem(req: Request, res: Response, next: any) {
   }
 
   const result = await exportController.exportItem(sessionId,{
-    subId: sid,
+    subId: subid,
     eId: eid,
   } as SubmitExportItemModel);
 
@@ -87,8 +89,12 @@ export function onWeighItem(req: Request, res: Response) {
   res.send(new NotEncryptSuccessResponse());
 }
 
-// module.exports = {
-//     // connectScanner,
-//     onScanSuccess,
-//     // parseSecrectKey,
-// };
+export async function onScannerConnect(req: Request, res: Response, next: any) {
+  const { wid, eid } = req.query;
+
+  Logger.log(TAG, "onScannerConnect", wid, eid);
+
+  const result = await scanController.connect({wid: wid as string, eid: eid as string});
+
+  return rawResponseHandler(result, req, res, next);
+}

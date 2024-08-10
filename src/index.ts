@@ -20,6 +20,7 @@ import { corsOptions } from "./cors";
 import Logger from "./loger";
 import { commonParams } from "./utils/common-params";
 import { report } from "./route/report";
+import { scan } from "./route/scanner";
 
 env.config();
 const app = express();
@@ -67,6 +68,9 @@ weigh(app);
 // report
 report(app);
 
+// scann
+scan(app);
+
 // app.get("/", function (req, res) {
 //   var path = __dirname + "/docs.md";
 //   fs.readFile(path, "utf8", function (err, data) {
@@ -93,10 +97,11 @@ process.on("unhandledRejection", (reason, promise) => {
 // docker-compose down
 // docker rmi $(docker images -q)
 // docker-compose build
-// docker-compose up -d
+// docker-compose up
 
 // docker images
 // docker image rm
+// docker-compose up -d
 
 // ssh root@164.90.186.39 1310312240
 // restart lai sv khi crash
