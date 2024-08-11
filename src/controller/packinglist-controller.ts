@@ -1,4 +1,4 @@
-import { PackingListEntity } from "../persistense/packing-list";
+import { PackingListEntity, WeighStatus } from "../persistense/packing-list";
 import { PackingListItemEntity } from "../persistense/packling-list-item";
 import Logger from "../loger";
 import { SubItemEntity } from "../persistense/sub-item";
@@ -29,6 +29,18 @@ class PackingListController {
     }
 
     return true;
+  }
+
+  async markPklAsWeighting(pklId: string) {
+    return PackingListEntity.update(pklId, {
+      weighStatus: WeighStatus.Weighting
+    });
+  }
+
+  async markPklAsWeighFinished(pklId: string) {
+    return PackingListEntity.update(pklId, {
+      weighStatus: WeighStatus.Finished
+    });
   }
 }
 

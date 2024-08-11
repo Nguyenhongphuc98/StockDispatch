@@ -22,7 +22,7 @@ import { FindOptionsWhere, In, LessThanOrEqual, Like } from "typeorm";
 import { MAX_ITEMS_PER_PAGE } from "../config";
 import { PackingListItemEntity } from "../persistense/packling-list-item";
 import { ExportEntity, ExportModel, ExportStatus } from "../persistense/export";
-import exportManager from "../export/export-manager";
+import exportManager from "../manager/export-manager";
 import { commonParams } from "../utils/common-params";
 import subItemController from "../controller/subitem-controller";
 import exportController from "../controller/export-controller";

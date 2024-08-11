@@ -1,5 +1,5 @@
 
-import { createExport, exportModify, getExport, getExports } from "../product/export";
+import { createExport, exportModify, getExport, getExports } from "../middleware/export";
 import { restrict } from "../account/auth";
 import { decryptBody } from "../secure/aes";
 import { validateRequest } from "../secure/request-manager";

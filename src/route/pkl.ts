@@ -1,7 +1,7 @@
 import { restrict } from "../account/auth";
-import { getBundleSettings, modifyBundleSetting } from "../product/bundle-setting";
-import { createPackinglist, getPackinglist, getPackinglists, packinglistModify } from "../product/packling-list";
-import { createProducts, getProducts } from "../product/packling-list-item";
+import { getBundleSettings, modifyBundleSetting } from "../middleware/bundle-setting";
+import { createPackinglist, getPackinglist, getPackinglists, packinglistModify } from "../middleware/packling-list";
+import { createProducts, getProducts } from "../middleware/packling-list-item";
 import { decryptBody } from "../secure/aes";
 import { validateRequest } from "../secure/request-manager";
 import { withErrorHandling } from "../utils/safe";

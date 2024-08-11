@@ -3,8 +3,8 @@ import { corsOptions } from "./cors";
 import { AppDataSource, InitAdmin } from "./persistense/data-src";
 import { Server as SocketIOServer, Socket } from "socket.io";
 import SocketMamanger from "./socket/socket-manager";
-import exportManager from "./export/export-manager";
-import { bunddleSettings } from "./product/bundle-setting";
+import exportManager from "./manager/export-manager";
+import { bunddleSettings } from "./middleware/bundle-setting";
 
 export function start(server) {
   const io = new SocketIOServer(server, {

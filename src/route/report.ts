@@ -1,5 +1,5 @@
 import { restrict } from "../account/auth";
-import { getExportDetailByINV, getExportDetailByCustomer, getExportDetailByPO, getExportDetailByExportTime, getExportDetailByPackageId, getReportOverview } from "../product/report";
+import { getExportDetailByINV, getExportDetailByCustomer, getExportDetailByPO, getExportDetailByExportTime, getExportDetailByPackageId, getReportOverview } from "../middleware/report";
 import { withErrorHandling } from "../utils/safe";
 
 export function report(app) {

@@ -2,7 +2,7 @@ import { ExportEntity, ExportStatus } from "../persistense/export";
 import { PackingListEntity, WeighStatus } from "../persistense/packing-list";
 import aeswrapper from "../secure/aes";
 import { ErrorCode } from "../utils/const";
-import { ConnectScannerStatus, ExportedItemStatus } from "./type";
+import { ConnectScannerStatus, ScannedItemStatus } from "./type";
 
 function buildResp(
   status: ConnectScannerStatus,

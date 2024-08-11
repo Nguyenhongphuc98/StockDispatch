@@ -7,6 +7,7 @@ import Logger from "../loger";
 import { rawResponseHandler } from "../utils/common-response";
 import { SubmitExportItemModel } from "../utils/type";
 import scanController from "./scan-controller";
+import weighController from "../controller/weigh-controller";
 
 const TAG = "[SCANNER]";
 
@@ -63,10 +64,28 @@ export async function onExportItem(req: Request, res: Response, next: any) {
   return rawResponseHandler(result, req, res, next);
 }
 
-export function onWeighItem(req: Request, res: Response) {
-  console.log("onWeighItem", req.body);
-  // const qrId = req.body.qrId;
-  res.send(new NotEncryptSuccessResponse());
+export async function onScanWeighItem(req: Request, res: Response, next: any) {
+  //@ts-ignore
+  const { wid } = req.query;
+  const bodyCipher = req.body;
+
+  Logger.log(TAG, "onWeighItem", bodyCipher, wid);
+
+  const result = await weighController.getWeighItemInfo(wid as string, bodyCipher);
+
+  return rawResponseHandler(result, req, res, next);
+}
+
+export async function onUpdateWeighItem(req: Request, res: Response, next: any) {
+  //@ts-ignore
+  const { wid } = req.query;
+  const bodyCipher = req.body;
+
+  Logger.log(TAG, "onUpdateWeighItem", bodyCipher, wid);
+
+  const result = await weighController.updateWeighInfo(wid as string, bodyCipher);
+
+  return rawResponseHandler(result, req, res, next);
 }
 
 export async function onScannerConnect(req: Request, res: Response, next: any) {

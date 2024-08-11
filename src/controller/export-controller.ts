@@ -1,5 +1,5 @@
 import { In } from "typeorm";
-import exportManager from "../export/export-manager";
+import exportManager from "../manager/export-manager";
 import Logger from "../loger";
 import { ExportEntity, ExportModel, ExportStatus } from "../persistense/export";
 import { PackingListEntity, PKLStatus } from "../persistense/packing-list";
@@ -10,7 +10,7 @@ import subItemController from "./subitem-controller";
 import { SubItemEntity } from "../persistense/sub-item";
 import socketMamanger from "../socket/socket-manager";
 import aeswrapper from "../secure/aes";
-import { ExportedItemData, ExportedItemStatus } from "../scanner/type";
+import { ScannedItemData, ScannedItemStatus } from "../scanner/type";
 
 const TAG = "[EC]";
 
@@ -135,12 +135,12 @@ class ExportController {
     Logger.log(TAG, "exportItem", exportId, subId);
 
     if (!exportManager.doesSessionExists(exportId)) {
-      const result: DataResult<ExportedItemData> = {
+      const result: DataResult<ScannedItemData> = {
         error_code: ErrorCode.SessionNotFound,
         message: "The export session is not running",
         data: {
-          status: ExportedItemStatus.NoSession,
-          exportId: exportId,
+          status: ScannedItemStatus.NoSession,
+          sessionId: exportId,
           info: {},
         },
       };
@@ -155,15 +155,15 @@ class ExportController {
 
     if (!subItem) {
       const data = {
-        status: ExportedItemStatus.ItemNotFound,
-        exportId: exportId,
+        status: ScannedItemStatus.ItemNotFound,
+        sessionId: exportId,
         info: {},
       };
 
       const result: DataResult<string> = {
         error_code: ErrorCode.ResourceNotFound,
         message: "resource not found",
-        data: aeswrapper.encryptUseKey<ExportedItemData>(exportKey, data)
+        data: aeswrapper.encryptUseKey<ScannedItemData>(exportKey, data)
       };
 
       socketMamanger.broasdcast('export', data);
@@ -172,7 +172,7 @@ class ExportController {
       return result;
     }
 
-    const subItemFullInfo: ExportedItemData["info"] = {
+    const subItemFullInfo: ScannedItemData["info"] = {
       packageId: subItem.packingListItem.packageId,
       packageSeries: subItem.packageSeries,
       po: subItem.packingListItem.po,
@@ -189,14 +189,14 @@ class ExportController {
 
     if (!pklids.includes(subItem.pklId)) {
       const data = {
-        status: ExportedItemStatus.InvalidItem,
-        exportId: exportId,
+        status: ScannedItemStatus.InvalidItem,
+        sessionId: exportId,
         info: subItemFullInfo,
       };
       const result: DataResult<string> = {
         error_code: ErrorCode.Success,
         message: "item not in session",
-        data: aeswrapper.encryptUseKey<ExportedItemData>(exportKey, data),
+        data: aeswrapper.encryptUseKey<ScannedItemData>(exportKey, data),
       };
 
       socketMamanger.broasdcast('export', data);
@@ -208,15 +208,15 @@ class ExportController {
     if (subItem.exportTime) {
 
       const data = {
-        status: ExportedItemStatus.Duplicate,
-        exportId: exportId,
+        status: ScannedItemStatus.Duplicate,
+        sessionId: exportId,
         info: subItemFullInfo,
       };
 
       const result: DataResult<string> = {
         error_code: ErrorCode.Success,
         message: "scan duplicate item",
-        data: aeswrapper.encryptUseKey<ExportedItemData>(exportKey, data),
+        data: aeswrapper.encryptUseKey<ScannedItemData>(exportKey, data),
       };
 
       socketMamanger.broasdcast('export', data);
@@ -230,15 +230,15 @@ class ExportController {
       .then((_) => {
 
         const data = {
-          status: ExportedItemStatus.Success,
-          exportId: exportId,
+          status: ScannedItemStatus.Success,
+          sessionId: exportId,
           info: subItemFullInfo,
         };
 
         const result: DataResult<string> = {
           error_code: ErrorCode.Success,
           message: "scan item success",
-          data: aeswrapper.encryptUseKey<ExportedItemData>(exportKey, data),
+          data: aeswrapper.encryptUseKey<ScannedItemData>(exportKey, data),
         };
 
         socketMamanger.broasdcast("export", data);
@@ -252,9 +252,9 @@ class ExportController {
         const result: DataResult<string> = {
           error_code: ErrorCode.Error,
           message: "export item err",
-          data: aeswrapper.encryptUseKey<ExportedItemData>(exportKey, {
-            status: ExportedItemStatus.Error,
-            exportId: exportId,
+          data: aeswrapper.encryptUseKey<ScannedItemData>(exportKey, {
+            status: ScannedItemStatus.Error,
+            sessionId: exportId,
             info: subItemFullInfo,
           }),
         };

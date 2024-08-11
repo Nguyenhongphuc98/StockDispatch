@@ -3,7 +3,7 @@ import Logger from "../loger";
 import { PackingListEntity } from "../persistense/packing-list";
 import { PackingListItemEntity } from "../persistense/packling-list-item";
 import { SubItemEntity } from "../persistense/sub-item";
-import { bunddleSettings } from "../product/bundle-setting";
+import { bunddleSettings } from "../middleware/bundle-setting";
 import { AppDataSource } from "../persistense/data-src";
 
 const TAG = "[WLI]";
@@ -160,6 +160,10 @@ export class SubItemController {
       id: sid,
       exportTime: Date.now()
     });
+  }
+
+  async updateItemWeigh(sid: string, weigh: number) {
+    return SubItemEntity.update(sid, {grossWeight: weigh});
   }
 }
 

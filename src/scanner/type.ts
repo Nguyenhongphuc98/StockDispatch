@@ -1,4 +1,4 @@
-export enum ExportedItemStatus {
+export enum ScannedItemStatus {
   Success = 0, //quet thanh cong
   Duplicate = 1, // item da duoc quet
   NoSession = 2, // khong co export/weigh session tuong ung dang mo => kick out
@@ -14,9 +14,9 @@ export enum ConnectScannerStatus {
 }
 
   
-export type ExportedItemData = {
-  status: ExportedItemStatus;
-  exportId: string,
+export type ScannedItemData = {
+  status: ScannedItemStatus;
+  sessionId: string, // id of session like export session or weigh item => pklid
   info: {
     packageSeries: string;
     po: string;
