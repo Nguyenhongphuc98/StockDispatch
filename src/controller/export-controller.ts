@@ -154,15 +154,20 @@ class ExportController {
     });
 
     if (!subItem) {
+      const data = {
+        status: ExportedItemStatus.ItemNotFound,
+        exportId: exportId,
+        info: {},
+      };
+
       const result: DataResult<string> = {
         error_code: ErrorCode.ResourceNotFound,
         message: "resource not found",
-        data: aeswrapper.encryptUseKey<ExportedItemData>(exportKey, {
-          status: ExportedItemStatus.ItemNotFound,
-          exportId: exportId,
-          info: {},
-        }),
+        data: aeswrapper.encryptUseKey<ExportedItemData>(exportKey, data)
       };
+
+      socketMamanger.broasdcast('export', data);
+
       Logger.log(TAG, "exportItem item not found", exportId, subId);
       return result;
     }
@@ -183,30 +188,38 @@ class ExportController {
     const pklids = exportManager.getPackinglistIds(exportId);
 
     if (!pklids.includes(subItem.pklId)) {
+      const data = {
+        status: ExportedItemStatus.InvalidItem,
+        exportId: exportId,
+        info: subItemFullInfo,
+      };
       const result: DataResult<string> = {
         error_code: ErrorCode.Success,
         message: "item not in session",
-        data: aeswrapper.encryptUseKey<ExportedItemData>(exportKey, {
-          status: ExportedItemStatus.InvalidItem,
-          exportId: exportId,
-          info: subItemFullInfo,
-        }),
+        data: aeswrapper.encryptUseKey<ExportedItemData>(exportKey, data),
       };
+
+      socketMamanger.broasdcast('export', data);
 
       Logger.log(TAG, "exportItem invalid item", exportId, subId);
       return result;
     }
 
     if (subItem.exportTime) {
+
+      const data = {
+        status: ExportedItemStatus.Duplicate,
+        exportId: exportId,
+        info: subItemFullInfo,
+      };
+
       const result: DataResult<string> = {
         error_code: ErrorCode.Success,
         message: "scan duplicate item",
-        data: aeswrapper.encryptUseKey<ExportedItemData>(exportKey, {
-          status: ExportedItemStatus.Duplicate,
-          exportId: exportId,
-          info: subItemFullInfo,
-        }),
+        data: aeswrapper.encryptUseKey<ExportedItemData>(exportKey, data),
       };
+
+      socketMamanger.broasdcast('export', data);
 
       Logger.log(TAG, "exportItem dup item", exportId, subId);
       return result;
@@ -215,17 +228,20 @@ class ExportController {
     return subItemController
       .markItemAsExported(subId)
       .then((_) => {
+
+        const data = {
+          status: ExportedItemStatus.Success,
+          exportId: exportId,
+          info: subItemFullInfo,
+        };
+
         const result: DataResult<string> = {
           error_code: ErrorCode.Success,
           message: "scan item success",
-          data: aeswrapper.encryptUseKey<ExportedItemData>(exportKey, {
-            status: ExportedItemStatus.Success,
-            exportId: exportId,
-            info: subItemFullInfo,
-          }),
+          data: aeswrapper.encryptUseKey<ExportedItemData>(exportKey, data),
         };
 
-        socketMamanger.broasdcast("export", result);
+        socketMamanger.broasdcast("export", data);
 
         Logger.log(TAG, "exportItem success", exportId, subId);
         return result;

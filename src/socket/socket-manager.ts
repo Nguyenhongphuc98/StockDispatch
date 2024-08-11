@@ -18,14 +18,14 @@ class SocketManager {
 
   constructor() {
 
-    setTimeout(() => {
-        setInterval(() => {
-            this.broasdcast("export", {
-                itemId: "id-item",
-                props1: "props1",
-            });
-        }, 3000);
-    }, 5000);
+    // setTimeout(() => {
+    //     setInterval(() => {
+    //         this.broasdcast("export", {
+    //             itemId: "id-item",
+    //             props1: "props1",
+    //         });
+    //     }, 3000);
+    // }, 5000);
   }
 
 //   addHost(host: Server) {
@@ -36,6 +36,12 @@ class SocketManager {
     this.socketMap.forEach((socket, sessionId) => {
         const respData = new SuccessResponse(sessionId, data);
         socket.emit(chanel, respData);
+    })
+  }
+
+  broasdcastRaw(chanel: SocketChanel, rawData: any) {
+    this.socketMap.forEach((socket, sessionId) => {
+        socket.emit(chanel, rawData);
     })
   }
 
