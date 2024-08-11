@@ -1,9 +1,14 @@
-import { InvalidPayloadResponse, ResourceNotFoundResponse, SuccessResponse } from "../utils/response";
+import {
+  InvalidPayloadResponse,
+  ResourceNotFoundResponse,
+  SuccessResponse,
+} from "../utils/response";
 import Logger from "../loger";
 import { JsonRequest } from "../utils/type";
 import { PackingListEntity } from "../persistense/packing-list";
 
 import { commonParams } from "../utils/common-params";
+import { ExportEntity } from "../persistense/export";
 
 const TAG = "[Report]";
 
@@ -37,7 +42,15 @@ export async function getExportDetailByPO(
   const user = req.user;
   const { po } = req.params;
 
-  Logger.log(TAG, "getExportDetailByPO", sessionId, user.username, po, fromDate, toDate);
+  Logger.log(
+    TAG,
+    "getExportDetailByPO",
+    sessionId,
+    user.username,
+    po,
+    fromDate,
+    toDate
+  );
 
   if (!po || !fromDate || !toDate) {
     return res.send(new InvalidPayloadResponse(sessionId));
@@ -106,8 +119,11 @@ export async function getExportDetailByExportTime(
   return res.send(new SuccessResponse(sessionId, pkls));
 }
 
-
-export async function getExportDetailByCustomer(req: JsonRequest, res: any, next: any) {
+export async function getExportDetailByCustomer(
+  req: JsonRequest,
+  res: any,
+  next: any
+) {
   const { sessionId } = commonParams(req);
   const user = req.user;
   const { customer, fromDate, toDate } = req.params;
@@ -126,5 +142,21 @@ export async function getExportDetailByCustomer(req: JsonRequest, res: any, next
   }
 
   return res.send(new SuccessResponse(sessionId, pkls));
-  }
-  
+}
+
+export async function getReportOverview(req: JsonRequest, res: any, next: any) {
+  const { sessionId } = commonParams(req);
+  const user = req.user;
+
+  Logger.log(TAG, "getReportOverview", sessionId, user.username);
+
+  const exportCount = await ExportEntity.count();
+  const pklCount = await PackingListEntity.count();
+
+  return res.send(
+    new SuccessResponse(sessionId, {
+      exportCount,
+      pklCount,
+    })
+  );
+}
