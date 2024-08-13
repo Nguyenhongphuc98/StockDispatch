@@ -7,7 +7,7 @@ import { defaultHandler } from "../utils/response";
 import { withErrorHandling } from "../utils/safe";
 
 export function weigh(app) {
-    app.put("/api/v1/sitem/:id", defaultHandler);
+    // app.put("/api/v1/sitem/:id", defaultHandler);
     app.get("/api/v1/sitem", restrict, withErrorHandling(getSubItems));
 
     app.post("/api/v1/sweigh", restrict, withErrorHandling(startWeigh));

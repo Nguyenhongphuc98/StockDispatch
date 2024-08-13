@@ -54,36 +54,36 @@ const TAG = "[SCANNER]";
 
 export async function onExportItem(req: Request, res: Response, next: any) {
   //@ts-ignore
-  const { eid } = req.query;
+  const { sid } = req.query;
   const bodyCipher = req.body;
 
-  Logger.log(TAG, "onExportItem", bodyCipher, eid);
+  Logger.log(TAG, "onExportItem", bodyCipher, sid);
 
-  const result = await exportController.exportItem(eid as string, bodyCipher);
+  const result = await exportController.exportItem(sid as string, bodyCipher);
 
   return rawResponseHandler(result, req, res, next);
 }
 
 export async function onScanWeighItem(req: Request, res: Response, next: any) {
   //@ts-ignore
-  const { wid } = req.query;
+  const { sid } = req.query;
   const bodyCipher = req.body;
 
-  Logger.log(TAG, "onWeighItem", bodyCipher, wid);
+  Logger.log(TAG, "onWeighItem", bodyCipher, sid);
 
-  const result = await weighController.getWeighItemInfo(wid as string, bodyCipher);
+  const result = await weighController.getWeighItemInfo(sid as string, bodyCipher);
 
   return rawResponseHandler(result, req, res, next);
 }
 
 export async function onUpdateWeighItem(req: Request, res: Response, next: any) {
   //@ts-ignore
-  const { wid } = req.query;
+  const { sid } = req.query;
   const bodyCipher = req.body;
 
-  Logger.log(TAG, "onUpdateWeighItem", bodyCipher, wid);
+  Logger.log(TAG, "onUpdateWeighItem", bodyCipher, sid);
 
-  const result = await weighController.updateWeighInfo(wid as string, bodyCipher);
+  const result = await weighController.updateWeighInfo(sid as string, bodyCipher);
 
   return rawResponseHandler(result, req, res, next);
 }

@@ -173,6 +173,7 @@ class ExportController {
     }
 
     const subItemFullInfo: ScannedItemData["info"] = {
+      id: subItem.id,
       packageId: subItem.packingListItem.packageId,
       packageSeries: subItem.packageSeries,
       po: subItem.packingListItem.po,

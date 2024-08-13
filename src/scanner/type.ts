@@ -18,6 +18,7 @@ export type ScannedItemData = {
   status: ScannedItemStatus;
   sessionId: string, // id of session like export session or weigh item => pklid
   info: {
+    id: string,
     packageSeries: string;
     po: string;
     sku: string;
