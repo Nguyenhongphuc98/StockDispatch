@@ -5,6 +5,7 @@ import { Server as SocketIOServer, Socket } from "socket.io";
 import SocketMamanger from "./socket/socket-manager";
 import exportManager from "./manager/export-manager";
 import { bunddleSettings } from "./middleware/bundle-setting";
+import weighManager from "./manager/weigh-manager";
 
 export function start(server) {
   const io = new SocketIOServer(server, {
@@ -20,6 +21,7 @@ export function start(server) {
       InitAdmin();
 
       exportManager.init();
+      weighManager.init();
 
       bunddleSettings.reinit();
 

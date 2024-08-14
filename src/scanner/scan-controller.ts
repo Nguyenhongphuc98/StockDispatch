@@ -40,13 +40,12 @@ function buildNoSessionResp(data: any = {}) {
 class ScanController {
   constructor() {}
 
-  async connect({ wid, eid }: { wid: string; eid: string }) {
-    if (!wid && !eid) {
+  async connectExport(sid: string ) {
+    if (!sid) {
       return buildNoSessionResp();
     }
 
-    if (eid) {
-      const exportInfo = await this.getExportInfo(eid);
+    const exportInfo = await this.getExportInfo(sid);
 
       if (!exportInfo) {
         return buildNoSessionResp();
@@ -55,21 +54,22 @@ class ScanController {
       return buildResp(ConnectScannerStatus.Success, exportInfo.key, {
         channelName: exportInfo.name,
       });
+  }
+
+  async connectWeigh(sid: string ) {
+    if (!sid) {
+      return buildNoSessionResp();
     }
 
-    if (wid) {
-      const weighInfo = await this.getWeighInfo(wid);
+    const weighInfo = await this.getWeighInfo(sid);
 
       if (!weighInfo) {
         return buildResp(ConnectScannerStatus.NoSession);
       }
 
-      return buildResp(
-        ConnectScannerStatus.Success,
-        weighInfo.weighKey,
-        weighInfo.name
-      );
-    }
+      return buildResp(ConnectScannerStatus.Success, weighInfo.weighKey, {
+        channelName: weighInfo.name,
+      });
   }
 
   private async getExportInfo(eid: string) {

@@ -66,10 +66,6 @@ class WeighController {
   }
 
   async getWeighItemInfo(pklId: string, cipherData: any) {
-    const weighKey = weighManager.getKey(pklId);
-    const { subId } = aeswrapper.decryptUseKey(weighKey, cipherData);
-
-    Logger.log(TAG, "getWeighItemInfo", pklId, subId);
 
     if (!weighManager.doesSessionExists(pklId)) {
       const result: DataResult<ScannedItemData> = {
@@ -81,9 +77,14 @@ class WeighController {
           info: {},
         },
       };
-      Logger.log(TAG, "scanned item no session", pklId, subId);
+      Logger.log(TAG, "scanned item no session", pklId);
       return result;
     }
+
+    const weighKey = weighManager.getKey(pklId);
+    const { subId } = aeswrapper.decryptUseKey(weighKey, cipherData);
+
+    Logger.log(TAG, "getWeighItemInfo", pklId, subId);
 
     const subItem = await SubItemEntity.findOne({
       where: { id: subId },
@@ -179,9 +180,6 @@ class WeighController {
   }
 
   async updateWeighInfo(pklId: string, cipherData: any) {
-    const weighKey = weighManager.getKey(pklId);
-    const { subId, weigh } = aeswrapper.decryptUseKey(weighKey, cipherData);
-
     if (!weighManager.doesSessionExists(pklId)) {
       const result: DataResult<ScannedItemData> = {
         error_code: ErrorCode.SessionNotFound,
@@ -192,9 +190,12 @@ class WeighController {
           info: {},
         },
       };
-      Logger.log(TAG, "weigh item no session", pklId, subId);
+      Logger.log(TAG, "weigh item no session", pklId);
       return result;
     }
+
+    const weighKey = weighManager.getKey(pklId);
+    const { subId, weigh } = aeswrapper.decryptUseKey(weighKey, cipherData);
 
     const subItem = await SubItemEntity.findOne({
       where: { id: subId },
@@ -237,7 +238,7 @@ class WeighController {
     await subItemController.updateItemWeigh(subId, weigh);
 
     const data = {
-      status: ScannedItemStatus.InvalidItem,
+      status: ScannedItemStatus.Success,
       sessionId: pklId,
       info: {},
     };
@@ -278,7 +279,7 @@ class WeighController {
     const weighedItem = await subItemController.countWeighed([pklId]);
 
     const result: DataResult = {
-      error_code: ErrorCode.Error,
+      error_code: ErrorCode.Success,
       data: {
         ...pklEntity,
         itemsCount: totalWeighItem,

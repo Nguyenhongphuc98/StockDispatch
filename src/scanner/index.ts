@@ -88,12 +88,22 @@ export async function onUpdateWeighItem(req: Request, res: Response, next: any) 
   return rawResponseHandler(result, req, res, next);
 }
 
-export async function onScannerConnect(req: Request, res: Response, next: any) {
-  const { wid, eid } = req.query;
+export async function onScannerConnectExport(req: Request, res: Response, next: any) {
+  const { sid } = req.query;
 
-  Logger.log(TAG, "onScannerConnect", wid, eid);
+  Logger.log(TAG, "onScannerConnectExport", sid);
 
-  const result = await scanController.connect({wid: wid as string, eid: eid as string});
+  const result = await scanController.connectExport(sid as string);
+
+  return rawResponseHandler(result, req, res, next);
+}
+
+export async function onScannerConnectWeigh(req: Request, res: Response, next: any) {
+  const { sid } = req.query;
+
+  Logger.log(TAG, "onScannerConnectWeigh", sid);
+
+  const result = await scanController.connectWeigh(sid as string);
 
   return rawResponseHandler(result, req, res, next);
 }

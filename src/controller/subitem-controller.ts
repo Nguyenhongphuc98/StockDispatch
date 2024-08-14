@@ -93,10 +93,7 @@ export class SubItemController {
     return true;
   }
 
-  async createSubItems(
-    pklId: string,
-    pklItems: PackingListItemEntity[]
-  ) {
+  async createSubItems(pklId: string, pklItems: PackingListItemEntity[]) {
     Logger.log(
       TAG,
       "createSubItems",
@@ -140,30 +137,35 @@ export class SubItemController {
     // const subItems = await SubItemEntity.find({ where: { pklId } , relations: ['packingListItem']});
     // return subItems;
 
-    return SubItemEntity.createQueryBuilder('subItem')
-    .leftJoin('subItem.packingListItem', 'packingListItem')
-    .select([
-      'subItem.id',
-      'subItem.packageSeries',
-      'subItem.grossWeight',
-      'packingListItem.id',   
-      'packingListItem.packageSeries',
-      'packingListItem.po',
-      'packingListItem.packageId',
-    ])
-    .where('subItem.pklId = :pklId', { pklId })
-    .getMany();
+    return SubItemEntity.createQueryBuilder("subItem")
+      .leftJoin("subItem.packingListItem", "packingListItem")
+      .select([
+        "subItem.id",
+        "subItem.packageSeries",
+        "subItem.grossWeight",
+        "packingListItem.id",
+        "packingListItem.packageSeries",
+        "packingListItem.po",
+        "packingListItem.packageId",
+      ])
+      .where("subItem.pklId = :pklId", { pklId })
+      .getMany();
   }
 
   async markItemAsExported(sid: string) {
+    Logger.log(TAG, "markItemAsExported", sid);
     return SubItemEntity.update(sid, {
       id: sid,
-      exportTime: Date.now()
+      exportTime: Date.now(),
     });
   }
 
   async updateItemWeigh(sid: string, weigh: number) {
-    return SubItemEntity.update(sid, {grossWeight: weigh});
+    Logger.log(TAG, "updateItemWeigh", sid, weigh);
+    return SubItemEntity.update(sid, {
+      id: sid,
+      grossWeight: weigh,
+    });
   }
 }
 
