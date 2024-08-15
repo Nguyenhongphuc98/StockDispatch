@@ -2,6 +2,7 @@ const origins = [
   "http://127.0.0.1:5500",
   "http://127.0.0.1:3000",
   "http://localhost:3000",
+  "http://157.245.196.187:8081"
 ];
 export const corsOptions = {
   origin: origins,
