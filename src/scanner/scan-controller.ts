@@ -64,7 +64,7 @@ class ScanController {
     const weighInfo = await this.getWeighInfo(sid);
 
       if (!weighInfo) {
-        return buildResp(ConnectScannerStatus.NoSession);
+        return buildNoSessionResp(ConnectScannerStatus.NoSession);
       }
 
       return buildResp(ConnectScannerStatus.Success, weighInfo.weighKey, {
