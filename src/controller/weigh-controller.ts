@@ -201,7 +201,7 @@ class WeighController {
       where: { id: subId },
     });
 
-    if (!subItem) {
+    if (!subItem || subId) {
       const data = {
         status: ScannedItemStatus.ItemNotFound,
         sessionId: pklId,
@@ -218,6 +218,8 @@ class WeighController {
     }
 
     if (subItem.pklId !== pklId) {
+      Logger.log(TAG, "weighItem invalid pkl", pklId, subId, subItem.pklId);
+
       const data = {
         status: ScannedItemStatus.InvalidItem,
         sessionId: pklId,

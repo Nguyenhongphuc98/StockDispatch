@@ -152,8 +152,8 @@ class ExportController {
       where: { id: subId },
       relations: ["packingListItem"],
     });
-
-    if (!subItem) {
+    
+    if (!subItem || !subId) {
       const data = {
         status: ScannedItemStatus.ItemNotFound,
         sessionId: exportId,
@@ -189,6 +189,8 @@ class ExportController {
     const pklids = exportManager.getPackinglistIds(exportId);
 
     if (!pklids.includes(subItem.pklId)) {
+      Logger.log(TAG, "exportItem invalid pkl", exportId, subId, pklids, subItem.pklId);
+
       const data = {
         status: ScannedItemStatus.InvalidItem,
         sessionId: exportId,
