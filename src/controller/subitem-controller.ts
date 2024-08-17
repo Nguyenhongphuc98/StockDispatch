@@ -143,6 +143,7 @@ export class SubItemController {
         "subItem.id",
         "subItem.packageSeries",
         "subItem.grossWeight",
+        "subItem.exportTime",
         "packingListItem.id",
         "packingListItem.packageSeries",
         "packingListItem.po",
