@@ -55,7 +55,7 @@ const TAG = "[SCANNER]";
 export async function onExportItem(req: Request, res: Response, next: any) {
   //@ts-ignore
   const { sid } = req.query;
-  const bodyCipher = req.body;
+  const bodyCipher = req.body["data"];
 
   Logger.log(TAG, "onExportItem", bodyCipher, sid);
 
@@ -67,7 +67,7 @@ export async function onExportItem(req: Request, res: Response, next: any) {
 export async function onScanWeighItem(req: Request, res: Response, next: any) {
   //@ts-ignore
   const { sid } = req.query;
-  const bodyCipher = req.body;
+  const bodyCipher = req.body["data"];
 
   Logger.log(TAG, "onWeighItem", bodyCipher, sid);
 
@@ -79,7 +79,7 @@ export async function onScanWeighItem(req: Request, res: Response, next: any) {
 export async function onUpdateWeighItem(req: Request, res: Response, next: any) {
   //@ts-ignore
   const { sid } = req.query;
-  const bodyCipher = req.body;
+  const bodyCipher = req.body["data"];
 
   Logger.log(TAG, "onUpdateWeighItem", bodyCipher, sid);
 
