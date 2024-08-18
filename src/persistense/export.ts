@@ -106,21 +106,21 @@ export class ExportEntity extends BaseRepository {
     return this;
   }
 
-  static async getByIdWithCreateByAndItems(id: string) {
-    const exportItem: any = await ExportEntity.createQueryBuilder("e")
-      .leftJoin("e.createdBy", "User")
-      .addSelect(["User.displayName", "User.username"])
-      .where("e.id = :id", { id })
-      .leftJoinAndSelect("e.items", PackingListItemEntity.name)
-      .getOne();
+  // static async getByIdWithCreateByAndItems(id: string) {
+  //   const exportItem: any = await ExportEntity.createQueryBuilder("e")
+  //     .leftJoin("e.createdBy", "User")
+  //     .addSelect(["User.displayName", "User.username"])
+  //     .where("e.id = :id", { id })
+  //     .leftJoinAndSelect("e.items", PackingListItemEntity.name)
+  //     .getOne();
 
-      if (exportItem) {
-        exportItem.itemsCount = await this.countTotalExportItems(exportItem);
-        exportItem.exportedCount = await this.countExportedItems(exportItem);
-      }
+  //     if (exportItem) {
+  //       exportItem.itemsCount = await this.countTotalExportItems(exportItem);
+  //       exportItem.exportedCount = await this.countExportedItems(exportItem);
+  //     }
 
-      return exportItem;
-  }
+  //     return exportItem;
+  // }
 
   static async getExports(
     max: number,
@@ -155,17 +155,17 @@ export class ExportEntity extends BaseRepository {
     return packingLists;
   }
 
-  static async countTotalExportItems(exportItem: ExportEntity) {
-    const pklIds = exportItem.items.map(i => i.id);
-    const totalCount = await subItemController.countAll(pklIds);
+  // static async countTotalExportItems(exportItem: ExportEntity) {
+  //   const pklIds = exportItem.items.map(i => i.id);
+  //   const totalCount = await subItemController.countAll(pklIds);
 
-    return totalCount;
-  }
+  //   return totalCount;
+  // }
 
-  static async countExportedItems(exportItem: ExportEntity) {
-    const pklIds = exportItem.items.map(i => i.id);
-    const totalCount = await subItemController.countExported(pklIds);
+  // static async countExportedItems(exportItem: ExportEntity) {
+  //   const pklIds = exportItem.items.map(i => i.id);
+  //   const totalCount = await subItemController.countExported(pklIds);
 
-    return totalCount;
-  }
+  //   return totalCount;
+  // }
 }

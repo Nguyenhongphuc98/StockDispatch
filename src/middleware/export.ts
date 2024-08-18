@@ -59,7 +59,7 @@ export async function getExport(req: JsonRequest, res: any, next: any) {
 
   Logger.log(TAG, "get export", sessionId, user.username, id);
 
-  const exportItem = await ExportEntity.getByIdWithCreateByAndItems(id);
+  const exportItem = await exportController.getByIdWithFullData(id);
 
   if (exportItem) {
     res.send(new SuccessResponse(sessionId, exportItem));

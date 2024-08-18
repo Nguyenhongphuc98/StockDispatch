@@ -21,6 +21,7 @@ import Logger from "./loger";
 import { commonParams } from "./utils/common-params";
 import { report } from "./route/report";
 import { scan } from "./route/scanner";
+import { bundles } from "./route/bundles";
 
 env.config();
 const app = express();
@@ -58,6 +59,9 @@ auth(app);
 
 // user
 user(app);
+
+//bundle setting
+bundles(app);
 
 // packing list
 pkl(app);
@@ -113,7 +117,8 @@ process.on("unhandledRejection", (reason, promise) => {
 // logs file
 
 // find / -name "main.db"
-// /var/lib/docker/volumes/stockdispatch_database/_data/main.db
+// /var/lib/docker/volumes/stockdispatch_database/_data/
+// main.db
 
 // sudo apt-get install sqlite3
 //  sqlite3 main.db\
@@ -123,3 +128,8 @@ process.on("unhandledRejection", (reason, promise) => {
 //TODO:
 // 1. wrap all middware with try catch logs.
 // 2. index all field have where.
+
+/**
+ * 1|2024-08-13 15:27:02|2024-08-13 15:27:02|export 1|port1|fcl1|59B|big|cont1|seal1|phucnh7|1|bdUkivhyX3|2
+2|2024-08-13 16:51:52|2024-08-13 16:51:52|export 2|port2|fcl2|59B 2|big|cont2|seal2|phucnh8|1|BiuT2OaeSH|2
+ */

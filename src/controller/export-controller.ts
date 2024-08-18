@@ -11,6 +11,8 @@ import { SubItemEntity } from "../persistense/sub-item";
 import socketMamanger from "../socket/socket-manager";
 import aeswrapper from "../secure/aes";
 import { ScannedItemData, ScannedItemStatus } from "../scanner/type";
+import { PackingListItemEntity } from "../persistense/packling-list-item";
+import packinglistController from "./packinglist-controller";
 
 const TAG = "[EC]";
 
@@ -152,7 +154,7 @@ class ExportController {
       where: { id: subId },
       relations: ["packingListItem"],
     });
-    
+
     if (!subItem || !subId) {
       const data = {
         status: ScannedItemStatus.ItemNotFound,
@@ -163,10 +165,10 @@ class ExportController {
       const result: DataResult<string> = {
         error_code: ErrorCode.ResourceNotFound,
         message: "resource not found",
-        data: aeswrapper.encryptUseKey<ScannedItemData>(exportKey, data)
+        data: aeswrapper.encryptUseKey<ScannedItemData>(exportKey, data),
       };
 
-      socketMamanger.broasdcast('export', data);
+      socketMamanger.broasdcast("export", data);
 
       Logger.log(TAG, "exportItem item not found", exportId, subId);
       return result;
@@ -189,7 +191,14 @@ class ExportController {
     const pklids = exportManager.getPackinglistIds(exportId);
 
     if (!pklids.includes(subItem.pklId)) {
-      Logger.log(TAG, "exportItem invalid pkl", exportId, subId, pklids, subItem.pklId);
+      Logger.log(
+        TAG,
+        "exportItem invalid pkl",
+        exportId,
+        subId,
+        pklids,
+        subItem.pklId
+      );
 
       const data = {
         status: ScannedItemStatus.InvalidItem,
@@ -202,14 +211,13 @@ class ExportController {
         data: aeswrapper.encryptUseKey<ScannedItemData>(exportKey, data),
       };
 
-      socketMamanger.broasdcast('export', data);
+      socketMamanger.broasdcast("export", data);
 
       Logger.log(TAG, "exportItem invalid item", exportId, subId);
       return result;
     }
 
     if (subItem.exportTime) {
-
       const data = {
         status: ScannedItemStatus.Duplicate,
         sessionId: exportId,
@@ -222,7 +230,7 @@ class ExportController {
         data: aeswrapper.encryptUseKey<ScannedItemData>(exportKey, data),
       };
 
-      socketMamanger.broasdcast('export', data);
+      socketMamanger.broasdcast("export", data);
 
       Logger.log(TAG, "exportItem dup item", exportId, subId);
       return result;
@@ -231,7 +239,6 @@ class ExportController {
     return subItemController
       .markItemAsExported(subId)
       .then((_) => {
-
         const data = {
           status: ScannedItemStatus.Success,
           sessionId: exportId,
@@ -263,6 +270,41 @@ class ExportController {
         };
         return result;
       });
+  }
+
+  async getByIdWithFullData(exportId: string) {
+    const exportItem: ExportEntity & Record<string, any> = await ExportEntity.createQueryBuilder("e")
+      .leftJoin("e.createdBy", "User")
+      .addSelect(["User.displayName", "User.username"])
+      .where("e.id = :id", { id: exportId })
+      .leftJoinAndSelect("e.items", PackingListItemEntity.name)
+      .getOne();
+
+      if (exportItem) {
+        const pklIds = exportItem.items.map(it => it.id);
+
+        exportItem.subItemsCount = await this.countTotalExportItems(exportItem);
+        exportItem.exportedCount = await this.countExportedItems(exportItem);
+        exportItem.boxesCount = await packinglistController.getTotalBoxes(pklIds);
+        exportItem.totalPCS = await packinglistController.getTotaPCS(pklIds);
+        exportItem.totalVolume = await packinglistController.getTotalVolume(pklIds);
+      }
+
+      return exportItem;
+  }
+
+  async countTotalExportItems(exportItem: ExportEntity) {
+    const pklIds = exportItem.items.map(i => i.id);
+    const totalCount = await subItemController.countAll(pklIds);
+
+    return totalCount;
+  }
+
+  async countExportedItems(exportItem: ExportEntity) {
+    const pklIds = exportItem.items.map(i => i.id);
+    const totalCount = await subItemController.countExported(pklIds);
+
+    return totalCount;
   }
 }
 
