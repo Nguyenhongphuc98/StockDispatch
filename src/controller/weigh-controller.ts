@@ -11,12 +11,12 @@ import aeswrapper from "../secure/aes";
 import { ScannedItemData, ScannedItemStatus } from "../scanner/type";
 import weighManager from "../manager/weigh-manager";
 import packinglistController from "./packinglist-controller";
+import pklItemController from "./pkl-item-controller";
 
 const TAG = "[WC]";
 
 class WeighController {
   async startWeighSession(pklId: string) {
-    const weighKey = weighManager.getKey(pklId);
     const packinglist = await PackingListEntity.findOneBy({ id: pklId });
 
     if (!packinglist) {
@@ -41,7 +41,6 @@ class WeighController {
   }
 
   async endWeighSession(pklId: string) {
-    const weighKey = weighManager.getKey(pklId);
     const packinglist = await PackingListEntity.findOneBy({ id: pklId });
 
     if (!packinglist) {
@@ -55,6 +54,8 @@ class WeighController {
       };
       return result;
     }
+
+    await pklItemController.updatePackingListItemGrossWeight(Number(pklId));
 
     await packinglistController.markPklAsWeighFinished(pklId);
 

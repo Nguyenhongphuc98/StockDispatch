@@ -6,7 +6,7 @@ import { SubItemEntity } from "../persistense/sub-item";
 import { bunddleSettings } from "../middleware/bundle-setting";
 import { AppDataSource } from "../persistense/data-src";
 
-const TAG = "[WLI]";
+const TAG = "[SIC]";
 
 const DEFAULT_WEIGH = 0;
 
