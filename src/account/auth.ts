@@ -7,7 +7,7 @@ import {
   SuccessResponse,
   UnauthenResponse,
 } from "../utils/response";
-import AppSession from "./session";
+import AppSession from "../manager/session-manager";
 import { buildHashedData } from "./utils";
 import { Request, Response } from "express";
 import Logger from "../loger";

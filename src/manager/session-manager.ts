@@ -1,4 +1,4 @@
-import { UserModel } from "../persistense/users";
+import { UserEntity, UserModel } from "../persistense/users";
 import {
   generateKeyPairSync,
   randomUUID,
@@ -9,6 +9,7 @@ import {
 import socketMamanger from "../socket/socket-manager";
 import aeswrapper from "../secure/aes";
 import Logger from "../loger"
+import { SessionEntity } from "../persistense/session";
 
 const IV = "3fa85061a5feaf082ceb752cd360aef4";
 const PASSPHRASE = "66771508028AzaZ!@";
@@ -51,6 +52,21 @@ class Session {
     this.getAuthenKey();
   }
 
+  async init() {
+    const sessions = await SessionEntity.find();
+
+    Logger.error(this.tag, "init session:", sessions.map(s => s.uid));
+
+    for (let i = 0; i < sessions.length; i++) {
+      const session = sessions[i];
+      const user = await UserEntity.findOneBy({id: session.uid});
+
+      if (user) {
+        this.createUserSession(session.sessionId, user.model(), session.key, false);
+      }
+    }
+  }
+
   createAuthenSession(): AuthenSession {
     const { publicKey, privateKey } = this.getAuthenKey();
 
@@ -62,12 +78,12 @@ class Session {
 
     setTimeout(() => {
       if (this.authenMap.has(sessionId)) {
-        console.log("[Session] - authen timeout: ", sessionId);
+        Logger.log("[Session] - authen timeout: ", sessionId);
         this.authenMap.delete(sessionId);
       }
     }, 60 * 60 * 1000);
 
-    console.log("[Session] - create new: ", sessionId);
+    Logger.log("[Session] - create new: ", sessionId);
 
     return {
       sessionId,
@@ -106,9 +122,22 @@ class Session {
     return key;
   }
 
-  createUserSession(sessionId: string, user: UserModel, encryptKey: string) {
+  createUserSession(sessionId: string, user: UserModel, encryptKey: string, persist: boolean = true) {
+    if (this.sessionMap.has(sessionId)) {
+      return;
+    }
+    Logger.log('create session', sessionId, user);
     this.sessionMap.set(sessionId, user);
     aeswrapper.addSession(sessionId, encryptKey);
+
+    const session = new SessionEntity();
+    session.uid = user.id;
+    session.sessionId = sessionId;
+    session.key = encryptKey;
+
+    if (persist) {
+      session.save();
+    }
   }
 
   getAuthData(sessionId: string, encryptedData: string): AuthData {
@@ -149,13 +178,19 @@ class Session {
     return this.sessionMap.has(sessionId);
   }
 
-  destroySession(sessionId: string) {
+  async destroySession(sessionId: string) {
     Logger.error(this.tag, "Destroy:", sessionId, this.sessionMap.get(sessionId)?.username);
 
     this.sessionMap.delete(sessionId);
 
     aeswrapper.removeSession(sessionId);
     socketMamanger.destroySocketSessionBySessiontId(sessionId);
+
+    const sessions = await SessionEntity.findBy({sessionId: sessionId});
+
+    if (sessions) {
+      await SessionEntity.remove(sessions);
+    }
   }
 
 }

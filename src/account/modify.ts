@@ -12,7 +12,7 @@ import {
 import { JsonRequest } from "../utils/type";
 import { Request, Response } from "express";
 import Logger from "../loger";
-import AppSession from "./session";
+import AppSession from "../manager/session-manager";
 import { generateRandomString } from "../utils/string";
 import { commonParams } from "../utils/common-params";
 

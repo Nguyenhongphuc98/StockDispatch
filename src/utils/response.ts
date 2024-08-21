@@ -1,7 +1,6 @@
-import AppSession from "../account/session";
 import aeswrapper from "../secure/aes";
 import { ErrorCode } from "./const";
-import { Express, Request, Response } from "express";
+import { Request, Response } from "express";
 import Logger from "../loger";
 
 export class JsonResponse {

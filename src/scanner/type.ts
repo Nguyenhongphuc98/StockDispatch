@@ -29,5 +29,6 @@ export type ScannedItemData = {
     width: number;
     length: number;
     height: number;
+    exportTime: Date;
   } | {};
 };

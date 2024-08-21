@@ -1,5 +1,5 @@
 import { Server as SocketIOServer, Socket } from "socket.io";
-import AppSession from "../account/session";
+import AppSession from "../manager/session-manager";
 import { ErrorCode } from "../utils/const";
 import Logger from "../loger";
 import { SocketChanel } from "./type";

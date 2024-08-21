@@ -1,4 +1,4 @@
-import AppSession from "./account/session";
+import AppSession from "./manager/session-manager";
 import { corsOptions } from "./cors";
 import { AppDataSource, InitAdmin } from "./persistense/data-src";
 import { Server as SocketIOServer, Socket } from "socket.io";
@@ -20,6 +20,7 @@ export function start(server) {
        */
       InitAdmin();
 
+      AppSession.init();
       exportManager.init();
       weighManager.init();
 

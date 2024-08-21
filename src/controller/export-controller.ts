@@ -186,6 +186,7 @@ class ExportController {
       width: subItem.packingListItem.width,
       length: subItem.packingListItem.length,
       height: subItem.packingListItem.height,
+      exportTime: subItem.exportTime,
     };
 
     const pklids = exportManager.getPackinglistIds(exportId);
