@@ -7,7 +7,9 @@ services:
       - /usr/app/node_modules
       - .env:/usr/app/.env:ro
       - database:/etc/database
+      - logs:/etc/logs
     ports:
       - "8080:8080"
 volumes:
   database:
+  logs:

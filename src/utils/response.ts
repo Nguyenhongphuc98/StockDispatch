@@ -2,6 +2,7 @@ import aeswrapper from "../secure/aes";
 import { ErrorCode } from "./const";
 import { Request, Response } from "express";
 import Logger from "../loger";
+import systemTime from "./system-time";
 
 export class JsonResponse {
     protected data: Record<string, any>;
@@ -96,8 +97,8 @@ export class NotEncryptSessionNotFoundResponse {
 }
 
 export function defaultHandler(req: Request, res: Response) {
-    console.log(Date.now(), ": receive req: ", req.method, req.url, req.body)
+    Logger.log("receive req: ", req.method, req.url, req.body)
     res.send(new NotEncryptSuccessResponse({
-        reqAt: Date.now(),
+        reqAt: systemTime.now(),
     }));
 }

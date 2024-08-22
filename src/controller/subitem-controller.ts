@@ -5,6 +5,7 @@ import { PackingListItemEntity } from "../persistense/packling-list-item";
 import { SubItemEntity } from "../persistense/sub-item";
 import { bunddleSettings } from "../middleware/bundle-setting";
 import { AppDataSource } from "../persistense/data-src";
+import systemTime from "../utils/system-time";
 
 const TAG = "[SIC]";
 
@@ -157,7 +158,7 @@ export class SubItemController {
     Logger.log(TAG, "markItemAsExported", sid);
     return SubItemEntity.update(sid, {
       id: sid,
-      exportTime: Date.now(),
+      exportTime: systemTime.date(),
     });
   }
 

@@ -13,6 +13,7 @@ import aeswrapper from "../secure/aes";
 import { ScannedItemData, ScannedItemStatus } from "../scanner/type";
 import { PackingListItemEntity } from "../persistense/packling-list-item";
 import packinglistController from "./packinglist-controller";
+import systemTime from "../utils/system-time";
 
 const TAG = "[EC]";
 
@@ -186,7 +187,7 @@ class ExportController {
       width: subItem.packingListItem.width,
       length: subItem.packingListItem.length,
       height: subItem.packingListItem.height,
-      exportTime: subItem.exportTime,
+      exportTime: systemTime.now(),
     };
 
     const pklids = exportManager.getPackinglistIds(exportId);

@@ -1,3 +1,6 @@
-import Console from "./console";
+// import Console from "./console";
 
-export default Console;
+// export default Console;
+
+import fileLog from "./file";
+export default fileLog;

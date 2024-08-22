@@ -1,3 +1,4 @@
+import systemTime from "../utils/system-time";
 
 class Console {
     constructor() {
@@ -5,9 +6,7 @@ class Console {
     }
 
     get logtime() {
-        const now = Date.now();
-        const delta = 7 * 60 * 60 * 1000;
-        return new Date(now + delta).toLocaleString();
+        return systemTime.date().toLocaleString();
     }
 
     log(...args) {

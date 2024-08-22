@@ -3,6 +3,7 @@ import Logger from "../loger";
 import { InvalidPayloadResponse } from "../utils/response";
 import { Request, Response } from "express";
 import { commonParams } from "../utils/common-params";
+import systemTime from "../utils/system-time";
 
 const MAX_ALIVE = 24 * 60 * 60 * 1000;
 const CLEAN_INTERVAL = 6 * 60 * 60 * 1000;
@@ -24,7 +25,7 @@ class RequestManager {
 
   clearOutdateReq() {
     this.reqCache.forEach((reqAt, reqId, m) => {
-      if (Math.abs(reqAt - Date.now()) > MAX_ALIVE) {
+      if (Math.abs(reqAt - systemTime.now()) > MAX_ALIVE) {
         m.delete(reqId);
         Logger.log(TAG, "Delete outdate req", reqId, reqAt);
       }
@@ -33,7 +34,7 @@ class RequestManager {
   }
 
   isValidReq(reqId: string, reqAt: number) {
-    if (Math.abs(reqAt - Date.now()) > MAX_ALIVE) {
+    if (Math.abs(reqAt - systemTime.now()) > MAX_ALIVE) {
       return false;
     }
 
