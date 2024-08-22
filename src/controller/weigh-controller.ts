@@ -33,6 +33,7 @@ class WeighController {
 
     await packinglistController.markPklAsWeighting(pklId);
 
+    Logger.log(TAG, "startWeighSession success", pklId);
     const result: DataResult<PackingListEntity> = {
       error_code: ErrorCode.Success,
       data: packinglist,
@@ -59,6 +60,7 @@ class WeighController {
 
     await packinglistController.markPklAsWeighFinished(pklId);
 
+    Logger.log(TAG, "endWeighSession success", pklId);
     const result: DataResult<PackingListEntity> = {
       error_code: ErrorCode.Success,
       data: packinglist,

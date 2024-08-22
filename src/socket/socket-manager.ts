@@ -35,6 +35,7 @@ class SocketManager {
   broasdcast(chanel: SocketChanel, data: any) {
     this.socketMap.forEach((socket, sessionId) => {
         const respData = new SuccessResponse(sessionId, data);
+        Logger.log(this.tag, "broasdcast to", chanel, sessionId, socket.id);
         socket.emit(chanel, respData);
     })
   }

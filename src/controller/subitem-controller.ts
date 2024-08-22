@@ -138,7 +138,7 @@ export class SubItemController {
     // const subItems = await SubItemEntity.find({ where: { pklId } , relations: ['packingListItem']});
     // return subItems;
 
-    return SubItemEntity.createQueryBuilder("subItem")
+    const subItems = await SubItemEntity.createQueryBuilder("subItem")
       .leftJoin("subItem.packingListItem", "packingListItem")
       .select([
         "subItem.id",
@@ -152,6 +152,9 @@ export class SubItemController {
       ])
       .where("subItem.pklId = :pklId", { pklId })
       .getMany();
+
+      Logger.log(TAG, "getSubitemsOfPkl", subItems.map(v => v.id));
+      return subItems;
   }
 
   async markItemAsExported(sid: string) {

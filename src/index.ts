@@ -35,7 +35,7 @@ const server = http.createServer(app);
 
 app.use(express.text(), (req: Request, resp: Response, next: any) => {
   try {
-    console.log(req.body)
+    // console.log(req.body)
     req.body = JSON.parse(req.body);
   } catch (error) {
     // console.error('err', error)

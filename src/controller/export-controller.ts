@@ -80,6 +80,7 @@ class ExportController {
 
     if (success) {
       exportManager.startSession(exportItem);
+      Logger.log(TAG, "create export success", pklIds, exportItem.id);
       const result: DataResult = {
         error_code: ErrorCode.Success,
         data: exportItem,
@@ -117,12 +118,14 @@ class ExportController {
 
     if (success) {
       exportManager.endSession(exportItem.id);
+      Logger.log(TAG, "end export success", eid);
       const result: DataResult = {
         error_code: ErrorCode.Success,
         data: exportItem,
       };
       return result;
     } else {
+      Logger.error(TAG, "end export err", eid);
       const result: DataResult = {
         error_code: ErrorCode.Error,
         data: {},
@@ -275,37 +278,44 @@ class ExportController {
   }
 
   async getByIdWithFullData(exportId: string) {
-    const exportItem: ExportEntity & Record<string, any> = await ExportEntity.createQueryBuilder("e")
-      .leftJoin("e.createdBy", "User")
-      .addSelect(["User.displayName", "User.username"])
-      .where("e.id = :id", { id: exportId })
-      .leftJoinAndSelect("e.items", PackingListItemEntity.name)
-      .getOne();
+    const exportItem: ExportEntity & Record<string, any> =
+      await ExportEntity.createQueryBuilder("e")
+        .leftJoin("e.createdBy", "User")
+        .addSelect(["User.displayName", "User.username"])
+        .where("e.id = :id", { id: exportId })
+        .leftJoinAndSelect("e.items", PackingListItemEntity.name)
+        .getOne();
 
-      if (exportItem) {
-        const pklIds = exportItem.items.map(it => it.id);
+    if (exportItem) {
+      const pklIds = exportItem.items.map((it) => it.id);
 
-        exportItem.subItemsCount = await this.countTotalExportItems(exportItem);
-        exportItem.exportedCount = await this.countExportedItems(exportItem);
-        exportItem.boxesCount = await packinglistController.getTotalBoxes(pklIds);
-        exportItem.totalPCS = await packinglistController.getTotaPCS(pklIds);
-        exportItem.totalVolume = await packinglistController.getTotalVolume(pklIds);
-      }
+      exportItem.subItemsCount = await this.countTotalExportItems(exportItem);
+      exportItem.exportedCount = await this.countExportedItems(exportItem);
+      exportItem.boxesCount = await packinglistController.getTotalBoxes(pklIds);
+      exportItem.totalPCS = await packinglistController.getTotaPCS(pklIds);
+      exportItem.totalVolume = await packinglistController.getTotalVolume(
+        pklIds
+      );
+    }
 
-      return exportItem;
+    Logger.log(TAG, "getByIdWithFullData", exportItem?.id);
+
+    return exportItem;
   }
 
   async countTotalExportItems(exportItem: ExportEntity) {
-    const pklIds = exportItem.items.map(i => i.id);
+    const pklIds = exportItem.items.map((i) => i.id);
     const totalCount = await subItemController.countAll(pklIds);
 
+    Logger.log(TAG, "countTotalExportItems", totalCount);
     return totalCount;
   }
 
   async countExportedItems(exportItem: ExportEntity) {
-    const pklIds = exportItem.items.map(i => i.id);
+    const pklIds = exportItem.items.map((i) => i.id);
     const totalCount = await subItemController.countExported(pklIds);
 
+    Logger.log(TAG, "countExportedItems", totalCount);
     return totalCount;
   }
 }

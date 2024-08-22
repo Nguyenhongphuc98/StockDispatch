@@ -23,6 +23,7 @@ class PackingListController {
       }
 
       await PackingListEntity.remove(packingList);
+      Logger.log(TAG, "delete pkl success", pklId);
     } catch (error) {
       Logger.log(TAG, "Delete pkl err", pklId, error);
       return false;
@@ -32,12 +33,14 @@ class PackingListController {
   }
 
   async markPklAsWeighting(pklId: string) {
+    Logger.log(TAG, "markPklAsWeighting", pklId);
     return PackingListEntity.update(pklId, {
       weighStatus: WeighStatus.Weighting,
     });
   }
 
   async markPklAsWeighFinished(pklId: string) {
+    Logger.log(TAG, "markPklAsWeighFinished", pklId);
     return PackingListEntity.update(pklId, {
       weighStatus: WeighStatus.Finished,
     });
@@ -60,6 +63,7 @@ class PackingListController {
     );
     const totalBoxes = Number(boxCountResult[0].totalBoxes);
 
+    Logger.log(TAG, "getTotalBoxes", totalBoxes);
     return totalBoxes;
   }
 
@@ -79,6 +83,7 @@ class PackingListController {
     const volumeResult = await PackingListItemEntity.query(volumeQuery, pklIds);
     const totalVolume = Number(volumeResult[0].totalVolume);
 
+    Logger.log(TAG, "getTotalVolume", totalVolume);
     return totalVolume;
   }
 
@@ -103,6 +108,7 @@ class PackingListController {
       itemsInPackageResult[0].totalItemsInPackage
     );
 
+    Logger.log(TAG, "getTotaPCS", totalItemsInPackage);
     return totalItemsInPackage;
   }
 }

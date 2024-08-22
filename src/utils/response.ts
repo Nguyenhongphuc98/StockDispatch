@@ -8,7 +8,7 @@ export class JsonResponse {
     protected data: Record<string, any>;
 
     constructor(readonly error_code: ErrorCode, readonly message: string, sessionId: string, data: Record<string, any>) {
-        Logger.error("[Resp]", message, data);
+        // Logger.error("[Resp]", message, data);
 
         this.data = {};
 
@@ -16,7 +16,7 @@ export class JsonResponse {
             try {
                 this.data = aeswrapper.encrypt(sessionId, data)
             } catch(e) {
-                console.log("Encrypt to resp err:", data, e);
+                Logger.error("Encrypt to resp err:", data, e);
             };
         }
        
