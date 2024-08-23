@@ -58,7 +58,7 @@ export function getUserInfo(req: Request, res: Response, next: any) {
   const { sessionId } = commonParams(req);
   const user = AppSession.getActiveUser(sessionId);
 
-  console.log("get user info: ", sessionId, user);
+  Logger.log("get user info: ", sessionId, user);
 
   res.send(new SuccessResponse(sessionId, {
     user: user,

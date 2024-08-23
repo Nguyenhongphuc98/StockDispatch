@@ -86,7 +86,7 @@ export class SubItemEntity extends BaseRepository {
   }
 
   getPackageSeries() {
-    [this.startSeries(), this.endSeries()]
+    return [this.startSeries(), this.endSeries()]
   }
 }
 
