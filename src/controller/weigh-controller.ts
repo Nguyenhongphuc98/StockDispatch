@@ -116,7 +116,7 @@ class WeighController {
     const subItemFullInfo: ScannedItemData["info"] = {
       id: subItem.id,
       packageId: subItem.packingListItem.packageId,
-      packageSeries: subItem.packageSeries,
+      packageSeries: subItem.getPackageSeries(),
       po: subItem.packingListItem.po,
       sku: subItem.packingListItem.sku,
       itemsInPackage: subItem.packingListItem.itemsInPackage,

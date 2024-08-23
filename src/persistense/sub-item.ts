@@ -17,7 +17,7 @@ import { PackingListEntity } from "./packing-list";
 import { BaseRepository } from "./base";
 import { PackingListItemEntity } from "./packling-list-item";
 
-export type WeighListItemModel = {
+export type SubItemModel = {
   packageSeries: [number, number];
   grossWeight: number;
 };
@@ -53,7 +53,7 @@ export class SubItemEntity extends BaseRepository {
   exportTime: Date;
 
   init(
-    model: WeighListItemModel,
+    model: SubItemModel,
     packingListId: string,
     packingListItem: PackingListItemEntity
   ) {
@@ -71,7 +71,7 @@ export class SubItemEntity extends BaseRepository {
 
     return {
       ...this,
-      packageSeries: [this.startSeries(), this.endSeries()],
+      packageSeries: this.getPackageSeries(),
     };
   }
 
@@ -83,6 +83,10 @@ export class SubItemEntity extends BaseRepository {
   endSeries() {
     const parsedSeries = this.packageSeries.split("-");
     return parsedSeries[1];
+  }
+
+  getPackageSeries() {
+    [this.startSeries(), this.endSeries()]
   }
 }
 
