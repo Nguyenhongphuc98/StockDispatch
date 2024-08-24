@@ -84,11 +84,12 @@ export async function getExports(req: JsonRequest, res: any, next: any) {
 
   const exports = await ExportEntity.getExports(
     MAX_ITEMS_PER_PAGE,
-    ts ? new Date(ts) : undefined,
+    ts ? new Date(Number(ts)) : undefined,
     kw,
     status
   );
 
+  Logger.log(TAG, "get exports success", sessionId, user.username, kw, ts, exports.map(v => v.id));
   res.send(
     new SuccessResponse(sessionId, {
       exports: exports,

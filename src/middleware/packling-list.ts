@@ -81,7 +81,7 @@ export async function getPackinglists(req: JsonRequest, res: any, next: any) {
 
   const pkls = await PackingListEntity.getPackingLists(
     MAX_ITEMS_PER_PAGE,
-    ts ? new Date(ts) : undefined,
+    ts ? new Date(Number(ts)) : undefined,
     kw,
     wstt
   );

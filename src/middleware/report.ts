@@ -58,8 +58,8 @@ export async function getExportDetailByPO(
 
   const pkls = await PackingListEntity.getPackingListsByPoAndDateRange(
     po,
-    new Date(fromDate),
-    new Date(toDate)
+    new Date(Number(fromDate)),
+    new Date(Number(toDate))
   );
 
   if (!pkls) {
@@ -75,16 +75,16 @@ export async function getExportDetailByPackageId(
   res: any,
   next: any
 ) {
-  const { sessionId } = commonParams(req);
+  const { sessionId, fromDate, toDate } = commonParams(req);
   const user = req.user;
-  const { pid, fromDate, toDate } = req.params;
+  const { pid } = req.params;
 
   Logger.log(TAG, "getExportDetailByPackageId", sessionId, user.username, pid);
 
   const pkls = await PackingListEntity.getPackingListsByPackgeIdAndDateRange(
     pid,
-    new Date(fromDate),
-    new Date(toDate)
+    new Date(Number(fromDate)),
+    new Date(Number(toDate))
   );
 
   if (!pkls) {
@@ -100,15 +100,14 @@ export async function getExportDetailByExportTime(
   res: any,
   next: any
 ) {
-  const { sessionId } = commonParams(req);
+  const { sessionId, fromDate, toDate } = commonParams(req);
   const user = req.user;
-  const { fromDate, toDate } = req.params;
 
   Logger.log(TAG, "getExportDetailByExportTime", sessionId, user.username);
 
   const pkls = await PackingListEntity.getPackingListsByExportCreateDate(
-    new Date(fromDate),
-    new Date(toDate)
+    new Date(Number(fromDate)),
+    new Date(Number(toDate))
   );
 
   if (!pkls) {
@@ -124,16 +123,16 @@ export async function getExportDetailByCustomer(
   res: any,
   next: any
 ) {
-  const { sessionId } = commonParams(req);
+  const { sessionId, fromDate, toDate } = commonParams(req);
   const user = req.user;
-  const { customer, fromDate, toDate } = req.params;
+  const { customer } = req.params;
 
   Logger.log(TAG, "getExportDetailByCustomer", sessionId, user.username);
-
+  debugger;
   const pkls = await PackingListEntity.getPackingListsByExportCustomer(
     customer,
-    new Date(fromDate),
-    new Date(toDate)
+    new Date(Number(fromDate)),
+    new Date(Number(toDate))
   );
 
   if (!pkls) {

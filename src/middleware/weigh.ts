@@ -53,9 +53,6 @@ export async function startWeigh(req: JsonRequest, res: any, next: any) {
     const { sessionId } = commonParams(req);
     const user = req.user;
   
-    //@ts-ignore
-    const ts = req.query.ts;
-  
     const { pklid } = req.params;
     Logger.log(TAG, "getWeigh", sessionId, user.username, pklid);
   

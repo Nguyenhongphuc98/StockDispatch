@@ -180,43 +180,43 @@ export class PackingListEntity extends BaseRepository {
     toDate: Date
   ) {
     const packingLists = await PackingListEntity.createQueryBuilder(
-      "packingList"
+      "pkl"
     )
-      .leftJoinAndSelect("packingList.items", "item")
-      .leftJoinAndSelect("packingList.export", "export")
+      .leftJoinAndSelect("pkl.items", "item")
+      .leftJoinAndSelect("pkl.export", "e")
       .where("item.po = :po", { po })
-      .andWhere("packingList.createAt BETWEEN :fromDate AND :toDate", {
+      .andWhere("e.createAt BETWEEN :fromDate AND :toDate", {
         fromDate,
         toDate,
       })
-      .groupBy("packingList.id")
-      .addGroupBy("export.id") // Add this line if you want to include export details
-      .addSelect([
-        "packingList.createAt",
-        "packingList.updateAt",
-        "packingList.name",
-        "packingList.attachedInvoiceId",
-        "packingList.date",
-        "packingList.from",
-        "packingList.to",
-        "packingList.etdFactory",
-        "packingList.etdPort",
-        "packingList.eta",
-        "packingList.status",
-        "packingList.weighStatus",
-        "packingList.weighKey",
-      ])
-      .addSelect([
-        "export.name",
-        "export.gate",
-        "export.fcl",
-        "export.contNum",
-        "export.contSize",
-        "export.vehicle",
-        "export.seal",
-        "export.customer",
-        "export.status",
-      ])
+      // .groupBy("packingList.id")
+      // .addGroupBy("export.id") // Add this line if you want to include export details
+      // .addSelect([
+      //   "packingList.createAt",
+      //   "packingList.updateAt",
+      //   "packingList.name",
+      //   "packingList.attachedInvoiceId",
+      //   "packingList.date",
+      //   "packingList.from",
+      //   "packingList.to",
+      //   "packingList.etdFactory",
+      //   "packingList.etdPort",
+      //   "packingList.eta",
+      //   "packingList.status",
+      //   "packingList.weighStatus",
+      //   "packingList.weighKey",
+      // ])
+      // .addSelect([
+      //   "export.name",
+      //   "export.gate",
+      //   "export.fcl",
+      //   "export.contNum",
+      //   "export.contSize",
+      //   "export.vehicle",
+      //   "export.seal",
+      //   "export.customer",
+      //   "export.status",
+      // ])
       .getMany();
 
     return packingLists;
@@ -228,43 +228,43 @@ export class PackingListEntity extends BaseRepository {
     toDate: Date
   ) {
     const packingLists = await PackingListEntity.createQueryBuilder(
-      "packingList"
+      "pkl"
     )
-      .leftJoinAndSelect("packingList.items", "item")
-      .leftJoinAndSelect("packingList.export", "export")
+      .leftJoinAndSelect("pkl.items", "item")
+      .leftJoinAndSelect("pkl.export", "e")
       .where("item.packageId = :packageId", { packageId })
-      .andWhere("packingList.createAt BETWEEN :fromDate AND :toDate", {
+      .andWhere("e.createAt BETWEEN :fromDate AND :toDate", {
         fromDate,
         toDate,
       })
-      .groupBy("packingList.id")
-      .addGroupBy("export.id") // Add this line if you want to include export details
-      .addSelect([
-        "packingList.createAt",
-        "packingList.updateAt",
-        "packingList.name",
-        "packingList.attachedInvoiceId",
-        "packingList.date",
-        "packingList.from",
-        "packingList.to",
-        "packingList.etdFactory",
-        "packingList.etdPort",
-        "packingList.eta",
-        "packingList.status",
-        "packingList.weighStatus",
-        "packingList.weighKey",
-      ])
-      .addSelect([
-        "export.name",
-        "export.gate",
-        "export.fcl",
-        "export.contNum",
-        "export.contSize",
-        "export.vehicle",
-        "export.seal",
-        "export.customer",
-        "export.status",
-      ])
+      // .groupBy("packingList.id")
+      // .addGroupBy("export.id") // Add this line if you want to include export details
+      // .addSelect([
+      //   "packingList.createAt",
+      //   "packingList.updateAt",
+      //   "packingList.name",
+      //   "packingList.attachedInvoiceId",
+      //   "packingList.date",
+      //   "packingList.from",
+      //   "packingList.to",
+      //   "packingList.etdFactory",
+      //   "packingList.etdPort",
+      //   "packingList.eta",
+      //   "packingList.status",
+      //   "packingList.weighStatus",
+      //   "packingList.weighKey",
+      // ])
+      // .addSelect([
+      //   "export.name",
+      //   "export.gate",
+      //   "export.fcl",
+      //   "export.contNum",
+      //   "export.contSize",
+      //   "export.vehicle",
+      //   "export.seal",
+      //   "export.customer",
+      //   "export.status",
+      // ])
       .getMany();
 
     return packingLists;
@@ -272,88 +272,89 @@ export class PackingListEntity extends BaseRepository {
 
   static async getPackingListsByExportCreateDate(fromDate: Date, toDate: Date) {
     const packingLists = await PackingListEntity.createQueryBuilder(
-      "packingList"
+      "pkl"
     )
-      .innerJoin("packingList.export", "export")
-      .leftJoinAndSelect("packingList.items", "item")
-      .leftJoinAndSelect("packingList.export", "export")
-      .where("export.createAt BETWEEN :fromDate AND :toDate", {
+      .innerJoin("pkl.export", "export")
+      .leftJoinAndSelect("pkl.items", "item")
+      .leftJoinAndSelect("pkl.export", "e")
+      .where("e.createAt BETWEEN :fromDate AND :toDate", {
         fromDate,
         toDate,
       })
-      .groupBy("packingList.id")
-      .addGroupBy("export.id") // Add this line if you want to include export details
-      .addSelect([
-        "packingList.createAt",
-        "packingList.updateAt",
-        "packingList.name",
-        "packingList.attachedInvoiceId",
-        "packingList.date",
-        "packingList.from",
-        "packingList.to",
-        "packingList.etdFactory",
-        "packingList.etdPort",
-        "packingList.eta",
-        "packingList.status",
-        "packingList.weighStatus",
-        "packingList.weighKey",
-      ])
-      .addSelect([
-        "export.name",
-        "export.gate",
-        "export.fcl",
-        "export.contNum",
-        "export.contSize",
-        "export.vehicle",
-        "export.seal",
-        "export.customer",
-        "export.status",
-      ])
+      // .groupBy("packingList.id")
+      // .addGroupBy("export.id") // Add this line if you want to include export details
+      // .addSelect([
+      //   "packingList.createAt",
+      //   "packingList.updateAt",
+      //   "packingList.name",
+      //   "packingList.attachedInvoiceId",
+      //   "packingList.date",
+      //   "packingList.from",
+      //   "packingList.to",
+      //   "packingList.etdFactory",
+      //   "packingList.etdPort",
+      //   "packingList.eta",
+      //   "packingList.status",
+      //   "packingList.weighStatus",
+      //   "packingList.weighKey",
+      // ])
+      // .addSelect([
+      //   "export.name",
+      //   "export.gate",
+      //   "export.fcl",
+      //   "export.contNum",
+      //   "export.contSize",
+      //   "export.vehicle",
+      //   "export.seal",
+      //   "export.customer",
+      //   "export.status",
+      // ])
       .getMany();
 
     return packingLists;
   }
 
   static async getPackingListsByExportCustomer(customer: string, fromDate: Date, toDate: Date) {
+    debugger;
     const packingLists = await PackingListEntity.createQueryBuilder(
-      "packingList"
+      "pkl"
     )
-      .innerJoin("packingList.export", "export")
-      .leftJoinAndSelect("packingList.items", "item")
-      .leftJoinAndSelect("packingList.export", "export")
-      .where("export.createAt BETWEEN :fromDate AND :toDate", {
+      .innerJoin("pkl.export", "export")
+      .leftJoinAndSelect("pkl.items", "item")
+      .leftJoinAndSelect("pkl.export", "e")
+      .where("e.createAt BETWEEN :fromDate AND :toDate", {
         fromDate,
         toDate,
       })
-      .andWhere("export.customer = :customer", { customer })
-      .groupBy("packingList.id")
-      .addGroupBy("export.id") // Add this line if you want to include export details
-      .addSelect([
-        "packingList.createAt",
-        "packingList.updateAt",
-        "packingList.name",
-        "packingList.attachedInvoiceId",
-        "packingList.date",
-        "packingList.from",
-        "packingList.to",
-        "packingList.etdFactory",
-        "packingList.etdPort",
-        "packingList.eta",
-        "packingList.status",
-        "packingList.weighStatus",
-        "packingList.weighKey",
-      ])
-      .addSelect([
-        "export.name",
-        "export.gate",
-        "export.fcl",
-        "export.contNum",
-        "export.contSize",
-        "export.vehicle",
-        "export.seal",
-        "export.customer",
-        "export.status",
-      ])
+      .andWhere("e.customer = :customer", { customer })
+      // .groupBy("packingList.id")
+      // .addGroupBy("export.id") // Add this line if you want to include export details
+      // .addSelect([
+      //   "packingList.createAt",
+      //   "packingList.updateAt",
+      //   "packingList.name",
+      //   "packingList.attachedInvoiceId",
+      //   "packingList.date",
+      //   "packingList.from",
+      //   "packingList.to",
+      //   "packingList.etdFactory",
+      //   "packingList.etdPort",
+      //   "packingList.eta",
+      //   "packingList.status",
+      //   "packingList.weighStatus",
+      //   "packingList.weighKey",
+      // ])
+      // .addSelect([
+      //   "export.name",
+      //   "export.gate",
+      //   "export.fcl",
+      //   "export.contNum",
+      //   "export.contSize",
+      //   "export.vehicle",
+      //   "export.seal",
+      //   "export.customer",
+      //   "export.status",
+      // ])
       .getMany();
 
     return packingLists;
