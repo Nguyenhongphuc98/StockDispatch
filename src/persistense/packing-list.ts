@@ -189,34 +189,6 @@ export class PackingListEntity extends BaseRepository {
         fromDate,
         toDate,
       })
-      // .groupBy("packingList.id")
-      // .addGroupBy("export.id") // Add this line if you want to include export details
-      // .addSelect([
-      //   "packingList.createAt",
-      //   "packingList.updateAt",
-      //   "packingList.name",
-      //   "packingList.attachedInvoiceId",
-      //   "packingList.date",
-      //   "packingList.from",
-      //   "packingList.to",
-      //   "packingList.etdFactory",
-      //   "packingList.etdPort",
-      //   "packingList.eta",
-      //   "packingList.status",
-      //   "packingList.weighStatus",
-      //   "packingList.weighKey",
-      // ])
-      // .addSelect([
-      //   "export.name",
-      //   "export.gate",
-      //   "export.fcl",
-      //   "export.contNum",
-      //   "export.contSize",
-      //   "export.vehicle",
-      //   "export.seal",
-      //   "export.customer",
-      //   "export.status",
-      // ])
       .getMany();
 
     return packingLists;
@@ -237,34 +209,6 @@ export class PackingListEntity extends BaseRepository {
         fromDate,
         toDate,
       })
-      // .groupBy("packingList.id")
-      // .addGroupBy("export.id") // Add this line if you want to include export details
-      // .addSelect([
-      //   "packingList.createAt",
-      //   "packingList.updateAt",
-      //   "packingList.name",
-      //   "packingList.attachedInvoiceId",
-      //   "packingList.date",
-      //   "packingList.from",
-      //   "packingList.to",
-      //   "packingList.etdFactory",
-      //   "packingList.etdPort",
-      //   "packingList.eta",
-      //   "packingList.status",
-      //   "packingList.weighStatus",
-      //   "packingList.weighKey",
-      // ])
-      // .addSelect([
-      //   "export.name",
-      //   "export.gate",
-      //   "export.fcl",
-      //   "export.contNum",
-      //   "export.contSize",
-      //   "export.vehicle",
-      //   "export.seal",
-      //   "export.customer",
-      //   "export.status",
-      // ])
       .getMany();
 
     return packingLists;
@@ -281,41 +225,13 @@ export class PackingListEntity extends BaseRepository {
         fromDate,
         toDate,
       })
-      // .groupBy("packingList.id")
-      // .addGroupBy("export.id") // Add this line if you want to include export details
-      // .addSelect([
-      //   "packingList.createAt",
-      //   "packingList.updateAt",
-      //   "packingList.name",
-      //   "packingList.attachedInvoiceId",
-      //   "packingList.date",
-      //   "packingList.from",
-      //   "packingList.to",
-      //   "packingList.etdFactory",
-      //   "packingList.etdPort",
-      //   "packingList.eta",
-      //   "packingList.status",
-      //   "packingList.weighStatus",
-      //   "packingList.weighKey",
-      // ])
-      // .addSelect([
-      //   "export.name",
-      //   "export.gate",
-      //   "export.fcl",
-      //   "export.contNum",
-      //   "export.contSize",
-      //   "export.vehicle",
-      //   "export.seal",
-      //   "export.customer",
-      //   "export.status",
-      // ])
       .getMany();
 
     return packingLists;
   }
 
   static async getPackingListsByExportCustomer(customer: string, fromDate: Date, toDate: Date) {
-    debugger;
+
     const packingLists = await PackingListEntity.createQueryBuilder(
       "pkl"
     )
@@ -327,34 +243,6 @@ export class PackingListEntity extends BaseRepository {
         toDate,
       })
       .andWhere("e.customer = :customer", { customer })
-      // .groupBy("packingList.id")
-      // .addGroupBy("export.id") // Add this line if you want to include export details
-      // .addSelect([
-      //   "packingList.createAt",
-      //   "packingList.updateAt",
-      //   "packingList.name",
-      //   "packingList.attachedInvoiceId",
-      //   "packingList.date",
-      //   "packingList.from",
-      //   "packingList.to",
-      //   "packingList.etdFactory",
-      //   "packingList.etdPort",
-      //   "packingList.eta",
-      //   "packingList.status",
-      //   "packingList.weighStatus",
-      //   "packingList.weighKey",
-      // ])
-      // .addSelect([
-      //   "export.name",
-      //   "export.gate",
-      //   "export.fcl",
-      //   "export.contNum",
-      //   "export.contSize",
-      //   "export.vehicle",
-      //   "export.seal",
-      //   "export.customer",
-      //   "export.status",
-      // ])
       .getMany();
 
     return packingLists;

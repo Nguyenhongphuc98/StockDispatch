@@ -116,7 +116,7 @@ export class PackingListItemEntity extends BaseRepository {
   toModel() {
     return {
       ...this,
-      packageSeries: [this.startSeries(), this.endSeries()],
+      packageSeries: this.getPackageSeries(),
     };
   }
 
@@ -128,6 +128,10 @@ export class PackingListItemEntity extends BaseRepository {
   endSeries() {
     const parsedSeries = this.packageSeries.split("-");
     return Number(parsedSeries[1]);
+  }
+
+  getPackageSeries() {
+    return [this.startSeries(), this.endSeries()]
   }
 
   static async getPackingListItemsByPage(

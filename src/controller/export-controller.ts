@@ -1,4 +1,4 @@
-import { In } from "typeorm";
+import { Between, In } from "typeorm";
 import exportManager from "../manager/export-manager";
 import Logger from "../loger";
 import { ExportEntity, ExportModel, ExportStatus } from "../persistense/export";
@@ -317,6 +317,120 @@ class ExportController {
 
     Logger.log(TAG, "countExportedItems", totalCount);
     return totalCount;
+  }
+
+  async reportExportSumaryByDate(fromDate: Date, toDate: Date) {
+    // const results = await ExportEntity.createQueryBuilder("export")
+    //   .leftJoinAndSelect("export.items", "pkl")
+    //   .leftJoin("pkl.items", "pkli")
+    //   .where("export.createAt BETWEEN :fromDate AND :toDate", {
+    //     fromDate,
+    //     toDate,
+    //   })
+    //   .addSelect(
+    //     `SUM(
+    //   (
+    //     CAST(SUBSTR(pkli.packageSeries, 0, INSTR(pkli.packageSeries, '-') - 1) AS INTEGER) -
+    //     CAST(SUBSTR(pkli.packageSeries, INSTR(pkli.packageSeries, '-') + 1) AS INTEGER) + 1
+    //   )
+    // ) AS CTNS`
+    //   )
+    //   .addSelect(
+    //     `SUM(
+    //   (
+    //     CAST(SUBSTR(pkli.packageSeries, 0, INSTR(pkli.packageSeries, '-') - 1) AS INTEGER) -
+    //     CAST(SUBSTR(pkli.packageSeries, INSTR(pkli.packageSeries, '-') + 1) AS INTEGER) + 1
+    //   ) * pkli.itemsInPackage
+    // ) AS PCS`
+    //   )
+    //   .addSelect(
+    //     `SUM(
+    //   (pkli.width * pkli.height * pkli.length)
+    // ) AS CBM`
+    //   )
+    //   .groupBy("export.id")
+    //   .getRawMany();
+
+    const exports = await ExportEntity.find({
+      where: {
+        createAt: Between(fromDate, toDate),
+      },
+      relations: ["items", "items.items"]
+    });
+
+    for (let i = 0; i < exports.length; i++) {
+      const exportData = exports[i] as any;
+
+      let CTNS = 0;
+      let PCS = 0;
+      let CBM = 0;
+
+      exportData.items.forEach(pkl => {
+        pkl.items.forEach(pkli => {
+          const [start, end] = pkli.getPackageSeries();
+          const ctns = (end - start + 1);
+
+          CTNS += ctns;
+          PCS += ctns * pkli.itemsInPackage;
+          CBM += ctns * pkli.width * pkli.height * pkli.length;
+        });
+
+        delete pkl.items;
+      });
+
+      exportData.CTNS = CTNS;
+      exportData.PCS = PCS;
+      exportData.CBM = CBM;
+
+      if (exportData.items.length) {
+        exportData.inv = exportData.items[0].attachedInvoiceId;
+      }
+
+      delete exportData.items;
+    }
+    return exports;
+  }
+
+  async reportExportSumaryByCustomer(customer: string, fromDate: Date, toDate: Date) {
+    const exports = await ExportEntity.find({
+      where: {
+        createAt: Between(fromDate, toDate),
+        customer: customer
+      },
+      relations: ["items", "items.items"]
+    });
+
+    for (let i = 0; i < exports.length; i++) {
+      const exportData = exports[i] as any;
+
+      let CTNS = 0;
+      let PCS = 0;
+      let CBM = 0;
+
+      exportData.items.forEach(pkl => {
+        pkl.items.forEach(pkli => {
+          const [start, end] = pkli.getPackageSeries();
+          const ctns = (end - start + 1);
+
+          CTNS += ctns;
+          PCS += ctns * pkli.itemsInPackage;
+          CBM += ctns * pkli.width * pkli.height * pkli.length;
+        });
+
+        delete pkl.items;
+      });
+
+      exportData.CTNS = CTNS;
+      exportData.PCS = PCS;
+      exportData.CBM = CBM;
+
+      if (exportData.items.length) {
+        exportData.inv = exportData.items[0].attachedInvoiceId;
+      }
+
+      delete exportData.items;
+    }
+    return exports;
   }
 }
 

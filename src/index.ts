@@ -119,6 +119,7 @@ process.on("unhandledRejection", (reason, promise) => {
 // find / -name "main.db"
 // /var/lib/docker/volumes/stockdispatch_database/_data/
 // main.db
+// /var/lib/docker/volumes/stockdispatch_logs/_data
 
 // sudo apt-get install sqlite3
 //  sqlite3 main.db\
