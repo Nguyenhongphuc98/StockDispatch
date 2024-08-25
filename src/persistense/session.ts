@@ -20,14 +20,12 @@ import { PackingListItemEntity } from "./packling-list-item";
 
 @Entity("Session")
 export class SessionEntity extends BaseRepository {
-  @PrimaryGeneratedColumn()
-  id: string;
+
+  @PrimaryColumn()
+  sessionId: string;
 
   @Column()
   uid: string;
-
-  @Column()
-  sessionId: string;
 
   @Column()
   key: string;

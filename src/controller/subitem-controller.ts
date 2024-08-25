@@ -12,7 +12,7 @@ const TAG = "[SIC]";
 const DEFAULT_WEIGH = 0;
 
 export class SubItemController {
-  buildWeighItems(max: number, pklId: string, pklItem: PackingListItemEntity) {
+  buildSubItems(max: number, pklId: string, pklItem: PackingListItemEntity) {
     const results: SubItemEntity[] = [];
     const start = pklItem.startSeries();
     const end = pklItem.endSeries();
@@ -108,14 +108,14 @@ export class SubItemController {
     await queryRunner.startTransaction();
 
     try {
-      const WLIentities = pklItems
+      const SubItemEntities = pklItems
         .map((item) => {
-          const maxBoxes = bunddleSettings.boxesAmount(item.packageId);
-          return this.buildWeighItems(maxBoxes, pklId, item);
+          const maxBoxes = bunddleSettings.boxesAmount(item.po);
+          return this.buildSubItems(maxBoxes, pklId, item);
         })
         .flat();
 
-      await queryRunner.manager.save(SubItemEntity, WLIentities);
+      await queryRunner.manager.save(SubItemEntity, SubItemEntities);
       await queryRunner.commitTransaction();
     } catch (error) {
       Logger.error(
