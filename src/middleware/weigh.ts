@@ -12,28 +12,10 @@ export async function startWeigh(req: JsonRequest, res: any, next: any) {
     const user = req.user;
   
     //@ts-ignore
-    const pkl = req.query.pkl;
-    Logger.log(TAG, "create weigh", sessionId, user.username, pkl);
-  
-    // const pklEntity = await PackingListEntity.findOneBy({ id: pkl });
-  
-    // if (!pklEntity) {
-    //   res.send(new ResourceNotFoundResponse(sessionId, { pkl }));
-    //   return;
-    // }
-  
-    // try {
-    //   pklEntity.weighStatus = WeighStatus.Weighting;
-    //   await pklEntity.save();
-  
-    //   res.send(new SuccessResponse(sessionId, pklEntity));
-    //   return;
-    // } catch (error) {
-    //   res.send(new ErrorResponse(sessionId));
-    //   return;
-    // }
+    const pklid = req.rawBody.pklid;
+    Logger.log(TAG, "create weigh", sessionId, user.username, pklid);
 
-    const result = await weighController.startWeighSession(pkl);
+    const result = await weighController.startWeighSession(pklid);
     commonResponseHandler(sessionId, result, req, res, next);
   }
   
@@ -42,10 +24,10 @@ export async function startWeigh(req: JsonRequest, res: any, next: any) {
     const user = req.user;
   
     //@ts-ignore
-    const pkl = req.query.pkl;
-    Logger.log(TAG, "end weigh", sessionId, user.username, pkl);
+    const pklid = req.rawBody.pklid;
+    Logger.log(TAG, "end weigh", sessionId, user.username, pklid);
 
-    const result = await weighController.endWeighSession(pkl);
+    const result = await weighController.endWeighSession(pklid);
     commonResponseHandler(sessionId, result, req, res, next);
   }
 
