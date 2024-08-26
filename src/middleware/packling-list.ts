@@ -67,15 +67,8 @@ export async function getPackinglist(req: JsonRequest, res: any, next: any) {
 }
 
 export async function getPackinglists(req: JsonRequest, res: any, next: any) {
-  const { sessionId } = commonParams(req);
+  const { sessionId, kw, ts, wstt } = commonParams(req);
   const user = req.user;
-
-  //@ts-ignore
-  const kw = req.query.kw;
-  //@ts-ignore
-  const ts = req.query.ts;
-  //@ts-ignore
-  const wstt = req.query.wstt;
 
   Logger.log(TAG, "get pkls", sessionId, user.username, kw, ts, wstt);
 

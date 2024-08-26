@@ -14,7 +14,7 @@ import Logger from "../loger";
 import { JsonRequest } from "../utils/type";
 import { PackingListEntity, PackingListModel } from "../persistense/packing-list";
 import { FindOptionsWhere, LessThanOrEqual, Like } from "typeorm";
-import { MAX_ITEMS_PER_PAGE } from "../config";
+import { MAX_MED_ITEMS_PER_PAGE } from "../config";
 import {
   PackingListItemEntity,
   PackingListItemModel,
@@ -69,19 +69,15 @@ export async function createProducts(
 }
 
 export async function getProducts(req: JsonRequest, res: any, next: any) {
-  const { sessionId } = commonParams(req);
+  const { sessionId, page, pack, po } = commonParams(req);
   const user = req.user;
-  //@ts-ignore
-  const kw = req.query.kw;
-  //@ts-ignore
-  const page = req.query.page || 1;
 
   //@ts-ignore
   const pkl = req.query.pkl;
 
-  Logger.log(TAG, "get products", sessionId, user.username, pkl, kw, page);
+  Logger.log(TAG, "get products", sessionId, user.username, pkl, page, pack, po);
 
-  const data = await PackingListItemEntity.getPackingListItemsByPage(page, MAX_ITEMS_PER_PAGE, kw, pkl);
+  const data = await PackingListItemEntity.getPackingListItemsByPage(page, MAX_MED_ITEMS_PER_PAGE, pkl, pack, po);
 
   Logger.log(TAG, "get products success", sessionId, user.username, data.pklItems.map(v => v.id));
   res.send(

@@ -131,26 +131,34 @@ export class PackingListItemEntity extends BaseRepository {
   }
 
   getPackageSeries() {
-    return [this.startSeries(), this.endSeries()]
+    return [this.startSeries(), this.endSeries()];
   }
 
   static async getPackingListItemsByPage(
     page: number,
     pageSize: number,
-    packageIdPattern: string,
-    packingListId: string
+    packingListId: string,
+    packageId: string,
+    po: string
   ) {
-    let queryBuilder = await PackingListItemEntity.createQueryBuilder("item")
-      .where("item.packingListId = :packingListId", { packingListId })
-      .skip((page - 1) * pageSize)
-      .take(pageSize);
+    let queryBuilder = PackingListItemEntity.createQueryBuilder("item").where(
+      "item.packingListId = :packingListId",
+      { packingListId }
+    );
 
-    if (packageIdPattern) {
-      queryBuilder = queryBuilder.andWhere(
-        "item.packageId LIKE :packageIdPattern",
-        { packageIdPattern: `%${packageIdPattern}%` }
-      );
+    if (packageId) {
+      queryBuilder.andWhere({
+        packageId,
+      });
     }
+
+    if (po) {
+      queryBuilder.andWhere({
+        po,
+      });
+    }
+
+    queryBuilder.skip((page - 1) * pageSize).take(pageSize);
 
     // Execute the query to get items and total count
     const [pklItems, totalCount] = await queryBuilder.getManyAndCount();

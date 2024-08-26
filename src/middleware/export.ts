@@ -69,13 +69,8 @@ export async function getExport(req: JsonRequest, res: any, next: any) {
 }
 
 export async function getExports(req: JsonRequest, res: any, next: any) {
-  const { sessionId } = commonParams(req);
+  const { sessionId, kw, ts } = commonParams(req);
   const user = req.user;
-
-  //@ts-ignore
-  const kw = req.query.kw;
-  //@ts-ignore
-  const ts = req.query.ts;
 
   //@ts-ignore
   const status = req.query.stt;

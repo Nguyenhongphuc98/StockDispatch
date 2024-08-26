@@ -182,7 +182,7 @@ export class PackingListEntity extends BaseRepository {
     const packingLists = await PackingListEntity.createQueryBuilder(
       "pkl"
     )
-      .leftJoinAndSelect("pkl.items", "item")
+      .leftJoin("pkl.items", "item")
       .leftJoinAndSelect("pkl.export", "e")
       .where("item.po = :po", { po })
       .andWhere("e.createAt BETWEEN :fromDate AND :toDate", {
@@ -202,7 +202,7 @@ export class PackingListEntity extends BaseRepository {
     const packingLists = await PackingListEntity.createQueryBuilder(
       "pkl"
     )
-      .leftJoinAndSelect("pkl.items", "item")
+      .leftJoin("pkl.items", "item")
       .leftJoinAndSelect("pkl.export", "e")
       .where("item.packageId = :packageId", { packageId })
       .andWhere("e.createAt BETWEEN :fromDate AND :toDate", {
@@ -219,7 +219,7 @@ export class PackingListEntity extends BaseRepository {
       "pkl"
     )
       .innerJoin("pkl.export", "export")
-      .leftJoinAndSelect("pkl.items", "item")
+      // .leftJoin("pkl.items", "item")
       .leftJoinAndSelect("pkl.export", "e")
       .where("e.createAt BETWEEN :fromDate AND :toDate", {
         fromDate,
@@ -236,7 +236,7 @@ export class PackingListEntity extends BaseRepository {
       "pkl"
     )
       .innerJoin("pkl.export", "export")
-      .leftJoinAndSelect("pkl.items", "item")
+      // .leftJoin("pkl.items", "item")
       .leftJoinAndSelect("pkl.export", "e")
       .where("e.createAt BETWEEN :fromDate AND :toDate", {
         fromDate,
