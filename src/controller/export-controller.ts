@@ -96,7 +96,10 @@ class ExportController {
   }
 
   async endExportSession(eid: string) {
-    const exportItem = await ExportEntity.findOneBy({ id: eid });
+    const exportItem = await ExportEntity.findOne({
+      where: { id: eid },
+      relations: ['items'],
+    });
 
     if (!exportItem) {
       Logger.log(TAG, "Call end export not exists export item", eid);
@@ -125,7 +128,7 @@ class ExportController {
       }
 
       Logger.log(TAG, "end export success", eid, exportItem.items.map(pkl => pkl.id));
-      
+
       const result: DataResult = {
         error_code: ErrorCode.Success,
         data: exportItem,
