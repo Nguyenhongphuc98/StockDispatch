@@ -267,7 +267,7 @@ class WeighController {
     const data = {
       status: ScannedItemStatus.Success,
       sessionId: pklId,
-      info: {},
+      info: subItem,
     };
     const result: DataResult<string> = {
       error_code: ErrorCode.Success,
