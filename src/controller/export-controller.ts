@@ -118,7 +118,14 @@ class ExportController {
 
     if (success) {
       exportManager.endSession(exportItem.id);
-      Logger.log(TAG, "end export success", eid);
+      for (let i = 0; i < exportItem.items.length; i++) {
+        const pkl = exportItem.items[i];
+        pkl.status = PKLStatus.Exported;
+        await pkl.save();
+      }
+
+      Logger.log(TAG, "end export success", eid, exportItem.items.map(pkl => pkl.id));
+      
       const result: DataResult = {
         error_code: ErrorCode.Success,
         data: exportItem,
