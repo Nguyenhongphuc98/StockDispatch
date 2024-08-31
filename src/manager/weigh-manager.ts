@@ -55,15 +55,6 @@ class WeighManager {
 
     return "";
   }
-
-  getPackinglistIds(eid: string) {
-    const exportSession = this.weighting.get(eid.toString());
-    if (exportSession) {
-      return exportSession.items.map((v) => v.id.toString());
-    }
-
-    return [];
-  }
 }
 
 const weighManager = new WeighManager();

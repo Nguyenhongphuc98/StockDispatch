@@ -34,6 +34,9 @@ class WeighController {
     await packinglistController.markPklAsWeighting(pklId);
 
     Logger.log(TAG, "startWeighSession success", pklId);
+
+    weighManager.startSession(packinglist);
+
     const result: DataResult<PackingListEntity> = {
       error_code: ErrorCode.Success,
       data: packinglist,
@@ -61,6 +64,9 @@ class WeighController {
     await packinglistController.markPklAsWeighFinished(pklId);
 
     Logger.log(TAG, "endWeighSession success", pklId);
+
+    weighManager.endSession(packinglist.id);
+
     const result: DataResult<PackingListEntity> = {
       error_code: ErrorCode.Success,
       data: packinglist,
@@ -200,11 +206,27 @@ class WeighController {
     const weighKey = weighManager.getKey(pklId);
     const { subId, weigh } = aeswrapper.decryptUseKey(weighKey, cipherData);
 
+    if (!subId) {
+      const data = {
+        status: ScannedItemStatus.ItemNotFound,
+        sessionId: pklId,
+        info: {},
+      };
+
+      const result: DataResult<string> = {
+        error_code: ErrorCode.ResourceNotFound,
+        message: "Invalid subId: " + subId,
+        data: aeswrapper.encryptUseKey<ScannedItemData>(weighKey, data),
+      };
+
+      return result;
+    }
+
     const subItem = await SubItemEntity.findOne({
       where: { id: subId },
     });
 
-    if (!subItem || subId) {
+    if (!subItem) {
       const data = {
         status: ScannedItemStatus.ItemNotFound,
         sessionId: pklId,
