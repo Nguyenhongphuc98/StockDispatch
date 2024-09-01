@@ -69,10 +69,10 @@ export class PackingListItemEntity extends BaseRepository {
   @Column()
   itemsUnit: string;
 
-  @Column()
+  @Column({ type: 'float' })
   netWeight: number;
 
-  @Column()
+  @Column({ type: 'float' })
   grossWeight: number;
 
   @Column()
@@ -81,13 +81,13 @@ export class PackingListItemEntity extends BaseRepository {
   @Column()
   grossWeightUnit: string;
 
-  @Column()
+  @Column({ type: 'float' })
   width: number;
 
-  @Column()
+  @Column({ type: 'float' })
   length: number;
 
-  @Column()
+  @Column({ type: 'float' })
   height: number;
 
   @Column()

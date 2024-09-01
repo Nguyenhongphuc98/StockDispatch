@@ -46,7 +46,7 @@ export class SubItemEntity extends BaseRepository {
   @Column()
   packageSeries: string;
 
-  @Column()
+  @Column({ type: 'float' })
   grossWeight: number;
 
   @Column({nullable: true})
