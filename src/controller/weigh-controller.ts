@@ -59,7 +59,7 @@ class WeighController {
       return result;
     }
 
-    await pklItemController.updatePackingListItemGrossWeight(Number(pklId));
+    await pklItemController.updatePackingListItemGrossWeight(pklId);
 
     await packinglistController.markPklAsWeighFinished(pklId);
 
