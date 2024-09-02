@@ -6,7 +6,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const fs = require("fs");
 const marked = require("marked");
-
+const path = require('path');
 const http = require("http");
 import { Request, Response } from "express";
 
@@ -87,6 +87,12 @@ scan(app);
 //     res.send(marked.parse(data.toString()));
 //   });
 // });
+
+
+app.use(express.static(path.join(__dirname, 'public')));
+app.get("/", function (req, res) {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 start(server);
 
