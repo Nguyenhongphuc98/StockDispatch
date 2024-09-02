@@ -44,6 +44,7 @@ export class ExportEntity extends BaseRepository {
   id: string;
 
   @CreateDateColumn()
+  @Index("IDX_E_CA")
   createAt: Date;
 
   @UpdateDateColumn()

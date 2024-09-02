@@ -39,6 +39,7 @@ export class PackingListItemEntity extends BaseRepository {
   id: string;
 
   @CreateDateColumn()
+  @Index("IDX_PKLI_CA")
   createAt: Date;
 
   @UpdateDateColumn()
