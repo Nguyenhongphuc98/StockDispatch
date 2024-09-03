@@ -39,7 +39,7 @@ export async function login(req: any, res: any, next: any) {
 
   const user = await UserEntity.findOneBy({ username: auth.username });
 
-  if (!user) {
+  if (!user || !user.isActive) {
     respInvalid(res, sessionId);
   } else {
     const hashed = await buildHashedData(auth.password, user.salt);
