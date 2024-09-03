@@ -189,7 +189,7 @@ export async function adminUpdate(req: JsonRequest, res: Response, next: any) {
     case "lock": {
       user.isActive = false;
       await user.save();
-      AppSession.destroySession(sessionId);
+      AppSession.destroyUserSession(user.id);
       Logger.log(TAG, "Lock user", user.username);
       res.send(new SuccessResponse(sessionId));
       break;

@@ -193,6 +193,24 @@ class Session {
     }
   }
 
+  async destroyUserSession(userId: string) {
+    Logger.error(this.tag, "Destroy user sess:", userId);
+    const sessionId = Array.from(this.sessionMap.keys()).find(sessionId =>this.sessionMap.get(sessionId).id == userId);
+
+    if (sessionId) {
+      this.sessionMap.delete(sessionId);
+
+      aeswrapper.removeSession(sessionId);
+      socketMamanger.destroySocketSessionBySessiontId(sessionId);
+  
+      const sessions = await SessionEntity.findBy({sessionId: sessionId});
+  
+      if (sessions) {
+        await SessionEntity.remove(sessions);
+      }
+    }
+  }
+
 }
 
 const AppSession = new Session();
