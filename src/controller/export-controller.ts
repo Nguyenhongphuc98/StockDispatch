@@ -144,6 +144,40 @@ class ExportController {
     }
   }
 
+  async deleteExport(eid: string) {
+    const exportItem = await ExportEntity.findOne({
+      where: { id: eid },
+      relations: ['items'],
+    });
+
+    if (!exportItem) {
+      Logger.log(TAG, "Call delete export not exists export item", eid);
+      const result: DataResult = {
+        error_code: ErrorCode.ResourceNotFound,
+        data: {},
+      };
+      return result;
+    }
+
+    exportManager.endSession(exportItem.id);
+
+    for (let i = 0; i < exportItem.items.length; i++) {
+      const pkl = exportItem.items[i];
+      pkl.export = null;
+      await pkl.save();
+    }
+
+    await ExportEntity.delete(exportItem.id);
+
+    Logger.log(TAG, "delete export success", eid, exportItem.items.map(pkl => pkl.id));
+
+    const result: DataResult = {
+      error_code: ErrorCode.Success,
+      data: exportItem,
+    };
+    return result;
+  }
+
   async exportItem(exportId: string, cipherData: any) {
     const exportKey = exportManager.getKey(exportId);
     const { subId } = aeswrapper.decryptUseKey(exportKey, cipherData);

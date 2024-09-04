@@ -110,6 +110,11 @@ export async function exportModify(req: JsonRequest, res: Response, next: any) {
       commonResponseHandler(sessionId, result, req, res, next);
       break;
     }
+    case "delete": {
+      const result = await exportController.deleteExport(eid);
+      commonResponseHandler(sessionId, result, req, res, next);
+      break;
+    }
 
     default:
       res.status(403).send(new InvalidPayloadResponse(sessionId));
