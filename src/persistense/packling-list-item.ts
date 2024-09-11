@@ -56,6 +56,7 @@ export class PackingListItemEntity extends BaseRepository {
   packageSeries: string;
 
   @Column()
+  @Index("IDX_PKLI_PO")
   po: string;
 
   @Column({ nullable: true })

@@ -58,7 +58,7 @@ export class PackingListEntity extends BaseRepository {
   createdBy: UserEntity;
 
   @Column()
-  @Index("IDX_PKL_NAME")
+  // @Index("IDX_PKL_NAME")
   name: string;
 
   @Column()
