@@ -76,6 +76,7 @@ export class ExportEntity extends BaseRepository {
   seal: string;
 
   @Index("IDX_E_CTM")
+  @Column()
   customer: string;
 
   @Column()
