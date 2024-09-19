@@ -4,6 +4,7 @@ import { PackingListItemEntity } from "../persistense/packling-list-item";
 const TAG = "[PKLIC]";
 
 type AVGResult = { packingListItemId: string; avgGrossWeight: number };
+type TotalResult = { packingListItemId: string; totalGrossWeight: number };
 
 export class PKLItemController {
   async updatePackingListItemGrossWeight(packingListId: string) {
@@ -31,32 +32,27 @@ export class PKLItemController {
       relations: ["subitems"]
     });
 
-    const avgResults: AVGResult[] = pklItems.map(v => {
-      let totalBoxes = 0;
+    const totalResults: TotalResult[] = pklItems.map(v => {
       let totalWeight = 0;
       v.subitems.forEach(sit => {
-        const [start, end] = sit.packageSeries.split("-");
-        const boxesCount = Number(end) - Number(start) + 1;
-
-        totalBoxes+= boxesCount;
-        totalWeight += (boxesCount * sit.grossWeight);
+        totalWeight += sit.grossWeight;
       });
 
       return {
         packingListItemId: v.id,
-        avgGrossWeight: totalWeight / totalBoxes,
+        totalGrossWeight: totalWeight,
       }
     })
-    const loginfos = avgResults.map(
-      (v) => `id: ${v.packingListItemId} value: ${v.avgGrossWeight}`
+    const loginfos = totalResults.map(
+      (v) => `id: ${v.packingListItemId} value: ${v.totalGrossWeight}`
     );
 
-    Logger.log(TAG, "do update avg for", packingListId, avgResults, loginfos);
+    Logger.log(TAG, "do update total for", packingListId, totalResults, loginfos);
 
-    for (let i = 0; i < avgResults.length; i++) {
-      const { packingListItemId, avgGrossWeight } = avgResults[i];
+    for (let i = 0; i < totalResults.length; i++) {
+      const { packingListItemId, totalGrossWeight } = totalResults[i];
       await PackingListItemEntity.update(packingListItemId, {
-        grossWeight: avgGrossWeight,
+        grossWeight: totalGrossWeight,
       });
     }
   }
