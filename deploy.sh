@@ -1,4 +1,4 @@
-git pull https://nguyenhongphuc98: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@github.com/Nguyenhongphuc98/StockDispatch.git
+git pull https://nguyenhongphuc98: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@github.com/Nguyenhongphuc98/StockDispatch.git
 docker-compose down
 docker stop $(docker ps -aq)
 docker rm $(docker ps -aq)
