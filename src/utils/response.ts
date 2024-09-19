@@ -76,7 +76,7 @@ export class NotEncryptSuccessResponse {
     error_code = ErrorCode.Success;
 
     constructor(readonly data: Record<string, any> = {}) {
-        Logger.error("[Resp]", this.message, data);
+        Logger.log("[Resp]", this.message, data);
     }
 }
 

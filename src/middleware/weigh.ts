@@ -64,3 +64,18 @@ export async function startWeigh(req: JsonRequest, res: any, next: any) {
     const result = await weighController.getWeighFullInfo(pklid);
     commonResponseHandler(sessionId, result, req, res, next);
   }
+
+  // PC only
+  export async function updateWeigh(req: JsonRequest, res: any, next: any) {
+    const { sessionId } = commonParams(req);
+    const user = req.user;
+  
+    const { pklid } = req.params;
+    const sid = req.rawBody.sid;
+    const weigh = req.rawBody.weigh;
+    Logger.log(TAG, "updateWeigh", sessionId, user.username, pklid, sid, weigh);
+
+
+    const result = await weighController.updateFullWeighInfo(pklid, sid, weigh);
+    commonResponseHandler(sessionId, result, req, res, next);
+  }

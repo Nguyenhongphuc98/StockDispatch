@@ -12,10 +12,12 @@ import { ScannedItemData, ScannedItemStatus } from "../scanner/type";
 import weighManager from "../manager/weigh-manager";
 import packinglistController from "./packinglist-controller";
 import pklItemController from "./pkl-item-controller";
+import { PackingListItemEntity } from "../persistense/packling-list-item";
 
 const TAG = "[WC]";
 
 class WeighController {
+  // PC==============================
   async startWeighSession(pklId: string) {
     const packinglist = await PackingListEntity.findOneBy({ id: pklId });
 
@@ -74,8 +76,62 @@ class WeighController {
     return result;
   }
 
-  async getWeighItemInfo(pklId: string, cipherData: any) {
+  async updateFullWeighInfo(pklId: string, subId: string, weigh: number) {
+    const subItem = await SubItemEntity.findOne({
+      where: { id: subId },
+      relations: ["packingListItem"],
+    });
 
+    if (!subItem) {
+      Logger.log(TAG, "updateFullWeighInfo not found", pklId, subId);
+      return;
+    }
+
+    subItem.grossWeight = weigh;
+    await subItemController.updateItemWeigh(subId, weigh);
+
+    if (subItem.packingListItem.grossWeight) {
+      const pklItem = await PackingListItemEntity.findOne({
+        where: {
+          id: subItem.packingListItem.id,
+        },
+        relations: ["subitems"]
+      });
+
+      let totalWeigh = 0;
+      pklItem.subitems.forEach(sit => {
+        totalWeigh+=sit.grossWeight;
+      });
+
+      pklItem.grossWeight = totalWeigh;
+      await pklItem.save();
+
+      //@ts-ignore
+      pklItem.subitems = [pklItem.subitems.map(v => v.id)];
+      subItem.packingListItem = pklItem;
+      Logger.log(TAG, "updateFullWeighInfo => update item weigh", pklId, subId, totalWeigh);
+    }
+
+    const data = {
+      status: ScannedItemStatus.Success,
+      sessionId: pklId,
+      info: subItem,
+    };
+
+    socketMamanger.broasdcast("weigh", data);
+
+    Logger.log(TAG, "weigh full item success", pklId, subId, weigh);
+
+    const result: DataResult<ScannedItemData> = {
+      error_code: ErrorCode.Success,
+      data: data,
+    };
+
+    return result;
+  }
+
+  // Mobile==============================
+  async getWeighItemInfo(pklId: string, cipherData: any) {
     if (!weighManager.doesSessionExists(pklId)) {
       const result: DataResult<ScannedItemData> = {
         error_code: ErrorCode.SessionNotFound,
@@ -275,7 +331,7 @@ class WeighController {
       data: aeswrapper.encryptUseKey<ScannedItemData>(weighKey, data),
     };
 
-    socketMamanger.broasdcast('weigh', data);
+    socketMamanger.broasdcast("weigh", data);
 
     Logger.log(TAG, "weigh item success", pklId, subId);
     return result;
