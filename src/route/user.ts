@@ -6,8 +6,8 @@ import { validateRequest } from "../secure/request-manager";
 import { withErrorHandling } from "../utils/safe";
 
 export function user(app: any) {
-    app.post('/api/v1/user', restrict, authorizeModifyAccount, decryptBody, withErrorHandling(createAccount));
-    app.put('/api/v1/user/:id', restrict, authorizeModifyAccount, decryptBody, withErrorHandling(updateAccount));
+    app.post('/api/v1/user', restrict, authorizeModifyAccount, decryptBody, validateRequest, withErrorHandling(createAccount));
+    app.put('/api/v1/user/:id', restrict, authorizeModifyAccount, decryptBody, validateRequest, withErrorHandling(updateAccount));
     app.get('/api/v1/user', restrict, authorizeModifyAccount, withErrorHandling(listAccounts));
     app.post('/api/v1/admin', restrict, authorizeAdmin, decryptBody, validateRequest, withErrorHandling(adminUpdate));
 }
