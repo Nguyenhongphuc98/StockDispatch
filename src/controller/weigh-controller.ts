@@ -90,7 +90,7 @@ class WeighController {
     subItem.grossWeight = weigh;
     await subItemController.updateItemWeigh(subId, weigh);
 
-    if (subItem.packingListItem.grossWeight) {
+    // if (subItem.packingListItem.grossWeight) {
       const pklItem = await PackingListItemEntity.findOne({
         where: {
           id: subItem.packingListItem.id,
@@ -110,7 +110,7 @@ class WeighController {
       pklItem.subitems = [pklItem.subitems.map(v => v.id)];
       subItem.packingListItem = pklItem;
       Logger.log(TAG, "updateFullWeighInfo => update item weigh", pklId, subId, totalWeigh);
-    }
+    // }
 
     const data = {
       status: ScannedItemStatus.Success,
