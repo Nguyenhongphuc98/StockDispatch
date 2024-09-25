@@ -340,6 +340,7 @@ class ExportController {
       exportItem.totalVolume = await packinglistController.getTotalVolume(
         pklIds
       );
+      exportItem.exportedVolume = await this.countExportedVolume(exportItem);
     }
 
     Logger.log(TAG, "getByIdWithFullData", exportItem?.id);
@@ -361,6 +362,14 @@ class ExportController {
 
     Logger.log(TAG, "countExportedItems", totalCount);
     return totalCount;
+  }
+
+  async countExportedVolume(exportItem: ExportEntity) {
+    const pklIds = exportItem.items.map((i) => i.id);
+    const exportedVolume = await subItemController.totalExportedVolume(pklIds);
+
+    Logger.log(TAG, "countExportedVolume", exportedVolume);
+    return exportedVolume;
   }
 
   async reportExportSumaryByDate(fromDate: Date, toDate: Date) {

@@ -64,6 +64,28 @@ export class SubItemController {
     });
   }
 
+  async totalExportedVolume(pklIds: string[]) {
+    const totalVolume = await SubItemEntity.createQueryBuilder("subItem")
+      .innerJoin(
+        "subItem.packingListItem",
+        "pkli",
+        "subItem.packingListItemId = pkli.id"
+      )
+      .where("subItem.exportTime IS NOT NULL")
+      .andWhere("subItem.pklId IN (:...pklIds)", { pklIds })
+      .select(
+        `SUM(pkli.width * pkli.length * pkli.height * (
+          CAST(SUBSTR(subItem.packageSeries, INSTR(subItem.packageSeries, '-') + 1) AS INTEGER) -
+          CAST(SUBSTR(subItem.packageSeries, 1, INSTR(subItem.packageSeries, '-') - 1) AS INTEGER) + 1
+        )) `,
+        "totalVolume"
+      )
+      .getRawOne();
+      // console.log('aaa', totalVolume);
+
+    return totalVolume.totalVolume || 0;
+  }
+
   async createSubItemsIfNotExists(pkl: string) {
     const created = await this.anyItem(pkl);
     if (!created) {
@@ -153,8 +175,12 @@ export class SubItemController {
       .where("subItem.pklId = :pklId", { pklId })
       .getMany();
 
-      Logger.log(TAG, "getSubitemsOfPkl", subItems.map(v => v.id));
-      return subItems;
+    Logger.log(
+      TAG,
+      "getSubitemsOfPkl",
+      subItems.map((v) => v.id)
+    );
+    return subItems;
   }
 
   async markItemAsExported(sid: string) {
