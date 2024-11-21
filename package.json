@@ -5,7 +5,8 @@
   "main": "src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon -r ts-node/register .",
+    "start-dev1": "nodemon -r ts-node/register .",
+    "start": "node -r ts-node/register .",
     "start-dev": "nodemon --inspect -r ts-node/register ."
   },
   "author": "nguyenhongphuc98@gmail.com",
