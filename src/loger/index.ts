@@ -3,7 +3,7 @@ import fileLog from "./file";
 
 
 const EN_FILE = true;
-const EN_CONSOLE = false;
+const EN_CONSOLE = true;
 
 class Logger {
     constructor() {
