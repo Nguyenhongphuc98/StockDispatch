@@ -47,7 +47,7 @@ export class PKLItemController {
       (v) => `id: ${v.packingListItemId} value: ${v.totalGrossWeight}`
     );
 
-    Logger.log(TAG, "do update total for", packingListId, totalResults, loginfos);
+    Logger.log(TAG, "do update total for", packingListId);
 
     for (let i = 0; i < totalResults.length; i++) {
       const { packingListItemId, totalGrossWeight } = totalResults[i];

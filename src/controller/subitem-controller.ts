@@ -178,7 +178,7 @@ export class SubItemController {
     Logger.log(
       TAG,
       "getSubitemsOfPkl",
-      subItems.map((v) => v.id)
+      pklId
     );
     return subItems;
   }

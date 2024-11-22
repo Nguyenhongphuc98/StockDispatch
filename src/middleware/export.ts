@@ -84,7 +84,7 @@ export async function getExports(req: JsonRequest, res: any, next: any) {
     status
   );
 
-  Logger.log(TAG, "get exports success", sessionId, user.username, kw, ts, exports.map(v => v.id));
+  Logger.log(TAG, "get exports success", sessionId, user.username, kw, ts);
   res.send(
     new SuccessResponse(sessionId, {
       exports: exports,

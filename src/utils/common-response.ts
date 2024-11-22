@@ -45,6 +45,6 @@ export function rawResponseHandler(
   res: Response,
   next: any
 ) {
-  Logger.log('resp raw', result);
+  // Logger.log('resp raw', result);
   res.send(result);
 }

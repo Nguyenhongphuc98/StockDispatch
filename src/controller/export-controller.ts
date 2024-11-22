@@ -127,7 +127,7 @@ class ExportController {
         await pkl.save();
       }
 
-      Logger.log(TAG, "end export success", eid, exportItem.items.map(pkl => pkl.id));
+      Logger.log(TAG, "end export success", eid);
 
       const result: DataResult = {
         error_code: ErrorCode.Success,
@@ -169,7 +169,7 @@ class ExportController {
 
     await ExportEntity.delete(exportItem.id);
 
-    Logger.log(TAG, "delete export success", eid, exportItem.items.map(pkl => pkl.id));
+    Logger.log(TAG, "delete export success", eid);
 
     const result: DataResult = {
       error_code: ErrorCode.Success,

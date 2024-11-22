@@ -64,7 +64,7 @@ export async function createProducts(
     await toSaves[i].save();
   }
 
-  Logger.log(TAG, "create products success", products.map(v => v.packageSeries));
+  Logger.log(TAG, "create products success");
   res.send(new SuccessResponse(sessionId));
 }
 
@@ -79,7 +79,7 @@ export async function getProducts(req: JsonRequest, res: any, next: any) {
 
   const data = await PackingListItemEntity.getPackingListItemsByPage(page, MAX_MED_ITEMS_PER_PAGE, pkl, pack, po);
 
-  Logger.log(TAG, "get products success", sessionId, user.username, data.pklItems.map(v => v.id));
+  Logger.log(TAG, "get products success", sessionId, user.username);
   res.send(
     new SuccessResponse(sessionId, data)
   );

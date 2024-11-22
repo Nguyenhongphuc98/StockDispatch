@@ -132,11 +132,8 @@ process.on("unhandledRejection", (reason, promise) => {
 // .tables
 // DROP TABLE TableName;
 
-//TODO:
-// 1. wrap all middware with try catch logs.
-// 2. index all field have where.
-
 /**
- * 1|2024-08-13 15:27:02|2024-08-13 15:27:02|export 1|port1|fcl1|59B|big|cont1|seal1|phucnh7|1|bdUkivhyX3|2
-2|2024-08-13 16:51:52|2024-08-13 16:51:52|export 2|port2|fcl2|59B 2|big|cont2|seal2|phucnh8|1|BiuT2OaeSH|2
+ * scp -r root@171.244.62.87:/var/lib/docker/volumes/stockdispatch_logs/_data Downloads/
+ * ps aux --sort=-%mem | head -n 6
+ * free
  */

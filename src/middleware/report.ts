@@ -179,7 +179,7 @@ export async function getExportSumaryByDate(
     new Date(Number(toDate))
   );
 
-  Logger.log(TAG, "getExportSumaryByDate", sessionId, user.username, exports.map(v => v.id));
+  Logger.log(TAG, "getExportSumaryByDate", sessionId, user.username);
 
   return res.send(new SuccessResponse(sessionId, {exports}));
 }
@@ -205,7 +205,7 @@ export async function getExportSumaryByCustomer(
     new Date(Number(toDate))
   );
 
-  Logger.log(TAG, "getExportSumaryByCustomer", sessionId, user.username, exports.map(v => v.id));
+  Logger.log(TAG, "getExportSumaryByCustomer", sessionId, user.username);
 
   return res.send(new SuccessResponse(sessionId, {exports}));
 }

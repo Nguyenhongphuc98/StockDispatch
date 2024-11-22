@@ -92,12 +92,12 @@ export class NotEncryptSessionNotFoundResponse {
     error_code = ErrorCode.SessionNotFound;
 
     constructor(readonly data: Record<string, any> = {}) {
-        Logger.error("[Resp]", this.message, data);
+        Logger.error("[Resp]", this.message);
     }
 }
 
 export function defaultHandler(req: Request, res: Response) {
-    Logger.log("receive req: ", req.method, req.url, req.body)
+    Logger.log("receive req: ", req.method, req.url)
     res.send(new NotEncryptSuccessResponse({
         reqAt: systemTime.now(),
     }));
