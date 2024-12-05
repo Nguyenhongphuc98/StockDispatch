@@ -4,6 +4,7 @@ const origins = [
   "http://localhost:3000",
   "http://157.245.196.187:8081",
   "http://export-manager-web.vercel.app",
+  "https://export-manager-web.vercel.app",
 ];
 export const corsOptions = {
   origin: origins,
